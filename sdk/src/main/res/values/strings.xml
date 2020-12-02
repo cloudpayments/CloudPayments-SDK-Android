@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_options_title">Выберите способ оплаты</string>
+    <string name="text_options_card">Оплатить картой</string>
+
+    <string name="text_card_title">Введите данные карты</string>
+    <string name="text_card_hint_number">Номер карты</string>
+    <string name="text_card_hint_exp">ММ/ГГ</string>
+    <string name="text_card_hint_cvv">CVC</string>
+    <string name="text_card_hint_email">E-mail</string>
+    <string name="text_card_receipt">Получить квитанцию</string>
+    <string name="text_card_pay_button">Оплатить %s</string>
+
+    <string name="text_process_title">Оплата выполняется…</string>
+    <string name="text_process_title_success">Оплата завершена</string>
+    <string name="text_process_button_success">Отлично!</string>
+    <string name="text_process_title_error">Произошла ошибка!</string>
+    <string name="text_process_button_error">Повторить оплату</string>
+
+    <string name="currency_template">%.2f\u20BD</string>
+</resources>
