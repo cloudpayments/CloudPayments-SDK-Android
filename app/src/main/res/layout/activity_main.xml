@@ -71,7 +71,8 @@
             android:layout_weight="1"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            android:text="@string/main_email"/>
+            android:text="@string/main_email"
+            android:gravity="end"/>
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

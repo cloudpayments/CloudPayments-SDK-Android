@@ -24,7 +24,7 @@ import java.util.*
 class ThreeDsDialogFragment : DialogFragment() {
 	interface ThreeDSDialogListener {
 		fun onAuthorizationCompleted(md: String, paRes: String)
-		fun onAuthorizationFailed(error: String)
+		fun onAuthorizationFailed(error: String?)
 	}
 
 	companion object {
@@ -61,6 +61,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+		isCancelable = false
 
 		web_view.webViewClient = ThreeDsWebViewClient()
 		web_view.settings.domStorageEnabled = true
@@ -77,6 +78,11 @@ class ThreeDsDialogFragment : DialogFragment() {
 			web_view.postUrl(acsUrl, params.toByteArray())
 		} catch (e: UnsupportedEncodingException) {
 			e.printStackTrace()
+		}
+
+		ic_close.setOnClickListener {
+			listener?.onAuthorizationFailed(null)
+			dismiss()
 		}
 	}
 

@@ -341,8 +341,8 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 		post3ds(md, paRes)
 	}
 
-	override fun onAuthorizationFailed(html: String) {
-		showToast("AuthorizationFailed: $html")
+	override fun onAuthorizationFailed(error: String?) {
+		showToast("AuthorizationFailed: $error")
 	}
 
 

@@ -10,6 +10,7 @@ import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.dialog_payment_card.*
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.card.Card
+import ru.cloudpayments.sdk.card.CardType
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
 import ru.cloudpayments.sdk.util.emailIsValid
@@ -81,6 +82,8 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 				} else {
 					errorMode(cardNumber.length == 19, edit_card_number)
 				}
+
+				updatePaymentSystemIcon(cardNumber)
 			}
 		})
 
@@ -159,7 +162,12 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark))
 			editText.setBackgroundResource(R.drawable.edit_text_underline)
 		}
+	}
 
+	private fun updatePaymentSystemIcon(cardNumber: String){
+		val cardType = CardType.getType(cardNumber)
+		val psIcon = cardType.getIconRes()
+		ic_ps.setImageResource(psIcon ?: 0)
 	}
 
 	private fun isValid(): Boolean {

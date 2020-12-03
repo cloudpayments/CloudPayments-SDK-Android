@@ -5,6 +5,7 @@ import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import kotlinx.android.synthetic.main.dialog_payment_process.*
@@ -88,13 +89,13 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 				icon_status.startAnimation(rotate)
 
 				text_status.setText(R.string.text_process_title)
-				button_finish.isVisible = false
+				button_finish.isInvisible = true
 			}
 
 			PaymentProcessStatus.Succeeded, PaymentProcessStatus.Failed -> {
 				icon_status.clearAnimation()
 				icon_status.rotation = 0f
-				button_finish.isVisible = true
+				button_finish.isInvisible = false
 
 				val listener = requireActivity() as? IPaymentProcessFragment
 
@@ -127,7 +128,7 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		viewModel.postThreeDs(md, paRes)
 	}
 
-	override fun onAuthorizationFailed(error: String) {
+	override fun onAuthorizationFailed(error: String?) {
 		updateWith(PaymentProcessStatus.Failed, error)
 	}
 }

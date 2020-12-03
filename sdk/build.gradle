@@ -10,7 +10,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0.0-alpha01"
+        versionName "1.0.0-alpha02"
         multiDexEnabled false
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -86,6 +86,9 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$dagger2Version"
     kapt "com.google.dagger:dagger-compiler:$dagger2Version"
     kapt "com.google.dagger:dagger-android-processor:$dagger2Version"
+
+    //rx google-play-services
+    implementation 'io.ashdavies.rx.rxtasks:rx-tasks:2.2.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

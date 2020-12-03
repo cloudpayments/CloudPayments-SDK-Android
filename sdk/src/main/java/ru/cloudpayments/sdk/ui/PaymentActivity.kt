@@ -6,9 +6,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.wallet.AutoResolveHelper
 import com.google.android.gms.wallet.PaymentData
+import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.activity_payment.*
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.dagger2.*
@@ -48,14 +51,35 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		intent.getParcelableExtra<PaymentConfiguration>(EXTRA_CONFIGURATION)
 	}
 
+	private var googlePayAvailable: Boolean = false
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_payment)
 
-		if (savedInstanceState == null) {
-			val fragment = PaymentOptionsFragment.newInstance(configuration)
-			nextFragment(fragment, true, R.id.frame_content)
+		if (supportFragmentManager.backStackEntryCount == 0) {
+			GooglePayHandler.isReadyToMakeGooglePay(this)
+					.toObservable()
+					.observeOn(AndroidSchedulers.mainThread())
+					.map {
+						showUi(it)
+					}
+					.onErrorReturn { showUi(false) }
+					.subscribe()
 		}
+	}
+
+	private fun showUi(googlePayAvailable: Boolean) {
+		this.googlePayAvailable = googlePayAvailable
+
+		icon_progress.isVisible = false
+
+		val fragment = if (googlePayAvailable) {
+			PaymentOptionsFragment.newInstance(configuration)
+		} else {
+			PaymentCardFragment.newInstance(configuration)
+		}
+		nextFragment(fragment, true, R.id.frame_content)
 	}
 
 	override fun onBackPressed() {
@@ -87,8 +111,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	}
 
 	override fun onPaymentFailed() {
-		val fragment = PaymentOptionsFragment.newInstance(configuration)
-		nextFragment(fragment, true, R.id.frame_content)
+		showUi(this.googlePayAvailable)
 	}
 
 	override fun paymentWillFinish() {
@@ -101,7 +124,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 				Activity.RESULT_OK -> {
 					handleGooglePaySuccess(data)
 				}
-				AutoResolveHelper.RESULT_ERROR -> {
+				Activity.RESULT_CANCELED, AutoResolveHelper.RESULT_ERROR -> {
 					handleGooglePayFailure(data)
 				}
 				else -> super.onActivityResult(requestCode, resultCode, data)
@@ -128,5 +151,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	private fun handleGooglePayFailure(intent: Intent?) {
 		val status = AutoResolveHelper.getStatusFromIntent(intent)
 		Log.w("loadPaymentData failed", String.format("Payment error code: %s", status.toString()))
+
+		finish()
 	}
 }
