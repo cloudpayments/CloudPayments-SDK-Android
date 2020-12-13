@@ -79,11 +79,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-<<<<<<< HEAD
-                android:src="@drawable/ic_ps_visa"
-                android:scaleType="centerCrop"
-                android:layout_marginBottom="@dimen/margin_small"/>
-=======
                 android:scaleType="centerCrop"
                 android:layout_marginBottom="@dimen/margin_small"/>
             <ImageButton
@@ -96,7 +91,6 @@
                 android:src="@drawable/ic_scan"
                 android:background="@color/transparent"
                 android:layout_marginBottom="@dimen/margin_small"/>
->>>>>>> master
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

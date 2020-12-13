@@ -17,11 +17,7 @@ repositories {
 ```
 В build.gradle уровня приложения добавить зависимость
 ```
-<<<<<<< HEAD
-implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.0-alpha02'
-=======
 implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:latest-version'
->>>>>>> master
 ```
 ### Структура проекта:
 
@@ -213,8 +209,6 @@ interface ThreeDSDialogListener {
 }
 ```
 
-<<<<<<< HEAD
-=======
 * Сканер карт
 Вы можете подключить любой сканер карт, который вызывается с помощью Activity. Для этого нужно реализовать протокол CardScanner и передать объект, реализующий протокол, при создании PaymentConfiguration. Если протокол не будет реализован, то кнопка сканирования не будет показана
 
@@ -246,7 +240,6 @@ class CardIOScanner: CardScanner() {
 }
 ```
 
->>>>>>> master
 ### Поддержка
 
 По возникающим вопросам техничечкого характера обращайтесь на support@cloudpayments.ru

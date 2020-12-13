@@ -131,12 +131,9 @@ dependencies {
     // image loading and caching
     implementation 'com.github.bumptech.glide:glide:4.11.0'
 
-<<<<<<< HEAD
-=======
     //card io scanner
     implementation 'io.card:android-sdk:5.5.0'
 
->>>>>>> master
     implementation project(path: ':sdk')
 
     testImplementation 'junit:junit:4.13'
