@@ -1,10 +1,18 @@
 package ru.cloudpayments.sdk.ui.dialogs
 
+<<<<<<< HEAD
+=======
+import android.content.Intent
+>>>>>>> master
 import android.os.Bundle
 import android.text.Editable
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
+<<<<<<< HEAD
+=======
+import androidx.core.view.isVisible
+>>>>>>> master
 import androidx.fragment.app.viewModels
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.dialog_payment_card.*
@@ -12,6 +20,10 @@ import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.card.Card
 import ru.cloudpayments.sdk.card.CardType
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
+<<<<<<< HEAD
+=======
+import ru.cloudpayments.sdk.scanner.CardData
+>>>>>>> master
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
 import ru.cloudpayments.sdk.util.emailIsValid
 import ru.cloudpayments.sdk.util.getCurrencyString
@@ -28,6 +40,11 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	}
 
 	companion object {
+<<<<<<< HEAD
+=======
+		const val REQUEST_CODE_SCANNER = 1
+
+>>>>>>> master
 		fun newInstance(configuration: PaymentConfiguration) = PaymentCardFragment().apply {
 			arguments = Bundle()
 			setConfiguration(configuration)
@@ -41,7 +58,10 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	override fun render(state: PaymentCardViewState) {
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 	private val cardNumberFormatWatcher by lazy {
 		val descriptor = MaskDescriptor.ofRawMask("____ ____ ____ ____ ___")
 			.setTerminated(true)
@@ -151,7 +171,20 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			}
 		}
 
+<<<<<<< HEAD
 		button_pay.text = getString(R.string.text_card_pay_button, requireContext().getCurrencyString(paymentConfiguration!!.paymentData.amount.toDouble()))
+=======
+		btn_scan.setOnClickListener {
+			val intent = paymentConfiguration?.scanner?.getScannerIntent(requireContext())
+			if (intent != null) {
+				startActivityForResult(intent, REQUEST_CODE_SCANNER)
+			}
+		}
+
+		button_pay.text = getString(R.string.text_card_pay_button, requireContext().getCurrencyString(paymentConfiguration!!.paymentData.amount.toDouble()))
+
+		updatePaymentSystemIcon("")
+>>>>>>> master
 	}
 
 	private fun errorMode(isErrorMode: Boolean, editText: TextInputEditText){
@@ -167,7 +200,18 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	private fun updatePaymentSystemIcon(cardNumber: String){
 		val cardType = CardType.getType(cardNumber)
 		val psIcon = cardType.getIconRes()
+<<<<<<< HEAD
 		ic_ps.setImageResource(psIcon ?: 0)
+=======
+		if (paymentConfiguration?.scanner != null && (cardNumber.isEmpty() || psIcon == null)) {
+			ic_ps.isVisible = false
+			btn_scan.isVisible = true
+		} else {
+			ic_ps.isVisible = true
+			btn_scan.isVisible = false
+			ic_ps.setImageResource(psIcon ?: 0)
+		}
+>>>>>>> master
 	}
 
 	private fun isValid(): Boolean {
@@ -183,4 +227,26 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 
 		return cardNumberIsValid && cardExpIsValid && cardCvvIsValid && emailIsValid
 	}
+<<<<<<< HEAD
+=======
+
+	private fun updateWithCardData(cardData: CardData) {
+		edit_card_number.setText(cardData.cardNumber)
+		edit_card_exp.setText("${cardData.cardExpMonth}/${cardData.cardExpYear}")
+	}
+
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
+		REQUEST_CODE_SCANNER -> {
+			if (data != null) {
+				val cardData = paymentConfiguration?.scanner?.getCardDataFromIntent(data)
+				if (cardData != null) {
+					updateWithCardData(cardData)
+				}
+			}
+
+			super.onActivityResult(requestCode, resultCode, data)
+		}
+		else -> super.onActivityResult(requestCode, resultCode, data)
+	}
+>>>>>>> master
 }

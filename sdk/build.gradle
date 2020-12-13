@@ -10,7 +10,11 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
+<<<<<<< HEAD
         versionName "1.0.0-alpha02"
+=======
+        versionName "1.0.0-alpha03"
+>>>>>>> master
         multiDexEnabled false
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
