@@ -17,7 +17,7 @@ repositories {
 ```
 В build.gradle уровня приложения добавить зависимость
 ```
-implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.0-alpha02'
+implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:latest-version'
 ```
 ### Структура проекта:
 
@@ -206,6 +206,37 @@ ThreeDsDialogFragment
 interface ThreeDSDialogListener {
 	fun onAuthorizationCompleted(md: String, paRes: String)
 	fun onAuthorizationFailed(error: String?)
+}
+```
+
+* Сканер карт
+Вы можете подключить любой сканер карт, который вызывается с помощью Activity. Для этого нужно реализовать протокол CardScanner и передать объект, реализующий протокол, при создании PaymentConfiguration. Если протокол не будет реализован, то кнопка сканирования не будет показана
+
+Пример со сканером CardIO
+
+```
+@Parcelize
+class CardIOScanner: CardScanner() {
+	override fun getScannerIntent(context: Context) =
+		Intent(context, CardIOActivity::class.java).apply {
+			putExtra(CardIOActivity.EXTRA_REQUIRE_EXPIRY, true)
+		}
+
+	override fun getCardDataFromIntent(data: Intent) =
+		if (data.hasExtra(CardIOActivity.EXTRA_SCAN_RESULT)) {
+			val scanResult = data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT) as? CreditCard
+			val month = (scanResult?.expiryMonth ?: 0).toString().padStart(2, '0')
+			val yearString = scanResult?.expiryYear?.toString() ?: "00"
+			val year = if (yearString.length > 2) {
+				yearString.substring(yearString.lastIndex - 1)
+			} else {
+				yearString.padStart(2, '0')
+			}
+			val cardData = CardData(scanResult?.cardNumber, month, year, scanResult?.cardholderName)
+			cardData
+		} else {
+			null
+		}
 }
 ```
 

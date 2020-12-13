@@ -17,6 +17,7 @@ import ru.cloudpayments.demo.base.BaseListActivity
 import ru.cloudpayments.demo.managers.CartManager
 import ru.cloudpayments.demo.models.Product
 import ru.cloudpayments.demo.screens.checkout.CheckoutActivity
+import ru.cloudpayments.demo.support.CardIOScanner
 import ru.cloudpayments.demo.support.SideSpaceItemDecoration
 
 class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListener {
@@ -84,7 +85,7 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 							}
 
 							val paymentData = PaymentData(Constants.merchantPublicId, total.toString(), "RUB")
-							val configuration = PaymentConfiguration(paymentData)
+							val configuration = PaymentConfiguration(paymentData, CardIOScanner())
 							CloudpaymentsSDK.getInstance().start(configuration, this, REQUEST_CODE_PAYMENT)
 						}
 					}
