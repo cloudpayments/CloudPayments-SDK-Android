@@ -8,14 +8,14 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wallet.AutoResolveHelper
 import com.google.android.gms.wallet.PaymentData
 import com.google.android.gms.wallet.PaymentsClient
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_checkout.*
 import kotlinx.android.synthetic.main.activity_checkout.edit_card_number
+import kotlinx.coroutines.launch
 import ru.cloudpayments.sdk.api.models.CloudpaymentsThreeDsResponse
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransaction
 import ru.cloudpayments.sdk.card.Card
@@ -30,7 +30,7 @@ import ru.cloudpayments.sdk.util.TextWatcherAdapter
 import ru.tinkoff.decoro.MaskDescriptor
 import ru.tinkoff.decoro.parser.UnderscoreDigitSlotsParser
 import ru.tinkoff.decoro.watchers.DescriptorFormatWatcher
-import java.lang.Exception
+import kotlin.Exception
 
 class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogListener {
 	companion object {
@@ -166,36 +166,44 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 	}
 
 	private fun getBinInfo(firstSixDigits: String) {
-		compositeDisposable.add(
-				PayApi.getBinInfo(firstSixDigits)
-						.subscribeOn(Schedulers.io())
-						.observeOn(AndroidSchedulers.mainThread())
-						.subscribe({ info -> Log.d("Bank name", info.bankName.orEmpty()) }, this::handleError)
-		)
+		lifecycleScope.launch {
+			try {
+				val info = PayApi.getBinInfo(firstSixDigits)
+				Log.d("Bank name", info.bankName.orEmpty())
+			} catch (e: Exception) {
+				handleError(e)
+			}
+		}
 	}
 
 	// Запрос на прведение одностадийного платежа
 	private fun charge(cardCryptogramPacket: String, cardHolderName: String, amount: Int) {
-		compositeDisposable.add(
-			PayApi.charge(cardCryptogramPacket, cardHolderName, amount)
-				.subscribeOn(Schedulers.io())
-				.observeOn(AndroidSchedulers.mainThread())
-				.doOnSubscribe { showLoading() }
-				.doOnEach { hideLoading() }
-				.subscribe({ transaction -> checkResponse(transaction) }, this::handleError)
-		)
+		lifecycleScope.launch {
+			try {
+				showLoading()
+				val transaction = PayApi.charge(cardCryptogramPacket, cardHolderName, amount)
+				checkResponse(transaction)
+			} catch (e: Exception) {
+				handleError(e)
+			} finally {
+				hideLoading()
+			}
+		}
 	}
 
 	// Запрос на проведение двустадийного платежа
 	private fun auth(cardCryptogramPacket: String, cardHolderName: String, amount: Int) {
-		compositeDisposable.add(
-			PayApi.auth(cardCryptogramPacket, cardHolderName, amount)
-				.subscribeOn(Schedulers.io())
-				.observeOn(AndroidSchedulers.mainThread())
-				.doOnSubscribe { showLoading() }
-				.doOnEach { hideLoading() }
-				.subscribe({ transaction -> checkResponse(transaction) }, this::handleError)
-		)
+		lifecycleScope.launch {
+			try {
+				showLoading()
+				val transaction = PayApi.auth(cardCryptogramPacket, cardHolderName, amount)
+				checkResponse(transaction)
+			} catch (e: Exception) {
+				handleError(e)
+			} finally {
+				hideLoading()
+			}
+		}
 	}
 
 	// Проверяем необходимо ли подтверждение с использованием 3DS
@@ -229,14 +237,17 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 
 	// Завершаем транзакцию после прохождения 3DS формы
 	private fun post3ds(md: String, paRes: String) {
-		compositeDisposable.add(
-			PayApi.postThreeDs(md, threeDsCallbackId.orEmpty(), paRes)
-				.subscribeOn(Schedulers.io())
-				.observeOn(AndroidSchedulers.mainThread())
-				.doOnSubscribe { showLoading() }
-				.doOnEach { hideLoading() }
-				.subscribe({ response -> checkThreeDsResponse(response) }, this::handleError)
-		)
+		lifecycleScope.launch {
+			try {
+				showLoading()
+				val response = PayApi.postThreeDs(md, threeDsCallbackId.orEmpty(), paRes)
+				checkThreeDsResponse(response)
+			} catch (e: Exception) {
+				handleError(e)
+			} finally {
+				hideLoading()
+			}
+		}
 	}
 
 	// GOGGLE PAY

@@ -1,8 +1,9 @@
 package ru.cloudpayments.sdk.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransaction
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransactionResponse
@@ -21,7 +22,7 @@ internal class PaymentProcessViewModel(
 		MutableLiveData(currentState)
 	}
 
-	private var disposable: Disposable? = null
+	private var disposable: Job? = null
 
 	@Inject
 	lateinit var api: CloudpaymentsApi
@@ -33,33 +34,28 @@ internal class PaymentProcessViewModel(
 									  name = "",
 									  cryptogram = cryptogram,
 									  email = email)
-		disposable = api.charge(body)
-			.toObservable()
-			.observeOn(AndroidSchedulers.mainThread())
-			.map { response ->
+		viewModelScope.launch {
+			try {
+				val response = api.charge(body)
 				checkTransactionResponse(response)
-			}
-			.onErrorReturn {
+			} catch (e: Exception) {
 				val state = currentState.copy(status = PaymentProcessStatus.Failed)
 				stateChanged(state)
 			}
-			.subscribe()
+		}
 	}
 
 	fun postThreeDs(md: String, paRes: String) {
-		disposable = api.postThreeDs(md, currentState.transaction?.threeDsCallbackId ?: "", paRes)
-			.toObservable()
-			.observeOn(AndroidSchedulers.mainThread())
-			.map {
-				val state: PaymentProcessViewState = if (it.success) {
-					currentState.copy(status = PaymentProcessStatus.Succeeded)
-				} else {
-					currentState.copy(status = PaymentProcessStatus.Failed, errorMessage = it.message)
-				}
-
-				stateChanged(state)
+		disposable = viewModelScope.launch {
+			val response = api.postThreeDs(md, currentState.transaction?.threeDsCallbackId ?: "", paRes)
+			val state: PaymentProcessViewState = if (response.success) {
+				currentState.copy(status = PaymentProcessStatus.Succeeded)
+			} else {
+				currentState.copy(status = PaymentProcessStatus.Failed, errorMessage = response.message)
 			}
-			.subscribe()
+
+			stateChanged(state)
+		}
 	}
 
 	fun clearThreeDsData(){
@@ -113,7 +109,7 @@ internal class PaymentProcessViewModel(
 	override fun onCleared() {
 		super.onCleared()
 
-		disposable?.dispose()
+		disposable?.cancel()
 	}
 }
 

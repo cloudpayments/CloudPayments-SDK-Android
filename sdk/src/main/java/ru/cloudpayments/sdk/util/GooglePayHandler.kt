@@ -1,8 +1,7 @@
 package ru.cloudpayments.sdk.util
 
 import com.google.android.gms.wallet.*
-import io.ashdavies.rx.rxtasks.toSingle
-import io.reactivex.Single
+import kotlinx.coroutines.tasks.await
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.ui.PaymentActivity
 
@@ -55,12 +54,12 @@ internal class GooglePayHandler {
 			return Wallet.getPaymentsClient(activity, walletOptions)
 		}
 
-		fun isReadyToMakeGooglePay(activity: PaymentActivity): Single<Boolean> {
+		suspend fun isReadyToMakeGooglePay(activity: PaymentActivity): Boolean {
 			val request = IsReadyToPayRequest.newBuilder()
 			for (allowedMethod in GOOGLE_PAY_SUPPORTED_METHODS) {
 				request.addAllowedPaymentMethod(allowedMethod)
 			}
-			return createPaymentsClient(activity).isReadyToPay(request.build()).toSingle()
+			return createPaymentsClient(activity).isReadyToPay(request.build()).await()
 		}
 	}
 }

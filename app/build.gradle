@@ -104,17 +104,11 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
 
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttp3Version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okHttp3Version"
 
     implementation 'ru.tinkoff.decoro:decoro:1.5.0'
-
-    // rxkotlin
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.1.0'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation "com.jakewharton.rxbinding2:rxbinding-kotlin:$rxBindingVersion"
 
     implementation 'com.google.android.gms:play-services-wallet:18.1.2'
 

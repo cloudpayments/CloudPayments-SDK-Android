@@ -5,12 +5,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.text_email
 import kotlinx.android.synthetic.main.activity_main.text_phone
+import kotlinx.coroutines.launch
 import ru.cloudpayments.demo.base.BaseListActivity
 import ru.cloudpayments.demo.models.Product
 import ru.cloudpayments.demo.screens.cart.CartActivity
@@ -81,13 +81,16 @@ class MainActivity : BaseListActivity<ProductsAdapter?>(), ProductsAdapter.OnCli
 	}
 
 	private fun getProducts() {
-		compositeDisposable.add(
-			ShopApi.products
-				.subscribeOn(Schedulers.io())
-				.observeOn(AndroidSchedulers.mainThread())
-				.doOnSubscribe { showLoading() }
-				.doOnEach { hideLoading() }
-				.subscribe({ products -> adapter?.update(products) }, this::handleError)
-		)
+		lifecycleScope.launch {
+			try {
+				showLoading()
+				val products = ShopApi.getProducts()
+				adapter?.update(products)
+			} catch (e: Exception) {
+				handleError(e)
+			} finally {
+				hideLoading()
+			}
+		}
 	}
 }

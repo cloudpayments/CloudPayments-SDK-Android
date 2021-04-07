@@ -8,10 +8,11 @@ import android.os.Handler
 import android.util.Log
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.wallet.AutoResolveHelper
 import com.google.android.gms.wallet.PaymentData
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_payment.*
+import kotlinx.coroutines.launch
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.dagger2.*
@@ -58,14 +59,10 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		setContentView(R.layout.activity_payment)
 
 		if (supportFragmentManager.backStackEntryCount == 0) {
-			GooglePayHandler.isReadyToMakeGooglePay(this)
-					.toObservable()
-					.observeOn(AndroidSchedulers.mainThread())
-					.map {
-						showUi(it)
-					}
-					.onErrorReturn { showUi(false) }
-					.subscribe()
+			lifecycleScope.launch {
+				val isShowUi = GooglePayHandler.isReadyToMakeGooglePay(this@PaymentActivity)
+				showUi(isShowUi)
+			}
 		}
 	}
 
