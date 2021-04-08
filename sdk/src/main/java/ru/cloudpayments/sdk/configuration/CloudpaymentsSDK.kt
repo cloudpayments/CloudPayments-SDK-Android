@@ -1,5 +1,7 @@
 package ru.cloudpayments.sdk.configuration
 
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -16,6 +18,9 @@ import java.util.concurrent.TimeUnit
 
 interface CloudpaymentsSDK {
 	fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int)
+
+	fun getStartIntent(context: Context, configuration: PaymentConfiguration): Intent
+
 	companion object {
 		fun getInstance(): CloudpaymentsSDK {
 			return CloudpaymentsSDKImpl()
@@ -65,6 +70,10 @@ interface CloudpaymentsSDK {
 
 internal class CloudpaymentsSDKImpl: CloudpaymentsSDK {
 	override fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int) {
-		from.startActivityForResult(PaymentActivity.getStartIntent(from, configuration), requestCode)
+		from.startActivityForResult(this.getStartIntent(from, configuration), requestCode)
+	}
+
+	override fun getStartIntent(context: Context, configuration: PaymentConfiguration): Intent {
+		return PaymentActivity.getStartIntent(context, configuration)
 	}
 }
