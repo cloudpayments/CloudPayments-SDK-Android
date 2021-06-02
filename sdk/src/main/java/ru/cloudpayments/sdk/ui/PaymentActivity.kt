@@ -13,6 +13,7 @@ import com.google.android.gms.wallet.PaymentData
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_payment.*
 import ru.cloudpayments.sdk.R
+import ru.cloudpayments.sdk.configuration.CloudpaymentsSDK
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.dagger2.*
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsComponent
@@ -105,12 +106,27 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		nextFragment(fragment, true, R.id.frame_content)
 	}
 
-	override fun onPaymentFinished() {
-		setResult(Activity.RESULT_OK)
+	override fun onPaymentFinished(transactionId: Int) {
+		setResult(CloudpaymentsSDK.RESULT_OK, Intent().apply {
+			putExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, transactionId)
+			putExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name, CloudpaymentsSDK.TransactionStatus.Succeeded)
+		})
+	}
+
+	override fun onPaymentFailed(transactionId: Int, reasonCode: Int?) {
+		setResult(CloudpaymentsSDK.RESULT_FAILED, Intent().apply {
+			putExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, transactionId)
+			putExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name, CloudpaymentsSDK.TransactionStatus.Failed)
+			reasonCode?.let { putExtra(CloudpaymentsSDK.IntentKeys.TransactionReasonCode.name, it) }
+		})
+	}
+
+	override fun finishPayment() {
 		finish()
 	}
 
-	override fun onPaymentFailed() {
+	override fun retryPayment() {
+		setResult(Activity.RESULT_CANCELED, Intent())
 		showUi(this.googlePayAvailable)
 	}
 
