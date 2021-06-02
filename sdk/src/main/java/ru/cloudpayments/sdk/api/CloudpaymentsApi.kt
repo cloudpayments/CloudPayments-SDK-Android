@@ -40,8 +40,10 @@ class CloudpaymentsApi @Inject constructor(
 				val url = e.response()?.raw()?.header("Location")
 				when {
 					url?.startsWith(THREE_DS_FAIL_URL) == true -> {
+						if (url.contains(ErrorCodes.INSUFFICIENT_FUNDS.code.toString())) {
+							return CloudpaymentsThreeDsResponse(false, ErrorCodes.INSUFFICIENT_FUNDS.message)
+						}
 						val uri = Uri.parse(url)
-						// TODO for insufficient money this produce parse exception. it will need to be fixed
 						val message =
 							URLDecoder.decode(uri.getQueryParameter("CardHolderMessage"), "utf-8")
 						CloudpaymentsThreeDsResponse(false, message)
