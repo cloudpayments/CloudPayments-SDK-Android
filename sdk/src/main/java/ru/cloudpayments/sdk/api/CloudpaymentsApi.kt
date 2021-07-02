@@ -32,8 +32,8 @@ class CloudpaymentsApi @Inject constructor(private val apiService: Cloudpayments
 			.subscribeOn(Schedulers.io())
 			.map { CloudpaymentsThreeDsResponse(true, "", 0) }
 			.onErrorReturn {
-				val response: CloudpaymentsThreeDsResponse = if (it is HttpException && it.response().raw().isRedirect) {
-					val url = it.response().raw().header("Location")
+				val response: CloudpaymentsThreeDsResponse = if (it is HttpException && it.response()?.raw()!!.isRedirect) {
+					val url = it.response()?.raw()?.header("Location")
 					when {
 						url?.startsWith(THREE_DS_FAIL_URL) == true -> {
 							val uri = Uri.parse(url)

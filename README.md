@@ -17,7 +17,7 @@ repositories {
 ```
 В build.gradle уровня приложения добавить зависимость
 ```
-implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:latest-version'
+implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.2'
 ```
 ### Структура проекта:
 
