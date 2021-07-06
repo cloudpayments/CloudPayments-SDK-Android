@@ -1,10 +1,11 @@
 package ru.cloudpayments.demo.screens.cart
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_cart.*
@@ -21,11 +22,33 @@ import ru.cloudpayments.demo.support.CardIOScanner
 import ru.cloudpayments.demo.support.SideSpaceItemDecoration
 
 class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListener {
-	companion object {
-		private const val REQUEST_CODE_PAYMENT = 1
-	}
 
 	override val layoutId = R.layout.activity_cart
+
+	private val paymentCaller: ActivityResultLauncher<Intent> = registerForActivityResult(
+		ActivityResultContracts.StartActivityForResult()
+	) { result ->
+		val data = result.data
+		val transactionId = data?.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, 0) ?: 0
+		val transactionStatus = data?.getSerializableExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name) as? CloudpaymentsSDK.TransactionStatus
+
+
+		if (transactionStatus != null) {
+			if (transactionStatus == CloudpaymentsSDK.TransactionStatus.Succeeded) {
+				Toast.makeText(this, "Успешно! Транзакция №$transactionId", Toast.LENGTH_SHORT).show()
+				CartManager.getInstance()?.clear()
+				finish()
+			} else {
+				val reasonCode =
+					data.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionReasonCode.name, 0)
+				if (reasonCode > 0) {
+					Toast.makeText(this, "Ошибка! Транзакция №$transactionId. Код ошибки $reasonCode", Toast.LENGTH_SHORT).show()
+				} else {
+					Toast.makeText(this, "Ошибка! Транзакция №$transactionId.", Toast.LENGTH_SHORT).show()
+				}
+			}
+		}
+	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -83,10 +106,11 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 							products.forEach {
 								total += it.price?.toInt() ?: 0
 							}
-
-							val paymentData = PaymentData(Constants.merchantPublicId, total.toString(), "RUB")
+							val jsonData: HashMap<String, Any> = hashMapOf("name" to "Иван")
+							val paymentData = PaymentData(Constants.merchantPublicId, total.toString(), "RUB", jsonData = jsonData)
 							val configuration = PaymentConfiguration(paymentData, CardIOScanner())
-							CloudpaymentsSDK.getInstance().start(configuration, this, REQUEST_CODE_PAYMENT)
+							val intent = CloudpaymentsSDK.getInstance().getStartIntent(this, configuration)
+							paymentCaller.launch(intent)
 						}
 					}
 				}
@@ -97,20 +121,5 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 
 	override fun onProductClick(item: Product?) {
 
-	}
-
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
-		REQUEST_CODE_PAYMENT -> {
-			when(resultCode) {
-				Activity.RESULT_OK -> {
-					Toast.makeText(this, "Успешно!", Toast.LENGTH_SHORT).show()
-					CartManager.getInstance()?.clear()
-					finish()
-				}
-				Activity.RESULT_FIRST_USER -> Toast.makeText(this, "Ошибка!", Toast.LENGTH_SHORT).show()
-				else -> super.onActivityResult(requestCode, resultCode, data)
-			}
-		}
-		else -> super.onActivityResult(requestCode, resultCode, data)
 	}
 }

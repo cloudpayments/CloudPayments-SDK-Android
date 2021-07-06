@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
@@ -14,6 +15,7 @@ import com.google.android.gms.wallet.PaymentData
 import kotlinx.android.synthetic.main.activity_payment.*
 import kotlinx.coroutines.launch
 import ru.cloudpayments.sdk.R
+import ru.cloudpayments.sdk.configuration.CloudpaymentsSDK
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.dagger2.*
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsComponent
@@ -23,11 +25,13 @@ import ru.cloudpayments.sdk.ui.dialogs.PaymentCardFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentOptionsFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentProcessFragment
 import ru.cloudpayments.sdk.util.GooglePayHandler
+import ru.cloudpayments.sdk.util.handlePaymentSuccess
 import ru.cloudpayments.sdk.util.nextFragment
 
-internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPaymentFragment,
-		PaymentOptionsFragment.IPaymentOptionsFragment, PaymentCardFragment.IPaymentCardFragment,
-		PaymentProcessFragment.IPaymentProcessFragment {
+internal class PaymentActivity : FragmentActivity(), BasePaymentFragment.IPaymentFragment,
+								 PaymentOptionsFragment.IPaymentOptionsFragment,
+								 PaymentCardFragment.IPaymentCardFragment,
+								 PaymentProcessFragment.IPaymentProcessFragment {
 	companion object {
 		private const val REQUEST_CODE_GOOGLE_PAY = 1
 
@@ -48,8 +52,9 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 			.build()
 	}
 
-	private val configuration by lazy {
+	private val configuration: PaymentConfiguration by lazy {
 		intent.getParcelableExtra<PaymentConfiguration>(EXTRA_CONFIGURATION)
+			?: throw NullPointerException("EXTRA_CONFIGURATION is not existing in parcelable data")
 	}
 
 	private var googlePayAvailable: Boolean = false
@@ -102,12 +107,33 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		nextFragment(fragment, true, R.id.frame_content)
 	}
 
-	override fun onPaymentFinished() {
-		setResult(Activity.RESULT_OK)
+	override fun onPaymentFinished(transactionId: Int) {
+		setResult(CloudpaymentsSDK.RESULT_OK, Intent().apply {
+			putExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, transactionId)
+			putExtra(
+				CloudpaymentsSDK.IntentKeys.TransactionStatus.name,
+				CloudpaymentsSDK.TransactionStatus.Succeeded
+			)
+		})
+	}
+
+	override fun onPaymentFailed(transactionId: Int, reasonCode: Int?) {
+		setResult(CloudpaymentsSDK.RESULT_FAILED, Intent().apply {
+			putExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, transactionId)
+			putExtra(
+				CloudpaymentsSDK.IntentKeys.TransactionStatus.name,
+				CloudpaymentsSDK.TransactionStatus.Failed
+			)
+			reasonCode?.let { putExtra(CloudpaymentsSDK.IntentKeys.TransactionReasonCode.name, it) }
+		})
+	}
+
+	override fun finishPayment() {
 		finish()
 	}
 
-	override fun onPaymentFailed() {
+	override fun retryPayment() {
+		setResult(Activity.RESULT_CANCELED, Intent())
 		showUi(this.googlePayAvailable)
 	}
 
@@ -115,39 +141,40 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		finish()
 	}
 
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
-		REQUEST_CODE_GOOGLE_PAY -> {
-			when (resultCode) {
-				Activity.RESULT_OK -> {
-					handleGooglePaySuccess(data)
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) =
+		when (requestCode) {
+			REQUEST_CODE_GOOGLE_PAY -> {
+				when (resultCode) {
+					Activity.RESULT_OK -> {
+						handleGooglePaySuccess(data)
+					}
+					Activity.RESULT_CANCELED, AutoResolveHelper.RESULT_ERROR -> {
+						handleGooglePayFailure(data)
+					}
+					else -> super.onActivityResult(requestCode, resultCode, data)
 				}
-				Activity.RESULT_CANCELED, AutoResolveHelper.RESULT_ERROR -> {
-					handleGooglePayFailure(data)
-				}
-				else -> super.onActivityResult(requestCode, resultCode, data)
 			}
+			else -> super.onActivityResult(requestCode, resultCode, data)
 		}
-		else -> super.onActivityResult(requestCode, resultCode, data)
-	}
 
 	private fun handleGooglePaySuccess(intent: Intent?) {
 		if (intent != null) {
 			val paymentData = PaymentData.getFromIntent(intent)
-			val token = paymentData?.paymentMethodToken?.token
+			val token = paymentData?.handlePaymentSuccess()
 
 			if (token != null) {
 				val runnable = {
 					val fragment = PaymentProcessFragment.newInstance(configuration, token, null)
 					nextFragment(fragment, true, R.id.frame_content)
 				}
-				Handler().postDelayed(runnable, 1000)
+				Handler(Looper.getMainLooper()).postDelayed(runnable, 1000)
 			}
 		}
 	}
 
 	private fun handleGooglePayFailure(intent: Intent?) {
 		val status = AutoResolveHelper.getStatusFromIntent(intent)
-		Log.w("loadPaymentData failed", String.format("Payment error code: %s", status.toString()))
+		Log.w("loadPaymentData failed", String.format("Payment error code: %s", status?.toString()))
 
 		finish()
 	}

@@ -16,11 +16,27 @@ import ru.cloudpayments.sdk.ui.PaymentActivity
 import java.util.concurrent.TimeUnit
 
 interface CloudpaymentsSDK {
+	@Deprecated(
+		message = "Please use [CloudpaymentsSDK.getStartIntent] with [ActivityResultCaller] API"
+	)
 	fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int)
 
 	fun getStartIntent(context: Context, configuration: PaymentConfiguration): Intent
 
+	enum class TransactionStatus {
+		Succeeded,
+		Failed;
+	}
+	enum class IntentKeys {
+		TransactionId,
+		TransactionStatus,
+		TransactionReasonCode;
+	}
+
 	companion object {
+		const val RESULT_OK = 2
+		const val RESULT_FAILED = 3
+
 		fun getInstance(): CloudpaymentsSDK {
 			return CloudpaymentsSDKImpl()
 		}
@@ -73,6 +89,7 @@ interface CloudpaymentsSDK {
 	}
 }
 
+@Suppress("OverridingDeprecatedMember", "DEPRECATION")
 internal class CloudpaymentsSDKImpl : CloudpaymentsSDK {
 	override fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int) {
 		from.startActivityForResult(this.getStartIntent(from, configuration), requestCode)

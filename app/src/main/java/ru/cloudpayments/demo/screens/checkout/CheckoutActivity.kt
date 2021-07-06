@@ -27,6 +27,7 @@ import ru.cloudpayments.demo.managers.CartManager
 import ru.cloudpayments.demo.support.Constants
 import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
+import ru.cloudpayments.sdk.util.handlePaymentSuccess
 import ru.tinkoff.decoro.MaskDescriptor
 import ru.tinkoff.decoro.parser.UnderscoreDigitSlotsParser
 import ru.tinkoff.decoro.watchers.DescriptorFormatWatcher
@@ -308,7 +309,7 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 		// requested information, such as billing and shipping address.
 		//
 		// Refer to your processor's documentation on how to proceed from here.
-		val token = paymentData!!.paymentMethodToken
+		val token = paymentData?.handlePaymentSuccess()
 
 		// getPaymentMethodToken will only return null if PaymentMethodTokenizationParameters was
 		// not set in the PaymentRequest.
@@ -317,8 +318,8 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 			Toast.makeText(this, getString(R.string.payments_show_name, billingName), Toast.LENGTH_LONG).show()
 
 			// Use token.getToken() to get the token string.
-			Log.d("GooglePaymentToken", token.token)
-			charge(token.token, "Google Pay", total)
+			Log.d("GooglePaymentToken", token)
+			charge(token, "Google Pay", total)
 		}
 	}
 

@@ -17,7 +17,11 @@ repositories {
 ```
 В build.gradle уровня приложения добавить зависимость
 ```
+<<<<<<< HEAD
 implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:latest-version'
+=======
+implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.2'
+>>>>>>> c664493706ce5c1864ddf173650cace5f909e42f
 ```
 ### Структура проекта:
 
@@ -46,10 +50,18 @@ val paymentData = PaymentData(Constants.merchantPublicId, "10.00", "RUB")
 val configuration = PaymentConfiguration(paymentData)
 ```
 
-3. Вызовите форму оплаты. При вызове формы передайте requestCode и activity, в onActivityResult которого получите результат оплаты (Activity.RESULT_OK)
+3. Вызовите форму оплаты. При вызове формы передайте requestCode и activity, в onActivityResult которого получите результат оплаты
 
 ```
 CloudpaymentsSDK.getInstance().start(configuration, this, REQUEST_CODE_PAYMENT)
+
+val transactionId = data?.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, 0)
+val transactionStatus = data?.getSerializableExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name) as? CloudpaymentsSDK.TransactionStatus
+
+if (transactionStatus != null) {
+    // Значит платеж завершился (успешно или ошибкой)
+}
+
 ```
 
 ### Использование вашей платежной формы с использованием функций CloudpaymentsApi:

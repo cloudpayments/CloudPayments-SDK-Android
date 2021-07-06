@@ -2,6 +2,8 @@ package ru.cloudpayments.sdk.api
 
 import android.net.Uri
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import ru.cloudpayments.sdk.api.models.*
 import java.net.URLDecoder
@@ -34,28 +36,33 @@ class CloudpaymentsApi @Inject constructor(
 		val mdString = Gson().toJson(md)
 		return try {
 			val isSuccess = apiService.postThreeDs(ThreeDsRequestBody(md = mdString, paRes = paRes))
-			CloudpaymentsThreeDsResponse(isSuccess, "")
+			CloudpaymentsThreeDsResponse(isSuccess, "", 0)
 		} catch (e: Exception) {
 			if (e is HttpException && e.response()?.raw()?.isRedirect == true) {
 				val url = e.response()?.raw()?.header("Location")
 				when {
 					url?.startsWith(THREE_DS_FAIL_URL) == true -> {
 						if (url.contains(ErrorCodes.INSUFFICIENT_FUNDS.code.toString())) {
-							return CloudpaymentsThreeDsResponse(false, ErrorCodes.INSUFFICIENT_FUNDS.message)
+							return CloudpaymentsThreeDsResponse(false, ErrorCodes.INSUFFICIENT_FUNDS.message, 0)
 						}
 						val uri = Uri.parse(url)
-						val message =
-							URLDecoder.decode(uri.getQueryParameter("CardHolderMessage"), "utf-8")
-						CloudpaymentsThreeDsResponse(false, message)
+						val cardholderMessage = uri.getQueryParameter("CardHolderMessage")
+						val reasonCode = uri.getQueryParameter("ReasonCode")?.toIntOrNull()
+						val message = if (cardholderMessage != null) {
+							withContext(Dispatchers.IO) {
+								@Suppress("BlockingMethodInNonBlockingContext")
+								URLDecoder.decode(cardholderMessage, "utf-8")
+							}
+						} else {
+							""
+						}
+						CloudpaymentsThreeDsResponse(false, message, reasonCode)
 					}
-					url?.startsWith(THREE_DS_SUCCESS_URL) == true -> CloudpaymentsThreeDsResponse(
-						true,
-						null
-					)
-					else -> CloudpaymentsThreeDsResponse(false, null)
+					url?.startsWith(THREE_DS_SUCCESS_URL) == true -> CloudpaymentsThreeDsResponse(true, null, 0)
+					else -> CloudpaymentsThreeDsResponse(false, null, 0)
 				}
 			} else {
-				CloudpaymentsThreeDsResponse(true, null)
+				CloudpaymentsThreeDsResponse(true, null, 0)
 			}
 		}
 	}

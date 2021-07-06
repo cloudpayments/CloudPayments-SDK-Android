@@ -94,7 +94,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 
 	private inner class ThreeDsWebViewClient : WebViewClient() {
 		override fun onPageFinished(view: WebView, url: String) {
-			if (url.toLowerCase(Locale.getDefault()) == POST_BACK_URL.toLowerCase(Locale.getDefault())) {
+			if (url.lowercase(Locale.getDefault()) == POST_BACK_URL.lowercase(Locale.getDefault())) {
 				view.isGone = true
 				view.loadUrl("javascript:window.JavaScriptThreeDs.processHTML('<head>'+document.getElementsByTagName('html')[0].innerHTML+'</head>');")
 			}

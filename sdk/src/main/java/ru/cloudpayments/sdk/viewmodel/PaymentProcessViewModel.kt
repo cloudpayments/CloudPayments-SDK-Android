@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import com.google.gson.Gson
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransaction
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransactionResponse
@@ -28,11 +29,17 @@ internal class PaymentProcessViewModel(
 	lateinit var api: CloudpaymentsApi
 
 	fun charge() {
+		val jsonString = if (paymentData.jsonData != null) {
+			Gson().toJson(paymentData.jsonData)
+		} else {
+			""
+		}
 		val body = PaymentRequestBody(amount = paymentData.amount,
 									  currency = paymentData.currency,
-									  ipAddress = "",
-									  name = "",
+									  ipAddress = paymentData.ipAddress ?: "",
+									  name = paymentData.cardholderName ?: "",
 									  cryptogram = cryptogram,
+									  jsonData = jsonString,
 									  email = email)
 		viewModelScope.launch {
 			try {
@@ -51,7 +58,7 @@ internal class PaymentProcessViewModel(
 			val state: PaymentProcessViewState = if (response.success) {
 				currentState.copy(status = PaymentProcessStatus.Succeeded)
 			} else {
-				currentState.copy(status = PaymentProcessStatus.Failed, errorMessage = response.message)
+				currentState.copy(status = PaymentProcessStatus.Failed, errorMessage = response.message, reasonCode = response.reasonCode)
 			}
 
 			stateChanged(state)
@@ -74,7 +81,8 @@ internal class PaymentProcessViewModel(
 				currentState.copy(
 					transaction = transactionResponse.transaction,
 					status = PaymentProcessStatus.Failed,
-					errorMessage = transactionResponse.message
+					errorMessage = transactionResponse.message,
+					reasonCode = transactionResponse.transaction?.reasonCode
 				)
 			} else {
 				val paReq = transactionResponse.transaction?.paReq
@@ -90,7 +98,8 @@ internal class PaymentProcessViewModel(
 					currentState.copy(
 						transaction = transactionResponse.transaction,
 						status = PaymentProcessStatus.Failed,
-						errorMessage = transactionResponse.transaction?.cardHolderMessage
+						errorMessage = transactionResponse.transaction?.cardHolderMessage,
+						reasonCode = transactionResponse.transaction?.reasonCode
 					)
 				}
 			}
@@ -119,5 +128,6 @@ internal data class PaymentProcessViewState(
 	val transaction: CloudpaymentsTransaction? = null,
 	val paReq: String? = null,
 	val acsUrl: String? = null,
-	val errorMessage: String? = null
+	val errorMessage: String? = null,
+	val reasonCode: Int? = null
 ): BaseViewState()
