@@ -30,21 +30,23 @@ class CloudpaymentsApi @Inject constructor(private val apiService: Cloudpayments
 		val mdString = Gson().toJson(md)
 		return apiService.postThreeDs(ThreeDsRequestBody(md = mdString, paRes = paRes))
 			.subscribeOn(Schedulers.io())
-			.map { CloudpaymentsThreeDsResponse(true, "") }
+			.map { CloudpaymentsThreeDsResponse(true, "", 0) }
 			.onErrorReturn {
-				val response: CloudpaymentsThreeDsResponse = if (it is HttpException && it.response().raw().isRedirect) {
-					val url = it.response().raw().header("Location")
+				val response: CloudpaymentsThreeDsResponse = if (it is HttpException && it.response()?.raw()!!.isRedirect) {
+					val url = it.response()?.raw()?.header("Location")
 					when {
 						url?.startsWith(THREE_DS_FAIL_URL) == true -> {
 							val uri = Uri.parse(url)
-							val message = URLDecoder.decode(uri.getQueryParameter("CardHolderMessage"), "utf-8")
-							CloudpaymentsThreeDsResponse(false, message)
+							val cardholderMessage = uri.getQueryParameter("CardHolderMessage")
+							val reasonCode = uri.getQueryParameter("ReasonCode")?.toIntOrNull()
+							val message = if (cardholderMessage != null) URLDecoder.decode(cardholderMessage, "utf-8") else ""
+							CloudpaymentsThreeDsResponse(false, message, reasonCode)
 						}
-						url?.startsWith(THREE_DS_SUCCESS_URL) == true -> CloudpaymentsThreeDsResponse(true, null)
-						else -> CloudpaymentsThreeDsResponse(false, null)
+						url?.startsWith(THREE_DS_SUCCESS_URL) == true -> CloudpaymentsThreeDsResponse(true, null, 0)
+						else -> CloudpaymentsThreeDsResponse(false, null, null)
 					}
 				} else {
-					CloudpaymentsThreeDsResponse(true, null)
+					CloudpaymentsThreeDsResponse(true, null, 0)
 				}
 
 				response

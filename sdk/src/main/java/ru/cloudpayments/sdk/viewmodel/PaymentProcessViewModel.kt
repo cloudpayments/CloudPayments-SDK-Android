@@ -1,6 +1,7 @@
 package ru.cloudpayments.sdk.viewmodel
 
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
@@ -27,12 +28,21 @@ internal class PaymentProcessViewModel(
 	lateinit var api: CloudpaymentsApi
 
 	fun charge() {
+		val jsonString = if (paymentData.jsonData != null) {
+			Gson().toJson(paymentData.jsonData)
+		} else {
+			""
+		}
 		val body = PaymentRequestBody(amount = paymentData.amount,
 									  currency = paymentData.currency,
-									  ipAddress = "",
-									  name = "",
+									  ipAddress = paymentData.ipAddress ?: "",
+									  name = paymentData.cardholderName ?: "",
 									  cryptogram = cryptogram,
-									  email = email)
+									  email = email,
+									  invoiceId = paymentData.invoiceId ?: "",
+									  description = paymentData.description ?: "",
+									  accountId = paymentData.accountId ?: "",
+									  jsonData = jsonString)
 		disposable = api.charge(body)
 			.toObservable()
 			.observeOn(AndroidSchedulers.mainThread())
@@ -54,7 +64,7 @@ internal class PaymentProcessViewModel(
 				val state: PaymentProcessViewState = if (it.success) {
 					currentState.copy(status = PaymentProcessStatus.Succeeded)
 				} else {
-					currentState.copy(status = PaymentProcessStatus.Failed, errorMessage = it.message)
+					currentState.copy(status = PaymentProcessStatus.Failed, errorMessage = it.message, reasonCode = it.reasonCode)
 				}
 
 				stateChanged(state)
@@ -78,7 +88,8 @@ internal class PaymentProcessViewModel(
 				currentState.copy(
 					transaction = transactionResponse.transaction,
 					status = PaymentProcessStatus.Failed,
-					errorMessage = transactionResponse.message
+					errorMessage = transactionResponse.message,
+					reasonCode = transactionResponse.transaction?.reasonCode
 				)
 			} else {
 				val paReq = transactionResponse.transaction?.paReq
@@ -94,7 +105,8 @@ internal class PaymentProcessViewModel(
 					currentState.copy(
 						transaction = transactionResponse.transaction,
 						status = PaymentProcessStatus.Failed,
-						errorMessage = transactionResponse.transaction?.cardHolderMessage
+						errorMessage = transactionResponse.transaction?.cardHolderMessage,
+						reasonCode = transactionResponse.transaction?.reasonCode
 					)
 				}
 			}
@@ -123,5 +135,6 @@ internal data class PaymentProcessViewState(
 	val transaction: CloudpaymentsTransaction? = null,
 	val paReq: String? = null,
 	val acsUrl: String? = null,
-	val errorMessage: String? = null
+	val errorMessage: String? = null,
+	val reasonCode: Int? = null
 ): BaseViewState()

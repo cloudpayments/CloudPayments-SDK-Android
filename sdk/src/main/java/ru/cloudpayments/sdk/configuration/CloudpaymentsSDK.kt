@@ -21,7 +21,21 @@ interface CloudpaymentsSDK {
 
 	fun getStartIntent(context: Context, configuration: PaymentConfiguration): Intent
 
+
+	enum class TransactionStatus {
+		Succeeded,
+		Failed;
+	}
+	enum class IntentKeys {
+		TransactionId,
+		TransactionStatus,
+		TransactionReasonCode;
+	}
+
 	companion object {
+		const val RESULT_OK = 2
+		const val RESULT_FAILED = 3
+
 		fun getInstance(): CloudpaymentsSDK {
 			return CloudpaymentsSDKImpl()
 		}

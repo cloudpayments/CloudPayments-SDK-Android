@@ -6,7 +6,6 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import androidx.core.view.isInvisible
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import kotlinx.android.synthetic.main.dialog_payment_process.*
 import ru.cloudpayments.sdk.R
@@ -23,8 +22,10 @@ internal enum class PaymentProcessStatus {
 
 internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewState, PaymentProcessViewModel>(), ThreeDsDialogFragment.ThreeDSDialogListener {
 	interface IPaymentProcessFragment {
-		fun onPaymentFinished()
-		fun onPaymentFailed()
+		fun onPaymentFinished(transactionId: Int)
+		fun onPaymentFailed(transactionId: Int, reasonCode: Int?)
+		fun finishPayment()
+		fun retryPayment()
 	}
 
 	companion object {
@@ -39,11 +40,14 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		}
 	}
 
+	private var currentState: PaymentProcessViewState? = null
+
 	override val viewModel: PaymentProcessViewModel by viewModels {
 		InjectorUtils.providePaymentProcessViewModelFactory(paymentConfiguration!!.paymentData, cryptogram,email)
 	}
 
 	override fun render(state: PaymentProcessViewState) {
+		currentState = state
 		updateWith(state.status, state.errorMessage)
 
 		if (!state.acsUrl.isNullOrEmpty() && !state.paReq.isNullOrEmpty() && state.transaction?.transactionId != null) {
@@ -104,9 +108,11 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 					text_status.setText(R.string.text_process_title_success)
 					button_finish.setText(R.string.text_process_button_success)
 
+					listener?.onPaymentFinished(currentState?.transaction?.transactionId ?: 0)
+
 					button_finish.setOnClickListener {
 						close(false) {
-							listener?.onPaymentFinished()
+							listener?.finishPayment()
 						}
 					}
 				} else {
@@ -114,9 +120,11 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 					text_status.text = error ?: getString(R.string.text_process_title_error)
 					button_finish.setText(R.string.text_process_button_error)
 
+					listener?.onPaymentFailed(currentState?.transaction?.transactionId ?: 0, currentState?.reasonCode)
+
 					button_finish.setOnClickListener {
 						close(false) {
-							listener?.onPaymentFailed()
+							listener?.retryPayment()
 						}
 					}
 				}

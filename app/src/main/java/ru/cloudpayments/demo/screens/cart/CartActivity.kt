@@ -83,8 +83,8 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 							products.forEach {
 								total += it.price?.toInt() ?: 0
 							}
-
-							val paymentData = PaymentData(Constants.merchantPublicId, total.toString(), "RUB")
+							val jsonData: HashMap<String, Any> = hashMapOf("name" to "Иван")
+							val paymentData = PaymentData(Constants.merchantPublicId, total.toString(), "RUB", jsonData = jsonData)
 							val configuration = PaymentConfiguration(paymentData, CardIOScanner())
 							CloudpaymentsSDK.getInstance().start(configuration, this, REQUEST_CODE_PAYMENT)
 						}
@@ -101,15 +101,26 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
 		REQUEST_CODE_PAYMENT -> {
-			when(resultCode) {
-				Activity.RESULT_OK -> {
-					Toast.makeText(this, "Успешно!", Toast.LENGTH_SHORT).show()
+			val transactionId = data?.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, 0) ?: 0
+			val transactionStatus = data?.getSerializableExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name) as? CloudpaymentsSDK.TransactionStatus
+
+
+			if (transactionStatus != null) {
+				if (transactionStatus == CloudpaymentsSDK.TransactionStatus.Succeeded) {
+					Toast.makeText(this, "Успешно! Транзакция №$transactionId", Toast.LENGTH_SHORT).show()
 					CartManager.getInstance()?.clear()
 					finish()
+				} else {
+					val reasonCode = data.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionReasonCode.name, 0) ?: 0
+					if (reasonCode > 0) {
+						Toast.makeText(this, "Ошибка! Транзакция №$transactionId. Код ошибки $reasonCode", Toast.LENGTH_SHORT).show()
+					} else {
+						Toast.makeText(this, "Ошибка! Транзакция №$transactionId.", Toast.LENGTH_SHORT).show()
+					}
 				}
-				Activity.RESULT_FIRST_USER -> Toast.makeText(this, "Ошибка!", Toast.LENGTH_SHORT).show()
-				else -> super.onActivityResult(requestCode, resultCode, data)
 			}
+
+			Unit
 		}
 		else -> super.onActivityResult(requestCode, resultCode, data)
 	}
