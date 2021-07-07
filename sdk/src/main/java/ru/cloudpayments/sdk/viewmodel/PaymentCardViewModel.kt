@@ -1,7 +1,7 @@
 package ru.cloudpayments.sdk.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.Job
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
 import javax.inject.Inject
 
@@ -11,14 +11,14 @@ internal class PaymentCardViewModel: BaseViewModel<PaymentCardViewState>() {
 		MutableLiveData(currentState)
 	}
 
-	private var disposable: Disposable? = null
+	private var disposable: Job? = null
 
 	@Inject lateinit var api: CloudpaymentsApi
 
 	override fun onCleared() {
 		super.onCleared()
 
-		disposable?.dispose()
+		disposable?.cancel()
 	}
 }
 

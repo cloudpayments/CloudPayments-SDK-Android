@@ -30,6 +30,6 @@ task clean(type: Delete) {
 ext {
     retrofitVersion = '2.9.0'
     okHttp3Version = '4.5.0'
-    rxBindingVersion = '2.2.0'
-    dagger2Version = '2.35.1'
+    dagger2Version = '2.37'
+    coroutinesVersion = '1.5.0'
 }

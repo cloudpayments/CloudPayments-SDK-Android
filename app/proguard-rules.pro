@@ -39,6 +39,7 @@
 -keep class okhttp3.internal.platform.** { *; }
 -dontwarn okhttp3.internal.platform.**
 -dontnote okhttp3.internal.platform.**
+-dontobfuscate
 
 # com.google.gson
 -keep class com.google.gson.internal.** { *; }

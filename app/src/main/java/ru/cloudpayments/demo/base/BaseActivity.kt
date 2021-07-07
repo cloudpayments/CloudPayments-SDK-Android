@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.afollestad.materialdialogs.MaterialDialog
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.toolbar.*
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransactionError
 import ru.cloudpayments.demo.R
@@ -16,7 +15,6 @@ import java.util.*
 
 abstract class BaseActivity : AppCompatActivity() {
 	protected val TAG = "TAG_" + javaClass.simpleName.toUpperCase(Locale.getDefault())
-	protected var compositeDisposable = CompositeDisposable()
 	private var loadingDialog: MaterialDialog? = null
 	protected abstract val layoutId: Int
 

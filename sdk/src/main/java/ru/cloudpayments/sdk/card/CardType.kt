@@ -12,7 +12,7 @@ enum class CardType {
 	JCB;
 
 	companion object {
-		fun fromString(value: String): CardType = when(value.toLowerCase(Locale.getDefault())){
+		fun fromString(value: String): CardType = when(value.lowercase(Locale.getDefault())){
 			"visa" -> VISA
 			"mastercard" -> MASTER_CARD
 			"maestro" -> MAESTRO

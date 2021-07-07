@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -31,8 +33,6 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	}
 
 	companion object {
-		const val REQUEST_CODE_SCANNER = 1
-
 		fun newInstance(configuration: PaymentConfiguration) = PaymentCardFragment().apply {
 			arguments = Bundle()
 			setConfiguration(configuration)
@@ -44,6 +44,17 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	override val viewModel: PaymentCardViewModel by viewModels()
 
 	override fun render(state: PaymentCardViewState) {
+	}
+
+	private val scannerCaller: ActivityResultLauncher<Intent> = registerForActivityResult(
+		ActivityResultContracts.StartActivityForResult()
+	) { result ->
+		result.data?.let { data ->
+			val cardData = paymentConfiguration?.scanner?.getCardDataFromIntent(data)
+			if (cardData != null) {
+				updateWithCardData(cardData)
+			}
+		}
 	}
 
 	private val cardNumberFormatWatcher by lazy {
@@ -156,9 +167,8 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		}
 
 		btn_scan.setOnClickListener {
-			val intent = paymentConfiguration?.scanner?.getScannerIntent(requireContext())
-			if (intent != null) {
-				startActivityForResult(intent, REQUEST_CODE_SCANNER)
+			paymentConfiguration?.scanner?.getScannerIntent(requireContext())?.let { intent ->
+				scannerCaller.launch(intent)
 			}
 		}
 
@@ -207,19 +217,5 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	private fun updateWithCardData(cardData: CardData) {
 		edit_card_number.setText(cardData.cardNumber)
 		edit_card_exp.setText("${cardData.cardExpMonth}/${cardData.cardExpYear}")
-	}
-
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
-		REQUEST_CODE_SCANNER -> {
-			if (data != null) {
-				val cardData = paymentConfiguration?.scanner?.getCardDataFromIntent(data)
-				if (cardData != null) {
-					updateWithCardData(cardData)
-				}
-			}
-
-			super.onActivityResult(requestCode, resultCode, data)
-		}
-		else -> super.onActivityResult(requestCode, resultCode, data)
 	}
 }
