@@ -69,7 +69,7 @@ if (transactionStatus != null) {
 val cardCryptogram = Card.cardCryptogram(cardNumber, cardDate, cardCVC, Constants.MERCHANT_PUBLIC_ID)
 ```
 
-2. Выполните запрос на проведения платежа. Создайте объект CloudpaymentApi и вызовите функцию auth для одностадийного платежа или charge для двухстадийного. Укажите email, на который будет выслана квитанция об оплате.
+2. Выполните запрос на проведения платежа. Создайте объект CloudpaymentApi и вызовите функцию charge для одностадийного платежа или auth для двухстадийного. Укажите email, на который будет выслана квитанция об оплате.
 
 ```
 val api = CloudpaymentsSDK.createApi(Constants.merchantPublicId)
