@@ -10,7 +10,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0.2"
+        versionName "1.0.3"
         multiDexEnabled false
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -33,7 +33,6 @@ android {
             consumerProguardFiles 'proguard-rules.pro'
 
             buildConfigField "String", "API_HOST", '"https://api.cloudpayments.ru/"'
-
         }
     }
 

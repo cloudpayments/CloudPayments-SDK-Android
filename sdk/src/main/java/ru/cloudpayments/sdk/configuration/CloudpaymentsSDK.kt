@@ -21,7 +21,6 @@ interface CloudpaymentsSDK {
 
 	fun getStartIntent(context: Context, configuration: PaymentConfiguration): Intent
 
-
 	enum class TransactionStatus {
 		Succeeded,
 		Failed;

@@ -134,8 +134,8 @@ dependencies {
     //card io scanner
     implementation 'io.card:android-sdk:5.5.0'
 
-    implementation project(path: ':sdk')
-    //implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.2'
+    //implementation project(path: ':sdk')
+    implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.3'
 }
 
 ext {
