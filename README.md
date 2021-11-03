@@ -39,11 +39,11 @@ implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.4'
 
 ```
 val paymentData = PaymentData(
-								Constants.merchantPublicId, // PublicId который вы получили в CloudPayments
-								"10.00", // Сумма транзакции
-								currency = "RUB", // Валюта
-								jsonData = jsonData // Данные в формате Json
-							)
+	Constants.merchantPublicId, // PublicId который вы получили в CloudPayments
+	"10.00", // Сумма транзакции
+	currency = "RUB", // Валюта
+	jsonData = jsonData // Данные в формате Json
+)
 ```
 
 2. Создайте объект PaymentConfiguration, передайте в него объект PaymentData.
@@ -54,11 +54,11 @@ val configuration = PaymentConfiguration(paymentData)
 // Так же можно указать и дополнительные параметры
 
 val configuration = PaymentConfiguration(
-								paymentData, // Данные транзакции
-								CardIOScanner(), // Сканер банковских карт
-								useDualMessagePayment = true, // Использовать двухстадийную схему проведения платежа, по умолчанию используется одностадийная схема
-								disableGPay = true // Выключить Google Pay, по умолчанию Google Pay включен
-							)
+	paymentData, // Данные транзакции
+	CardIOScanner(), // Сканер банковских карт
+	useDualMessagePayment = true, // Использовать двухстадийную схему проведения платежа, по умолчанию используется одностадийная схема
+	disableGPay = true // Выключить Google Pay, по умолчанию Google Pay включен
+)
 ```
 
 3. Вызовите форму оплаты. При вызове формы передайте requestCode и activity, в onActivityResult которого получите результат оплаты
