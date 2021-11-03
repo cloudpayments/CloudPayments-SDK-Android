@@ -1,6 +1,5 @@
 package ru.cloudpayments.demo.screens.cart
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -8,9 +7,6 @@ import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_cart.*
-import ru.cloudpayments.sdk.configuration.CloudpaymentsSDK
-import ru.cloudpayments.sdk.configuration.PaymentConfiguration
-import ru.cloudpayments.sdk.configuration.PaymentData
 import ru.cloudpayments.demo.Constants
 import ru.cloudpayments.demo.R
 import ru.cloudpayments.demo.base.BaseListActivity
@@ -19,6 +15,9 @@ import ru.cloudpayments.demo.models.Product
 import ru.cloudpayments.demo.screens.checkout.CheckoutActivity
 import ru.cloudpayments.demo.support.CardIOScanner
 import ru.cloudpayments.demo.support.SideSpaceItemDecoration
+import ru.cloudpayments.sdk.configuration.CloudpaymentsSDK
+import ru.cloudpayments.sdk.configuration.PaymentConfiguration
+import ru.cloudpayments.sdk.configuration.PaymentData
 
 class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListener {
 	companion object {
@@ -43,6 +42,9 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 		recycler_view.addItemDecoration(SideSpaceItemDecoration(this, 16, 1, true))
 		recycler_view.layoutManager = GridLayoutManager(this, 1)
 		recycler_view.adapter = adapter
+
+		CartManager.getInstance()?.addProduct(Product())
+
 		adapter!!.update(CartManager.getInstance()?.getProducts().orEmpty())
 	}
 
@@ -70,7 +72,7 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 		}
 
 		button_go_to_payment.setOnClickListener {
-			val sources = arrayOf("Своя форма оплаты", "Форма оплаты Cloudpayments")
+			val sources = arrayOf("Своя форма оплаты", "Форма оплаты CloudPayments")
 
 			val builder = MaterialAlertDialogBuilder(this)
 				.setTitle("Выберите источник")
@@ -84,9 +86,26 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 								total += it.price?.toInt() ?: 0
 							}
 							val jsonData: HashMap<String, Any> = hashMapOf("name" to "Иван")
-							val paymentData = PaymentData(Constants.merchantPublicId, total.toString(), "RUB", jsonData = jsonData)
-							val configuration = PaymentConfiguration(paymentData, CardIOScanner())
-							CloudpaymentsSDK.getInstance().start(configuration, this, REQUEST_CODE_PAYMENT)
+
+							val paymentData = PaymentData(
+								Constants.merchantPublicId,
+								total.toString(),
+								currency = "RUB",
+								jsonData = jsonData
+							)
+
+							val configuration = PaymentConfiguration(
+								paymentData,
+								CardIOScanner(),
+								useDualMessagePayment = false,
+								disableGPay = false
+							)
+
+							CloudpaymentsSDK.getInstance().start(
+								configuration,
+								this,
+								REQUEST_CODE_PAYMENT
+							)
 						}
 					}
 				}

@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import ru.cloudpayments.sdk.configuration.PaymentData
 
-internal class PaymentProcessViewModelFactory(private val paymentData: PaymentData,
-									 private val cryptogram: String,
-									 private val email: String): ViewModelProvider.Factory {
+internal class PaymentProcessViewModelFactory(
+	private val paymentData: PaymentData,
+	private val cryptogram: String,
+	private val email: String,
+	private val useDualMessagePayment: Boolean
+): ViewModelProvider.Factory {
 	@Suppress("UNCHECKED_CAST")
 	override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-		return PaymentProcessViewModel(paymentData, cryptogram, email) as T
+		return PaymentProcessViewModel(paymentData, cryptogram, email, useDualMessagePayment) as T
 	}
 }

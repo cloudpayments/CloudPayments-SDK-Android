@@ -5,5 +5,7 @@ import kotlinx.android.parcel.Parcelize
 import ru.cloudpayments.sdk.scanner.CardScanner
 
 @Parcelize
-class PaymentConfiguration(val paymentData: PaymentData,
-						   val scanner: CardScanner?): Parcelable
+data class PaymentConfiguration(val paymentData: PaymentData,
+						   val scanner: CardScanner?,
+						   val useDualMessagePayment: Boolean = false,
+						   val disableGPay: Boolean = false): Parcelable

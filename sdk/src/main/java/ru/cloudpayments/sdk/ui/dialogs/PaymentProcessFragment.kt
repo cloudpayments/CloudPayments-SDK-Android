@@ -43,7 +43,11 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 	private var currentState: PaymentProcessViewState? = null
 
 	override val viewModel: PaymentProcessViewModel by viewModels {
-		InjectorUtils.providePaymentProcessViewModelFactory(paymentConfiguration!!.paymentData, cryptogram,email)
+		InjectorUtils.providePaymentProcessViewModelFactory(
+			paymentConfiguration!!.paymentData,
+			cryptogram,
+			email,
+			paymentConfiguration!!.useDualMessagePayment)
 	}
 
 	override fun render(state: PaymentProcessViewState) {
@@ -76,7 +80,7 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 			activity().component.inject(viewModel)
 			updateWith(PaymentProcessStatus.InProcess)
 
-			viewModel.charge()
+			viewModel.pay()
 		}
 	}
 

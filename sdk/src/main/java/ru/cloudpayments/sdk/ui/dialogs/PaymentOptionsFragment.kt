@@ -6,8 +6,6 @@ import androidx.fragment.app.viewModels
 import kotlinx.android.synthetic.main.dialog_payment_options.*
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
-import ru.cloudpayments.sdk.ui.PaymentActivity
-import ru.cloudpayments.sdk.viewmodel.PaymentCardViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentOptionsViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentOptionsViewState
 

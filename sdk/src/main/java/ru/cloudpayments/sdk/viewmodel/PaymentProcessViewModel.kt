@@ -15,7 +15,8 @@ import javax.inject.Inject
 internal class PaymentProcessViewModel(
 	private val paymentData: PaymentData,
 	private val cryptogram: String,
-	private val email: String?
+	private val email: String?,
+	private val useDualMessagePayment: Boolean
 ): BaseViewModel<PaymentProcessViewState>() {
 	override var currentState = PaymentProcessViewState()
 	override val viewState: MutableLiveData<PaymentProcessViewState> by lazy {
@@ -27,7 +28,7 @@ internal class PaymentProcessViewModel(
 	@Inject
 	lateinit var api: CloudpaymentsApi
 
-	fun charge() {
+	fun pay() {
 		val jsonString = if (paymentData.jsonData != null) {
 			Gson().toJson(paymentData.jsonData)
 		} else {
@@ -43,17 +44,32 @@ internal class PaymentProcessViewModel(
 									  description = paymentData.description ?: "",
 									  accountId = paymentData.accountId ?: "",
 									  jsonData = jsonString)
-		disposable = api.charge(body)
-			.toObservable()
-			.observeOn(AndroidSchedulers.mainThread())
-			.map { response ->
-				checkTransactionResponse(response)
-			}
-			.onErrorReturn {
-				val state = currentState.copy(status = PaymentProcessStatus.Failed)
-				stateChanged(state)
-			}
-			.subscribe()
+
+		if (useDualMessagePayment) {
+			disposable = api.auth(body)
+				.toObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.map { response ->
+					checkTransactionResponse(response)
+				}
+				.onErrorReturn {
+					val state = currentState.copy(status = PaymentProcessStatus.Failed)
+					stateChanged(state)
+				}
+				.subscribe()
+		} else {
+			disposable = api.charge(body)
+				.toObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.map { response ->
+					checkTransactionResponse(response)
+				}
+				.onErrorReturn {
+					val state = currentState.copy(status = PaymentProcessStatus.Failed)
+					stateChanged(state)
+				}
+				.subscribe()
+		}
 	}
 
 	fun postThreeDs(md: String, paRes: String) {

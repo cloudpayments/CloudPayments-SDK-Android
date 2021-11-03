@@ -9,17 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="ru.cloudpayments.demo.screens.main.MainActivity">
+        <activity android:name="ru.cloudpayments.demo.screens.cart.CartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="ru.cloudpayments.demo.screens.checkout.CheckoutActivity"
-            android:theme="@style/AppTheme"/>
-        <activity android:name="ru.cloudpayments.demo.screens.cart.CartActivity"
-            android:theme="@style/AppTheme"/>
+        <activity android:name="ru.cloudpayments.demo.screens.checkout.CheckoutActivity"/>
 
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"

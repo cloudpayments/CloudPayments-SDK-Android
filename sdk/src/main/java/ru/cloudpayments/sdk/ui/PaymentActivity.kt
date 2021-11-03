@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.wallet.AutoResolveHelper
@@ -71,11 +72,11 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	}
 
 	private fun showUi(googlePayAvailable: Boolean) {
-		this.googlePayAvailable = googlePayAvailable
+		this.googlePayAvailable = googlePayAvailable && !configuration.disableGPay
 
 		icon_progress.isVisible = false
 
-		val fragment = if (googlePayAvailable) {
+		val fragment = if (this.googlePayAvailable) {
 			PaymentOptionsFragment.newInstance(configuration)
 		} else {
 			PaymentCardFragment.newInstance(configuration)

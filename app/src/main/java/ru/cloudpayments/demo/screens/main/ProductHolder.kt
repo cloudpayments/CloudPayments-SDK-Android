@@ -17,11 +17,7 @@ class ProductHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 		with(itemView) {
 			text_name.text = item.name
 			text_price.text = item.price + " " + context.getString(R.string.main_rub)
-			Glide
-				.with(context)
-				.load(item.imageUrl)
-				.apply(RequestOptions.bitmapTransform(CenterCrop()))
-				.into(image_product)
+
 		}
 	}
 

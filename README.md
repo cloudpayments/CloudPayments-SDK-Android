@@ -17,7 +17,7 @@ repositories {
 ```
 В build.gradle уровня приложения добавить зависимость
 ```
-implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.3'
+implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.4'
 ```
 ### Структура проекта:
 
@@ -28,36 +28,68 @@ implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.3'
 ### Возможности CloudPayments SDK:
 
 Вы можете использовать SDK одним из трех способов: 
+
 * использовать стандартную платежную форму Cloudpayments
 * реализовать свою платежную форму с использованием функций CloudpaymentsApi без вашего сервера
-* реализовать свою платежную форму, сформировать криптограмму и отправить ее на свой сервер
+* реализовать свою платежную форму, сформировать криптограмму и отправить ее в CloudPayments через свой сервер
 
 ### Использование стандартной платежной формы Cloudpayments:
 
 1. Создайте объект PaymentData, передайте в него Public Id из [личного кабинета Cloudpayments](https://merchant.cloudpayments.ru/), сумму платежа и валюту.
 
 ```
-val paymentData = PaymentData(Constants.merchantPublicId, "10.00", "RUB")
+val paymentData = PaymentData(
+								Constants.merchantPublicId, // PublicId который вы получили в CloudPayments
+								"10.00", // Сумма транзакции
+								currency = "RUB", // Валюта
+								jsonData = jsonData // Данные в формате Json
+							)
 ```
 
 2. Создайте объект PaymentConfiguration, передайте в него объект PaymentData.
 
 ```
 val configuration = PaymentConfiguration(paymentData)
+
+// Так же можно указать и дополнительные параметры
+
+val configuration = PaymentConfiguration(
+								paymentData, // Данные транзакции
+								CardIOScanner(), // Сканер банковских карт
+								useDualMessagePayment = true, // Использовать двухстадийную схему проведения платежа, по умолчанию используется одностадийная схема
+								disableGPay = true // Выключить Google Pay, по умолчанию Google Pay включен
+							)
 ```
 
 3. Вызовите форму оплаты. При вызове формы передайте requestCode и activity, в onActivityResult которого получите результат оплаты
 
 ```
 CloudpaymentsSDK.getInstance().start(configuration, this, REQUEST_CODE_PAYMENT)
+```
 
-val transactionId = data?.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, 0)
-val transactionStatus = data?.getSerializableExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name) as? CloudpaymentsSDK.TransactionStatus
+4. Получите результат в onActivityResult
 
-if (transactionStatus != null) {
-    // Значит платеж завершился (успешно или ошибкой)
-}
+```
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
+		REQUEST_CODE_PAYMENT -> {
+			val transactionId = data?.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, 0) ?: 0
+			val transactionStatus = data?.getSerializableExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name) as? CloudpaymentsSDK.TransactionStatus
 
+
+			if (transactionStatus != null) {
+				if (transactionStatus == CloudpaymentsSDK.TransactionStatus.Succeeded) {
+					Toast.makeText(this, "Успешно! Транзакция №$transactionId", Toast.LENGTH_SHORT).show()
+				} else {
+					val reasonCode = data.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionReasonCode.name, 0) ?: 0
+					if (reasonCode > 0) {
+						Toast.makeText(this, "Ошибка! Транзакция №$transactionId. Код ошибки $reasonCode", Toast.LENGTH_SHORT).show()
+					} else {
+						Toast.makeText(this, "Ошибка! Транзакция №$transactionId.", Toast.LENGTH_SHORT).show()
+					}
+				}
+			}
+		}
+		else -> super.onActivityResult(requestCode, resultCode, data)
 ```
 
 ### Использование вашей платежной формы с использованием функций CloudpaymentsApi:
