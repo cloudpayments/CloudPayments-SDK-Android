@@ -3,6 +3,7 @@
     <application>
         <activity
             android:name=".ui.PaymentActivity"
-            android:theme="@style/AcquiringTheme"/>
+            android:theme="@style/AcquiringTheme"
+            android:windowSoftInputMode="adjustResize"/>
     </application>
 </manifest>
