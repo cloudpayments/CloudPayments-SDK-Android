@@ -35,7 +35,27 @@ implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.4'
 
 ### Использование стандартной платежной формы Cloudpayments:
 
-1. Создайте объект PaymentData, передайте в него Public Id из [личного кабинета Cloudpayments](https://merchant.cloudpayments.ru/), сумму платежа и валюту.
+1.	Создайте CpSdkLauncher для получения результата через Activity Result API (рекомендуется использовать, но если хотите получить результат в onActivityResult этот шаг можно пропустить)
+
+```
+val cpSdkLauncher = CloudpaymentsSDK.getInstance().launcher(this, result = {
+		if (it.status != null) {
+			if (it.status == CloudpaymentsSDK.TransactionStatus.Succeeded) {
+				Toast.makeText(this, "Успешно! Транзакция №${it.transactionId}", Toast.LENGTH_SHORT).show()
+				CartManager.getInstance()?.clear()
+				finish()
+			} else {
+				if (it.reasonCode != 0) {
+					Toast.makeText(this, "Ошибка! Транзакция №${it.transactionId}. Код ошибки ${it.reasonCode}", Toast.LENGTH_SHORT).show()
+				} else {
+					Toast.makeText(this, "Ошибка! Транзакция №${it.transactionId}.", Toast.LENGTH_SHORT).show()
+				}
+			}
+		}
+	})
+```
+
+2. Создайте объект PaymentData, передайте в него Public Id из [личного кабинета Cloudpayments](https://merchant.cloudpayments.ru/), сумму платежа и валюту.
 
 ```
 val paymentData = PaymentData(
@@ -46,7 +66,7 @@ val paymentData = PaymentData(
 )
 ```
 
-2. Создайте объект PaymentConfiguration, передайте в него объект PaymentData.
+3. Создайте объект PaymentConfiguration, передайте в него объект PaymentData.
 
 ```
 val configuration = PaymentConfiguration(paymentData)
@@ -61,13 +81,17 @@ val configuration = PaymentConfiguration(
 )
 ```
 
-3. Вызовите форму оплаты. При вызове формы передайте requestCode и activity, в onActivityResult которого получите результат оплаты
+4. Вызовите форму оплаты. 
 
 ```
-CloudpaymentsSDK.getInstance().start(configuration, this, REQUEST_CODE_PAYMENT)
+cpSdkLauncher.launch(configuration) // Если используете Activity Result API
+
+// или
+
+CloudpaymentsSDK.getInstance().start(configuration, this, REQUEST_CODE_PAYMENT) // Если хотите получть результат в onActivityResult 
 ```
 
-4. Получите результат в onActivityResult
+5. Получите результат в onActivityResult (если не используете Activity Result API)
 
 ```
 override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {

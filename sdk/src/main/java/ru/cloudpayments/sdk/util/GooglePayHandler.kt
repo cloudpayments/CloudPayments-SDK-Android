@@ -12,7 +12,7 @@ internal class GooglePayHandler {
 			val transactionInfo = TransactionInfo.newBuilder()
 				.setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
 				.setTotalPrice(configuration.paymentData.amount)
-				.setCurrencyCode("RUB")
+				.setCurrencyCode(configuration.paymentData.currency)
 				.build()
 			val request = createPaymentDataRequest(transactionInfo, configuration.paymentData.publicId)
 			val client = createPaymentsClient(activity)

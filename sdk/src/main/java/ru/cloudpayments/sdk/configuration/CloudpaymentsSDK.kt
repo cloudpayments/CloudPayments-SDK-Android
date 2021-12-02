@@ -2,7 +2,9 @@ package ru.cloudpayments.sdk.configuration
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -13,11 +15,14 @@ import ru.cloudpayments.sdk.api.AuthenticationInterceptor
 import ru.cloudpayments.sdk.api.CloudpaymentsApiService
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
 import ru.cloudpayments.sdk.api.CloudpaymentsCardApiService
+import ru.cloudpayments.sdk.models.Transaction
 import ru.cloudpayments.sdk.ui.PaymentActivity
 import java.util.concurrent.TimeUnit
 
 interface CloudpaymentsSDK {
 	fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int)
+	fun launcher(from: AppCompatActivity, result: (Transaction) -> Unit) : ActivityResultLauncher<PaymentConfiguration>
+	fun launcher(from: Fragment, result: (Transaction) -> Unit) : ActivityResultLauncher<PaymentConfiguration>
 
 	fun getStartIntent(context: Context, configuration: PaymentConfiguration): Intent
 
@@ -32,8 +37,6 @@ interface CloudpaymentsSDK {
 	}
 
 	companion object {
-		const val RESULT_OK = 2
-		const val RESULT_FAILED = 3
 
 		fun getInstance(): CloudpaymentsSDK {
 			return CloudpaymentsSDKImpl()
@@ -84,6 +87,19 @@ interface CloudpaymentsSDK {
 internal class CloudpaymentsSDKImpl: CloudpaymentsSDK {
 	override fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int) {
 		from.startActivityForResult(this.getStartIntent(from, configuration), requestCode)
+	}
+
+	override fun launcher(
+		from: AppCompatActivity,
+		result: (Transaction) -> Unit): ActivityResultLauncher<PaymentConfiguration> {
+		return from.registerForActivityResult(CloudPaymentsIntentSender(), result)
+	}
+
+	override fun launcher(
+		from: Fragment,
+		result: (Transaction) -> Unit
+	): ActivityResultLauncher<PaymentConfiguration> {
+		return from.registerForActivityResult(CloudPaymentsIntentSender(), result)
 	}
 
 	override fun getStartIntent(context: Context, configuration: PaymentConfiguration): Intent {

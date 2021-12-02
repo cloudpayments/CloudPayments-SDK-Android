@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_cart.*
@@ -25,6 +26,22 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 	}
 
 	override val layoutId = R.layout.activity_cart
+
+	private val cpSdkLauncher = CloudpaymentsSDK.getInstance().launcher(this, result = {
+		if (it.status != null) {
+			if (it.status == CloudpaymentsSDK.TransactionStatus.Succeeded) {
+				Toast.makeText(this, "Успешно! Транзакция №${it.transactionId}", Toast.LENGTH_SHORT).show()
+				CartManager.getInstance()?.clear()
+				finish()
+			} else {
+				if (it.reasonCode != 0) {
+					Toast.makeText(this, "Ошибка! Транзакция №${it.transactionId}. Код ошибки ${it.reasonCode}", Toast.LENGTH_SHORT).show()
+				} else {
+					Toast.makeText(this, "Ошибка! Транзакция №${it.transactionId}.", Toast.LENGTH_SHORT).show()
+				}
+			}
+		}
+	})
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -101,11 +118,13 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 								disableGPay = false
 							)
 
-							CloudpaymentsSDK.getInstance().start(
-								configuration,
-								this,
-								REQUEST_CODE_PAYMENT
-							)
+//							CloudpaymentsSDK.getInstance().start(
+//								configuration,
+//								this,
+//								REQUEST_CODE_PAYMENT
+//							)
+
+							cpSdkLauncher.launch(configuration)
 						}
 					}
 				}
@@ -122,7 +141,6 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 		REQUEST_CODE_PAYMENT -> {
 			val transactionId = data?.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, 0) ?: 0
 			val transactionStatus = data?.getSerializableExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name) as? CloudpaymentsSDK.TransactionStatus
-
 
 			if (transactionStatus != null) {
 				if (transactionStatus == CloudpaymentsSDK.TransactionStatus.Succeeded) {

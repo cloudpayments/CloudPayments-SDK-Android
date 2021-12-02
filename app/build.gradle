@@ -135,7 +135,7 @@ dependencies {
     implementation 'io.card:android-sdk:5.5.0'
 
     implementation project(path: ':sdk')
-    //implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.3'
+    //implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.4'
 }
 
 ext {

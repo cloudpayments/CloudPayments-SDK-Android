@@ -167,6 +167,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/text_card_hint_email"
+                android:maxLines="1"
+                android:inputType="textEmailAddress"
                 style="@style/CP_TextInputEditText"
                 tools:text="support@cloudpayments.ru"/>
         </com.google.android.material.textfield.TextInputLayout>

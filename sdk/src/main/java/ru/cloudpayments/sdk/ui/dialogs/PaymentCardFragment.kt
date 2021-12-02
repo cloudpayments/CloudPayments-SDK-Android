@@ -14,6 +14,7 @@ import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.card.Card
 import ru.cloudpayments.sdk.card.CardType
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
+import ru.cloudpayments.sdk.models.Currency
 import ru.cloudpayments.sdk.scanner.CardData
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
 import ru.cloudpayments.sdk.util.emailIsValid
@@ -81,7 +82,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 
 				val cardNumber = s.toString().replace(" ", "")
 				if (Card.isValidNumber(cardNumber)) {
-					edit_card_exp.requestFocus()
+					//edit_card_exp.requestFocus()
 					errorMode(false, edit_card_number)
 				} else {
 					errorMode(cardNumber.length == 19, edit_card_number)
@@ -101,7 +102,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 
 				val cardExp = s.toString()
 				if (Card.isValidExpDate(cardExp)) {
-					edit_card_cvv.requestFocus()
+					//edit_card_cvv.requestFocus()
 					errorMode(false, edit_card_exp)
 				} else {
 					errorMode(cardExp.length == 5, edit_card_exp)
@@ -120,7 +121,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 
 				if (s != null && s.toString().length >= 3) {
 					if (checkbox_receipt.isChecked) {
-						edit_email.requestFocus()
+						//edit_email.requestFocus()
 					} else {
 						requireActivity().hideKeyboard()
 					}
@@ -162,7 +163,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			}
 		}
 
-		button_pay.text = getString(R.string.text_card_pay_button, requireContext().getCurrencyString(paymentConfiguration!!.paymentData.amount.toDouble()))
+		button_pay.text = getString(R.string.text_card_pay_button, String.format("%.2f " + Currency.getSymbol(paymentConfiguration!!.paymentData.currency), paymentConfiguration!!.paymentData.amount.toDouble()))
 
 		updatePaymentSystemIcon("")
 	}

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.wallet.AutoResolveHelper
@@ -108,14 +107,14 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	}
 
 	override fun onPaymentFinished(transactionId: Int) {
-		setResult(CloudpaymentsSDK.RESULT_OK, Intent().apply {
+		setResult(Activity.RESULT_OK, Intent().apply {
 			putExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, transactionId)
 			putExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name, CloudpaymentsSDK.TransactionStatus.Succeeded)
 		})
 	}
 
 	override fun onPaymentFailed(transactionId: Int, reasonCode: Int?) {
-		setResult(CloudpaymentsSDK.RESULT_FAILED, Intent().apply {
+		setResult(Activity.RESULT_OK, Intent().apply {
 			putExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, transactionId)
 			putExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name, CloudpaymentsSDK.TransactionStatus.Failed)
 			reasonCode?.let { putExtra(CloudpaymentsSDK.IntentKeys.TransactionReasonCode.name, it) }
