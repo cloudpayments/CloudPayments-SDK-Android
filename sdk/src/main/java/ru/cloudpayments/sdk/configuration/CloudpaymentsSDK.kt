@@ -14,7 +14,6 @@ import ru.cloudpayments.sdk.BuildConfig
 import ru.cloudpayments.sdk.api.AuthenticationInterceptor
 import ru.cloudpayments.sdk.api.CloudpaymentsApiService
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
-import ru.cloudpayments.sdk.api.CloudpaymentsCardApiService
 import ru.cloudpayments.sdk.models.Transaction
 import ru.cloudpayments.sdk.ui.PaymentActivity
 import java.util.concurrent.TimeUnit
@@ -42,7 +41,7 @@ interface CloudpaymentsSDK {
 			return CloudpaymentsSDKImpl()
 		}
 
-		fun createApi(publicId: String) = CloudpaymentsApi(createService(publicId), createCardService())
+		fun createApi(publicId: String) = CloudpaymentsApi(createService(publicId))
 
 		private fun createService(publicId: String): CloudpaymentsApiService {
 			val retrofit = Retrofit.Builder()
@@ -53,17 +52,6 @@ interface CloudpaymentsSDK {
 				.build()
 
 			return retrofit.create(CloudpaymentsApiService::class.java)
-		}
-
-		private fun createCardService(): CloudpaymentsCardApiService {
-			val retrofit = Retrofit.Builder()
-					.baseUrl("https://widget.cloudpayments.ru/Home/")
-					.addConverterFactory(GsonConverterFactory.create())
-					.addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-					.client(createClient(null))
-					.build()
-
-			return retrofit.create(CloudpaymentsCardApiService::class.java)
 		}
 
 		private fun createClient(publicId: String?): OkHttpClient {

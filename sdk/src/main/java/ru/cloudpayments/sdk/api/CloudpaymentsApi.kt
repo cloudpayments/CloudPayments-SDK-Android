@@ -9,8 +9,7 @@ import ru.cloudpayments.sdk.api.models.*
 import java.net.URLDecoder
 import javax.inject.Inject
 
-class CloudpaymentsApi @Inject constructor(private val apiService: CloudpaymentsApiService,
-										   private val cardApiService: CloudpaymentsCardApiService) {
+class CloudpaymentsApi @Inject constructor(private val apiService: CloudpaymentsApiService) {
 	companion object {
 		private const val THREE_DS_SUCCESS_URL = "https://api.cloudpayments.ru/threeds/success"
 		private const val THREE_DS_FAIL_URL = "https://api.cloudpayments.ru/threeds/fail"
@@ -58,7 +57,7 @@ class CloudpaymentsApi @Inject constructor(private val apiService: Cloudpayments
 			Single.error(CloudpaymentsTransactionError("You must specify the first 6 digits of the card number"))
 		} else {
 			val firstSix = firstSixDigits.subSequence(0, 6).toString()
-			cardApiService.getBinInfo(firstSix)
+			apiService.getBinInfo(firstSix)
 					.subscribeOn(Schedulers.io())
 					.map { it.binInfo ?: CloudpaymentsBinInfo("", "") }
 					.onErrorReturn { CloudpaymentsBinInfo("", "") }
