@@ -65,6 +65,7 @@ class Card {
 		}
 
 		fun isValidExpDate(exp: String?): Boolean {
+			return true
 			return if (exp == null) {
 				false
 			} else {

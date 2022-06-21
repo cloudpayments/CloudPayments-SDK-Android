@@ -1,25 +1,26 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.1.1"
+        minSdkVersion 23
+        targetSdkVersion 31
         multiDexEnabled false
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
+    viewBinding {
+        enabled = true
+    }
+
     buildTypes {
         debug {
-            debuggable true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
@@ -27,7 +28,6 @@ android {
             buildConfigField "String", "API_HOST", '"https://api.cloudpayments.ru/"'
         }
         release {
-            debuggable false
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
@@ -44,6 +44,7 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+    namespace 'ru.cloudpayments.sdk'
 }
 
 
@@ -91,4 +92,7 @@ dependencies {
 
     //rx google-play-services
     implementation 'io.ashdavies.rx.rxtasks:rx-tasks:2.2.0'
+
+    // yandex pay
+    implementation 'com.yandex.pay:core:0.1.9'
 }

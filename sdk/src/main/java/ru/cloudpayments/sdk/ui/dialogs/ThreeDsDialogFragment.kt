@@ -12,11 +12,10 @@ import android.webkit.WebViewClient
 import androidx.core.view.isGone
 import androidx.fragment.app.DialogFragment
 import com.google.gson.JsonParser
-import kotlinx.android.synthetic.main.dialog_three_ds.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import ru.cloudpayments.sdk.R
+import ru.cloudpayments.sdk.databinding.DialogThreeDsBinding
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
 import java.util.*
@@ -41,6 +40,26 @@ class ThreeDsDialogFragment : DialogFragment() {
 			}
 		}
 	}
+
+	private var _binding: DialogThreeDsBinding? = null
+
+	private val binding get() = _binding!!
+
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		_binding = DialogThreeDsBinding.inflate(inflater, container, false)
+		val view = binding.root
+		return view
+	}
+
+	override fun onDestroyView() {
+		super.onDestroyView()
+		_binding = null
+	}
+
 	private val acsUrl by lazy {
 		requireArguments().getString(ARG_ACS_URL) ?: ""
 	}
@@ -55,19 +74,15 @@ class ThreeDsDialogFragment : DialogFragment() {
 
 	private var listener: ThreeDSDialogListener? = null
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		return inflater.inflate(R.layout.dialog_three_ds, container, false)
-	}
-
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 		isCancelable = false
 
-		web_view.webViewClient = ThreeDsWebViewClient()
-		web_view.settings.domStorageEnabled = true
-		web_view.settings.javaScriptEnabled = true
-		web_view.settings.javaScriptCanOpenWindowsAutomatically = true
-		web_view.addJavascriptInterface(ThreeDsJavaScriptInterface(), "JavaScriptThreeDs")
+		binding.webView.webViewClient = ThreeDsWebViewClient()
+		binding.webView.settings.domStorageEnabled = true
+		binding.webView.settings.javaScriptEnabled = true
+		binding.webView.settings.javaScriptCanOpenWindowsAutomatically = true
+		binding.webView.addJavascriptInterface(ThreeDsJavaScriptInterface(), "JavaScriptThreeDs")
 
 		try {
 			val params = StringBuilder()
@@ -75,12 +90,12 @@ class ThreeDsDialogFragment : DialogFragment() {
 					.append("&MD=").append(URLEncoder.encode(md, "UTF-8"))
 					.append("&TermUrl=").append(URLEncoder.encode(POST_BACK_URL, "UTF-8"))
 					.toString()
-			web_view.postUrl(acsUrl, params.toByteArray())
+			binding.webView.postUrl(acsUrl, params.toByteArray())
 		} catch (e: UnsupportedEncodingException) {
 			e.printStackTrace()
 		}
 
-		ic_close.setOnClickListener {
+		binding.icClose.setOnClickListener {
 			listener?.onAuthorizationFailed(null)
 			dismiss()
 		}

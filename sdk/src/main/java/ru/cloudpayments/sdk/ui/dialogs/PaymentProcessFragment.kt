@@ -1,15 +1,17 @@
 package ru.cloudpayments.sdk.ui.dialogs
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
-import kotlinx.android.synthetic.main.dialog_payment_process.*
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
+import ru.cloudpayments.sdk.databinding.DialogPaymentProcessBinding
 import ru.cloudpayments.sdk.util.InjectorUtils
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewState
@@ -40,6 +42,25 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		}
 	}
 
+	private var _binding: DialogPaymentProcessBinding? = null
+
+	private val binding get() = _binding!!
+
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		_binding = DialogPaymentProcessBinding.inflate(inflater, container, false)
+		val view = binding.root
+		return view
+	}
+
+	override fun onDestroyView() {
+		super.onDestroyView()
+		_binding = null
+	}
+
 	private var currentState: PaymentProcessViewState? = null
 
 	override val viewModel: PaymentProcessViewModel by viewModels {
@@ -62,8 +83,6 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 			viewModel.clearThreeDsData()
 		}
 	}
-
-	override fun getLayout() = R.layout.dialog_payment_process
 
 	private val cryptogram by lazy {
 		arguments?.getString(ARG_CRYPTOGRAM) ?: ""
@@ -94,39 +113,39 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 				rotate.repeatCount = -1
 				rotate.repeatMode = Animation.INFINITE
 				rotate.fillAfter = true
-				icon_status.startAnimation(rotate)
+				binding.iconStatus.startAnimation(rotate)
 
-				text_status.setText(R.string.text_process_title)
-				button_finish.isInvisible = true
+				binding.textStatus.setText(R.string.text_process_title)
+				binding.buttonFinish.isInvisible = true
 			}
 
 			PaymentProcessStatus.Succeeded, PaymentProcessStatus.Failed -> {
-				icon_status.clearAnimation()
-				icon_status.rotation = 0f
-				button_finish.isInvisible = false
+				binding.iconStatus.clearAnimation()
+				binding.iconStatus.rotation = 0f
+				binding.buttonFinish.isInvisible = false
 
 				val listener = requireActivity() as? IPaymentProcessFragment
 
 				if (status == PaymentProcessStatus.Succeeded) {
-					icon_status.setImageResource(R.drawable.ic_success)
-					text_status.setText(R.string.text_process_title_success)
-					button_finish.setText(R.string.text_process_button_success)
+					binding.iconStatus.setImageResource(R.drawable.ic_success)
+					binding.textStatus.setText(R.string.text_process_title_success)
+					binding.buttonFinish.setText(R.string.text_process_button_success)
 
 					listener?.onPaymentFinished(currentState?.transaction?.transactionId ?: 0)
 
-					button_finish.setOnClickListener {
+					binding.buttonFinish.setOnClickListener {
 						close(false) {
 							listener?.finishPayment()
 						}
 					}
 				} else {
-					icon_status.setImageResource(R.drawable.ic_failure)
-					text_status.text = error ?: getString(R.string.text_process_title_error)
-					button_finish.setText(R.string.text_process_button_error)
+					binding.iconStatus.setImageResource(R.drawable.ic_failure)
+					binding.textStatus.text = error ?: getString(R.string.text_process_title_error)
+					binding.buttonFinish.setText(R.string.text_process_button_error)
 
 					listener?.onPaymentFailed(currentState?.transaction?.transactionId ?: 0, currentState?.reasonCode)
 
-					button_finish.setOnClickListener {
+					binding.buttonFinish.setOnClickListener {
 						close(false) {
 							listener?.retryPayment()
 						}

@@ -4,13 +4,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.android.synthetic.main.activity_cart.*
 import ru.cloudpayments.demo.Constants
 import ru.cloudpayments.demo.R
 import ru.cloudpayments.demo.base.BaseListActivity
+import ru.cloudpayments.demo.databinding.ActivityCartBinding
 import ru.cloudpayments.demo.managers.CartManager
 import ru.cloudpayments.demo.models.Product
 import ru.cloudpayments.demo.screens.checkout.CheckoutActivity
@@ -43,8 +42,15 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 		}
 	})
 
+	private lateinit var binding: ActivityCartBinding
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+
+		binding =ActivityCartBinding.inflate(layoutInflater)
+		val view = binding.root
+		setContentView(view)
+
 		setTitle(R.string.cart_title)
 		initList()
 		initTotal()
@@ -56,9 +62,9 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 		adapter!!.setHasStableIds(true)
 		adapter!!.setListener(this)
 
-		recycler_view.addItemDecoration(SideSpaceItemDecoration(this, 16, 1, true))
-		recycler_view.layoutManager = GridLayoutManager(this, 1)
-		recycler_view.adapter = adapter
+		binding.recyclerView.addItemDecoration(SideSpaceItemDecoration(this, 16, 1, true))
+		binding.recyclerView.layoutManager = GridLayoutManager(this, 1)
+		binding.recyclerView.adapter = adapter
 
 		CartManager.getInstance()?.addProduct(Product())
 
@@ -71,24 +77,24 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 		products.forEach { product ->
 			total += product.price?.toInt() ?: 0
 		}
-		text_total.text = getString(R.string.cart_total_currency, total.toString())
+		binding.textTotal.text = getString(R.string.cart_total_currency, total.toString())
 	}
 
 	private fun setupClickListeners(){
-		text_phone.setOnClickListener {
+		binding.textPhone.setOnClickListener {
 			val phone: String = getString(R.string.main_phone)
 			val intent = Intent(Intent.ACTION_DIAL)
 			intent.data = Uri.parse("tel:$phone")
 			startActivity(intent)
 		}
 
-		text_email.setOnClickListener {
+		binding.textEmail.setOnClickListener {
 			val email: String = getString(R.string.main_email)
 			val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email"))
 			startActivity(Intent.createChooser(emailIntent, getString(R.string.main_select_app)))
 		}
 
-		button_go_to_payment.setOnClickListener {
+		binding.buttonGoToPayment.setOnClickListener {
 			val sources = arrayOf("Своя форма оплаты", "Форма оплаты CloudPayments")
 
 			val builder = MaterialAlertDialogBuilder(this)
@@ -115,7 +121,9 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 								paymentData,
 								CardIOScanner(),
 								useDualMessagePayment = false,
-								disableGPay = false
+								disableGPay = false,
+								disableYandexPay = false,
+								yandexPayMerchantID = ""
 							)
 
 //							CloudpaymentsSDK.getInstance().start(

@@ -10,8 +10,9 @@ internal class PaymentProcessViewModelFactory(
 	private val email: String,
 	private val useDualMessagePayment: Boolean
 ): ViewModelProvider.Factory {
+
 	@Suppress("UNCHECKED_CAST")
-	override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+	override fun <T : ViewModel> create(modelClass: Class<T>): T {
 		return PaymentProcessViewModel(paymentData, cryptogram, email, useDualMessagePayment) as T
 	}
 }

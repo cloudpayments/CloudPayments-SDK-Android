@@ -15,10 +15,27 @@ repositories {
 	maven { url 'https://jitpack.io' }
 }
 ```
-В build.gradle уровня приложения добавить зависимость
+В build.gradle уровня приложения добавить зависимость:
 ```
-implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.0.4'
+implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.1.3'
 ```
+
+а так же Yandex Client ID, для Yandex Pay (если Yandex Pay не используется, добавльте пустой как в примере ниже)
+
+```
+android {
+    ...
+    defaultConfig {
+       ...
+       manifestPlaceholders = [
+               YANDEX_CLIENT_ID: ""
+       ]
+		...
+   	}
+   	...
+}
+```
+
 ### Структура проекта:
 
 * **app** - Пример реализации приложения с использованием SDK
@@ -77,7 +94,9 @@ val configuration = PaymentConfiguration(
 	paymentData, // Данные транзакции
 	CardIOScanner(), // Сканер банковских карт
 	useDualMessagePayment = true, // Использовать двухстадийную схему проведения платежа, по умолчанию используется одностадийная схема
-	disableGPay = true // Выключить Google Pay, по умолчанию Google Pay включен
+	disableGPay = true, // Выключить Google Pay, по умолчанию Google Pay включен
+	disableYandexPay = true, // Выключить Yandex Pay, по умолчанию Yandex Pay включен
+	yandexPayMerchantID = "" // Yandex Pay Merchant id
 )
 ```
 
