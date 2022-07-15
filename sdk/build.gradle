@@ -94,5 +94,5 @@ dependencies {
     implementation 'io.ashdavies.rx.rxtasks:rx-tasks:2.2.0'
 
     // yandex pay
-    implementation 'com.yandex.pay:core:0.1.9'
+    implementation 'com.yandex.pay:core:0.1.10'
 }

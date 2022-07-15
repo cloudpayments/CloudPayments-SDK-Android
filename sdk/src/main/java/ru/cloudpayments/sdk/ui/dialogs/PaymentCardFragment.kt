@@ -211,9 +211,10 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	}
 
 	private fun isValid(): Boolean {
-		val cardNumberIsValid = Card.isValidNumber(binding.editCardNumber.text.toString())
+		val cardNumber = binding.editCardNumber.text.toString()
+		val cardNumberIsValid = Card.isValidNumber(cardNumber)
 		val cardExpIsValid = Card.isValidExpDate(binding.editCardExp.text.toString())
-		val cardCvvIsValid = binding.editCardCvv.text.toString().length == 3
+		val cardCvvIsValid = Card.isValidCvv(cardNumber, binding.editCardCvv.text.toString())
 		val emailIsValid = !binding.checkboxReceipt.isChecked || emailIsValid(binding.editEmail.text.toString())
 
 		errorMode(!cardNumberIsValid, binding.editCardNumber)
