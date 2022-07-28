@@ -9,11 +9,7 @@ import ru.cloudpayments.sdk.api.models.*
 import java.net.URLDecoder
 import javax.inject.Inject
 
-class CloudpaymentsApi @Inject constructor(
-	private val apiService: CloudpaymentsApiService,
-	private val cardApiService: CloudpaymentsCardApiService
-) {
-
+class CloudpaymentsApi @Inject constructor(private val apiService: CloudpaymentsApiService) {
 	suspend fun charge(requestBody: PaymentRequestBody): CloudpaymentsTransactionResponse {
 		return apiService.charge(requestBody)
 	}
@@ -73,7 +69,7 @@ class CloudpaymentsApi @Inject constructor(
 		} else {
 			val firstSix = firstSixDigits.subSequence(0, 6).toString()
 			val result = try {
-				val response = cardApiService.getBinInfo(firstSix)
+				val response = apiService.getBinInfo(firstSix)
 				response.binInfo ?: CloudpaymentsBinInfo("", "")
 			} catch (e: Exception) {
 				CloudpaymentsBinInfo("", "")

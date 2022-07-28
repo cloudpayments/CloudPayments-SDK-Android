@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.util.Base64
 import android.os.Looper
 import android.util.Log
 import androidx.core.view.isVisible
@@ -12,14 +13,17 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.wallet.AutoResolveHelper
 import com.google.android.gms.wallet.PaymentData
-import kotlinx.android.synthetic.main.activity_payment.*
+import com.yandex.pay.core.*
+import com.yandex.pay.core.data.OrderDetails
 import kotlinx.coroutines.launch
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.CloudpaymentsSDK
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
-import ru.cloudpayments.sdk.dagger2.*
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsComponent
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsModule
+import ru.cloudpayments.sdk.dagger2.CloudpaymentsNetModule
+import ru.cloudpayments.sdk.dagger2.DaggerCloudpaymentsComponent
+import ru.cloudpayments.sdk.databinding.ActivityPaymentBinding
 import ru.cloudpayments.sdk.ui.dialogs.BasePaymentFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentCardFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentOptionsFragment
@@ -28,10 +32,10 @@ import ru.cloudpayments.sdk.util.GooglePayHandler
 import ru.cloudpayments.sdk.util.handlePaymentSuccess
 import ru.cloudpayments.sdk.util.nextFragment
 
-internal class PaymentActivity : FragmentActivity(), BasePaymentFragment.IPaymentFragment,
-								 PaymentOptionsFragment.IPaymentOptionsFragment,
-								 PaymentCardFragment.IPaymentCardFragment,
-								 PaymentProcessFragment.IPaymentProcessFragment {
+internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPaymentFragment,
+		PaymentOptionsFragment.IPaymentOptionsFragment, PaymentCardFragment.IPaymentCardFragment,
+		PaymentProcessFragment.IPaymentProcessFragment {
+
 	companion object {
 		private const val REQUEST_CODE_GOOGLE_PAY = 1
 
@@ -57,11 +61,58 @@ internal class PaymentActivity : FragmentActivity(), BasePaymentFragment.IPaymen
 			?: throw NullPointerException("EXTRA_CONFIGURATION is not existing in parcelable data")
 	}
 
-	private var googlePayAvailable: Boolean = false
+	var googlePayAvailable: Boolean = false
+	var yandexPayAvailable: Boolean = false
+
+	private lateinit var binding: ActivityPaymentBinding
+
+	private val yandexPayLauncher = registerForActivityResult(OpenYandexPayContract()) { result ->
+		when (result) {
+			is YandexPayResult.Success -> {
+
+				val token = Base64.decode(result.paymentToken.toString(), Base64.DEFAULT)
+
+				val runnable = {
+					val fragment = PaymentProcessFragment.newInstance(configuration, String(token), null)
+					nextFragment(fragment, true, R.id.frame_content)
+				}
+				Handler(Looper.getMainLooper()).postDelayed(runnable, 1000)
+			}
+			is YandexPayResult.Failure -> when (result) {
+				is YandexPayResult.Failure.Validation -> {
+					Log.e("YaPay", "failure: ${result.details}")
+					finish()
+				}
+				is YandexPayResult.Failure.Internal -> {
+					Log.e("YaPay", "failure: ${result.message}")
+					finish()
+				}
+			}
+			is YandexPayResult.Cancelled -> {
+				Log.e("YaPay","cancelled")
+				finish()
+			}
+		}
+	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_payment)
+		binding = ActivityPaymentBinding.inflate(layoutInflater)
+		val view = binding.root
+		setContentView(view)
+
+		if (YandexPayLib.isSupported) {
+			YandexPayLib.initialize(
+				context = this,
+				YandexPayLibConfig(
+					environment = YandexPayEnvironment.PROD,
+					logging = false, // Логгировать ли события в Logcat
+				),
+			)
+			yandexPayAvailable = !configuration.disableYandexPay && configuration.yandexPayMerchantID.isNotEmpty()
+		} else {
+			yandexPayAvailable = false
+		}
 
 		if (supportFragmentManager.backStackEntryCount == 0) {
 			lifecycleScope.launch {
@@ -72,11 +123,11 @@ internal class PaymentActivity : FragmentActivity(), BasePaymentFragment.IPaymen
 	}
 
 	private fun showUi(googlePayAvailable: Boolean) {
-		this.googlePayAvailable = googlePayAvailable
+		this.googlePayAvailable = googlePayAvailable && !configuration.disableGPay
 
-		icon_progress.isVisible = false
+		binding.iconProgress.isVisible = false
 
-		val fragment = if (googlePayAvailable) {
+		val fragment = if (this.googlePayAvailable || this.yandexPayAvailable) {
 			PaymentOptionsFragment.newInstance(configuration)
 		} else {
 			PaymentCardFragment.newInstance(configuration)
@@ -91,6 +142,10 @@ internal class PaymentActivity : FragmentActivity(), BasePaymentFragment.IPaymen
 		} else {
 			super.onBackPressed()
 		}
+	}
+
+	fun runYandexPay(orderDetails: OrderDetails) {
+		yandexPayLauncher.launch(orderDetails)
 	}
 
 	override fun onGooglePayClicked() {
@@ -108,7 +163,7 @@ internal class PaymentActivity : FragmentActivity(), BasePaymentFragment.IPaymen
 	}
 
 	override fun onPaymentFinished(transactionId: Int) {
-		setResult(CloudpaymentsSDK.RESULT_OK, Intent().apply {
+		setResult(Activity.RESULT_OK, Intent().apply {
 			putExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, transactionId)
 			putExtra(
 				CloudpaymentsSDK.IntentKeys.TransactionStatus.name,
@@ -118,7 +173,7 @@ internal class PaymentActivity : FragmentActivity(), BasePaymentFragment.IPaymen
 	}
 
 	override fun onPaymentFailed(transactionId: Int, reasonCode: Int?) {
-		setResult(CloudpaymentsSDK.RESULT_FAILED, Intent().apply {
+		setResult(Activity.RESULT_OK, Intent().apply {
 			putExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, transactionId)
 			putExtra(
 				CloudpaymentsSDK.IntentKeys.TransactionStatus.name,
@@ -173,9 +228,6 @@ internal class PaymentActivity : FragmentActivity(), BasePaymentFragment.IPaymen
 	}
 
 	private fun handleGooglePayFailure(intent: Intent?) {
-		val status = AutoResolveHelper.getStatusFromIntent(intent)
-		Log.w("loadPaymentData failed", String.format("Payment error code: %s", status?.toString()))
-
 		finish()
 	}
 }

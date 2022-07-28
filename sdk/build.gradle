@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 
 android {
@@ -13,6 +13,10 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+    }
+
+    viewBinding {
+        enabled = true
     }
 
     buildTypes {
@@ -29,7 +33,6 @@ android {
             consumerProguardFiles 'proguard-rules.pro'
 
             buildConfigField "String", "API_HOST", '"https://api.cloudpayments.ru/"'
-
         }
     }
 
@@ -41,6 +44,7 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+    namespace 'ru.cloudpayments.sdk'
 }
 
 
@@ -82,4 +86,6 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$dagger2Version"
     kapt "com.google.dagger:dagger-compiler:$dagger2Version"
     kapt "com.google.dagger:dagger-android-processor:$dagger2Version"
+    // yandex pay
+    implementation 'com.yandex.pay:core:0.1.10'
 }

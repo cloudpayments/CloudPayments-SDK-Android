@@ -13,8 +13,6 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wallet.AutoResolveHelper
 import com.google.android.gms.wallet.PaymentData
 import com.google.android.gms.wallet.PaymentsClient
-import kotlinx.android.synthetic.main.activity_checkout.*
-import kotlinx.android.synthetic.main.activity_checkout.edit_card_number
 import kotlinx.coroutines.launch
 import ru.cloudpayments.sdk.api.models.CloudpaymentsThreeDsResponse
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransaction
@@ -22,6 +20,7 @@ import ru.cloudpayments.sdk.card.Card
 import ru.cloudpayments.demo.R
 import ru.cloudpayments.demo.api.PayApi
 import ru.cloudpayments.demo.base.BaseActivity
+import ru.cloudpayments.demo.databinding.ActivityCheckoutBinding
 import ru.cloudpayments.demo.googlepay.PaymentsUtil
 import ru.cloudpayments.demo.managers.CartManager
 import ru.cloudpayments.demo.support.Constants
@@ -60,8 +59,15 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 		DescriptorFormatWatcher(UnderscoreDigitSlotsParser(), descriptor)
 	}
 
+	private lateinit var binding: ActivityCheckoutBinding
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+
+		binding =ActivityCheckoutBinding.inflate(layoutInflater)
+		val view = binding.root
+		setContentView(view)
+
 		setTitle(R.string.checkout_title)
 		initTotal()
 
@@ -70,12 +76,12 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 		// It's recommended to create the PaymentsClient object inside of the onCreate method.
 		paymentsClient = PaymentsUtil.createPaymentsClient(this)
 		checkIsReadyToPay()
-		pwg_button.setOnClickListener {
+		binding.pwgButton.root.setOnClickListener {
 			requestPayment()
 		}
 
-		cardNumberFormatWatcher.installOn(edit_card_number)
-		cardExpFormatWatcher.installOn(edit_card_date)
+		cardNumberFormatWatcher.installOn(binding.editCardNumber)
+		cardExpFormatWatcher.installOn(binding.editCardDate)
 
 		setupTextChangedListeners()
 		setupClickListeners()
@@ -86,63 +92,63 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 		products.forEach {
 			total += it.price?.toInt() ?: 0
 		}
-		text_total.text = getString(R.string.checkout_total_currency, total.toString())
+		binding.textTotal.text = getString(R.string.checkout_total_currency, total.toString())
 	}
 
 	private fun setupTextChangedListeners(){
-		edit_card_number.addTextChangedListener(object : TextWatcherAdapter() {
+		binding.editCardNumber.addTextChangedListener(object : TextWatcherAdapter() {
 			override fun afterTextChanged(s: Editable?) {
 				super.afterTextChanged(s)
 
 				val cardNumber = s.toString().replace(" ", "")
 				if (Card.isValidNumber(cardNumber)) {
-					edit_card_date.requestFocus()
+					binding.editCardDate.requestFocus()
 				}
 			}
 		})
 
-		edit_card_date.addTextChangedListener(object : TextWatcherAdapter() {
+		binding.editCardDate.addTextChangedListener(object : TextWatcherAdapter() {
 			override fun afterTextChanged(s: Editable?) {
 				super.afterTextChanged(s)
 
 				val cardExp = s.toString()
 				if (Card.isValidExpDate(cardExp)) {
-					edit_card_cvc.requestFocus()
+					binding.editCardCvc.requestFocus()
 				}
 			}
 		})
 
-		edit_card_cvc.addTextChangedListener(object : TextWatcherAdapter() {
+		binding.editCardCvc.addTextChangedListener(object : TextWatcherAdapter() {
 			override fun afterTextChanged(s: Editable?) {
 				super.afterTextChanged(s)
 
 				val cardCvc = s.toString()
 				if (cardCvc.length == 3) {
-					edit_card_holder_name.requestFocus()
+					binding.editCardHolderName.requestFocus()
 				}
 			}
 		})
 	}
 
 	private fun setupClickListeners() {
-		text_phone.setOnClickListener {
+		binding.textPhone.setOnClickListener {
 			val phone = getString(R.string.main_phone)
 			val intent = Intent(Intent.ACTION_DIAL)
 			intent.data = Uri.parse("tel:$phone")
 			startActivity(intent)
 		}
 
-		text_email.setOnClickListener {
+		binding.textEmail.setOnClickListener {
 			val email = getString(R.string.main_email)
 			val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email"))
 			startActivity(Intent.createChooser(emailIntent, getString(R.string.main_select_app)))
 		}
 
-		button_payment.setOnClickListener {
-			val cardNumber = edit_card_number.text.toString().replace(" ", "")
-			val cardDate = edit_card_date.text.toString().replace("/", "")
-			val cardCVC = edit_card_cvc.text.toString()
-			val cardHolderName = edit_card_holder_name.text.toString()
+		binding.buttonPayment.setOnClickListener {
+			val cardNumber = binding.editCardNumber.text.toString().replace(" ", "")
+			val cardDate = binding.editCardDate.text.toString().replace("/", "")
+			val cardCVC = binding.editCardCvc.text.toString()
+			val cardHolderName = binding.editCardHolderName.text.toString()
 
 			getBinInfo(cardNumber)
 
@@ -153,7 +159,6 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 				else -> {
 					try {
 						// Чтобы создать криптограмму необходим PublicID (его можно посмотреть в личном кабинете)
-
 						val cardCryptogram = Card.cardCryptogram(cardNumber, cardDate, cardCVC, Constants.MERCHANT_PUBLIC_ID)
 						cardCryptogram?.let {
 							auth(it, cardHolderName, total)
@@ -272,10 +277,10 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 		// Please adjust to fit in with your current user flow. You are not required to explicitly
 		// let the user know if isReadyToPay returns false.
 		if (available) {
-			pwg_status.isGone = true
-			pwg_button.isVisible = true
+			binding.pwgStatus.isGone = true
+			binding.pwgButton.root.isVisible = true
 		} else {
-			pwg_status.setText(R.string.pwg_status_unavailable)
+			binding.pwgStatus.setText(R.string.pwg_status_unavailable)
 		}
 	}
 
@@ -299,7 +304,7 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 				}
 
 				// Re-enables the Pay with Google button.
-				pwg_button.isClickable = true
+				binding.pwgButton.root.isClickable = true
 			}
 		}
 	}
@@ -334,7 +339,7 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 	// This method is called when the Pay with Google button is clicked.
 	private fun requestPayment() {
 		// Disables the button to prevent multiple clicks.
-		pwg_button.isClickable = false
+		binding.pwgButton.root.isClickable = false
 
 		// The price provided to the API should include taxes and shipping.
 		// This price is not displayed to the user.

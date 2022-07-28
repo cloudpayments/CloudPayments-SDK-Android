@@ -1,13 +1,9 @@
 package ru.cloudpayments.sdk.ui.dialogs
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.dialog_payment_card.*
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.ui.PaymentActivity
@@ -31,8 +27,14 @@ internal abstract class BasePaymentFragment<VS: BaseViewState, VM: BaseViewModel
 		arguments?.getParcelable<PaymentConfiguration>(ARG_CONFIGURATION)
 	}
 
+	private lateinit var background: View
+	private lateinit var content: View
+
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+
+		background = view.findViewById(R.id.background)
+		content = view.findViewById(R.id.content)
 
 		val fadeAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in)
 		fadeAnim.fillAfter = true

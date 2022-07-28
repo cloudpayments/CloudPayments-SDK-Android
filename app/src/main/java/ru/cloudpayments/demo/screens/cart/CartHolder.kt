@@ -1,33 +1,25 @@
 package ru.cloudpayments.demo.screens.cart
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.bumptech.glide.request.RequestOptions
-import kotlinx.android.synthetic.main.item_list_cart.view.*
-import ru.cloudpayments.demo.models.Product
 import ru.cloudpayments.demo.R
+import ru.cloudpayments.demo.databinding.ItemListCartBinding
+import ru.cloudpayments.demo.models.Product
 
-class CartHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class CartHolder(private val itemListCartBinding: ItemListCartBinding) : RecyclerView.ViewHolder(itemListCartBinding.root) {
 	fun bind(item: Product) {
-		with(itemView) {
-			text_name.text = item.name
-			text_price.text = item.price + " " + context.getString(R.string.main_rub)
 
-			Glide
-				.with(context)
-				.load(item.imageUrl)
-				.apply(RequestOptions.bitmapTransform(CenterCrop()))
-				.into(image_product)
-		}
+		itemListCartBinding.textName.text = item.name
+		itemListCartBinding.textPrice.text = item.price + " " + itemListCartBinding.root.context.getString(R.string.main_rub)
+		itemListCartBinding.imageProduct.setImageResource(item.image)
 	}
 
 	companion object {
 		fun create(parent: ViewGroup): CartHolder {
-			return CartHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_list_cart, parent, false))
+			val layoutInflater = LayoutInflater.from(parent.context)
+			val itemListCartBinding = ItemListCartBinding.inflate(layoutInflater, parent, false)
+			return CartHolder(itemListCartBinding)
 		}
 	}
 }

@@ -1,8 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.cloudpayments.sdk">
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-sdk tools:overrideLibrary="com.yandex.pay.core, com.yandex.xplat.yandex.pay, com.yandex.xplat.eventus.common, com.yandex.xplat.common"/>
     <application>
         <activity
             android:name=".ui.PaymentActivity"
-            android:theme="@style/AcquiringTheme"/>
+            android:theme="@style/AcquiringTheme"
+            android:windowSoftInputMode="adjustResize"/>
     </application>
 </manifest>

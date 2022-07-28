@@ -7,9 +7,9 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.afollestad.materialdialogs.MaterialDialog
-import kotlinx.android.synthetic.main.toolbar.*
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransactionError
 import ru.cloudpayments.demo.R
+import ru.cloudpayments.demo.databinding.ToolbarBinding
 import java.net.UnknownHostException
 import java.util.*
 
@@ -21,7 +21,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(layoutId)
+		val toolbar = ToolbarBinding.inflate(layoutInflater).root
 		setSupportActionBar(toolbar)
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
 		initLoadingDialog()

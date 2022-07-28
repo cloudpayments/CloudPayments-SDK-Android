@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.cloudpayments.demo">
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,21 +7,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="ru.cloudpayments.demo.screens.main.MainActivity">
+        <activity android:name="ru.cloudpayments.demo.screens.cart.CartActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="ru.cloudpayments.demo.screens.checkout.CheckoutActivity"
-            android:theme="@style/AppTheme"/>
-        <activity android:name="ru.cloudpayments.demo.screens.cart.CartActivity"
-            android:theme="@style/AppTheme"/>
+        <activity android:name="ru.cloudpayments.demo.screens.checkout.CheckoutActivity"/>
 
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"
             android:value="true" />
     </application>
-
 </manifest>

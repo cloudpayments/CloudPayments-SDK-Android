@@ -19,6 +19,7 @@ internal class GooglePayHandler {
 				createPaymentDataRequest(
 					configuration.paymentData.amount,
 					configuration.paymentData.publicId,
+					configuration.paymentData.currency,
 					"CloudPayments"
 				)
 			val client = createPaymentsClient(activity)
@@ -114,17 +115,18 @@ internal class GooglePayHandler {
 		 * @see [TransactionInfo](https://developers.google.com/pay/api/android/reference/object.TransactionInfo)
 		 */
 		@Throws(JSONException::class)
-		private fun getTransactionInfo(price: String): JSONObject {
+		private fun getTransactionInfo(price: String, code: String): JSONObject {
 			return JSONObject()
 				.put("totalPrice", price)
 				.put("totalPriceStatus", "FINAL")
-				.put("currencyCode", "RUB")
+				.put("currencyCode", code)
 		}
 
 		private fun createPaymentDataRequest(
 			formattedPrice: String,
 			publicMerchantId: String,
-			merchantName: String
+			merchantName: String,
+			currencyCode: String
 		): JSONObject? {
 			return try {
 				baseRequest
@@ -132,7 +134,7 @@ internal class GooglePayHandler {
 						"allowedPaymentMethods",
 						JSONArray().put(cardPaymentMethod(publicMerchantId))
 					)
-					.put("transactionInfo", getTransactionInfo(formattedPrice))
+					.put("transactionInfo", getTransactionInfo(formattedPrice, currencyCode))
 					.put("merchantInfo", JSONObject().put("merchantName", merchantName))
 			} catch (e: JSONException) {
 				null

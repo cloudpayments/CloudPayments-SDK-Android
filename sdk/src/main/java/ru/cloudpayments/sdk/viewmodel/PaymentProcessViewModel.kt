@@ -16,7 +16,8 @@ import javax.inject.Inject
 internal class PaymentProcessViewModel(
 	private val paymentData: PaymentData,
 	private val cryptogram: String,
-	private val email: String?
+	private val email: String?,
+	private val useDualMessagePayment: Boolean
 ): BaseViewModel<PaymentProcessViewState>() {
 	override var currentState = PaymentProcessViewState()
 	override val viewState: MutableLiveData<PaymentProcessViewState> by lazy {
@@ -28,7 +29,7 @@ internal class PaymentProcessViewModel(
 	@Inject
 	lateinit var api: CloudpaymentsApi
 
-	fun charge() {
+	fun pay() {
 		val jsonString = if (paymentData.jsonData != null) {
 			Gson().toJson(paymentData.jsonData)
 		} else {
@@ -39,15 +40,28 @@ internal class PaymentProcessViewModel(
 									  ipAddress = paymentData.ipAddress ?: "",
 									  name = paymentData.cardholderName ?: "",
 									  cryptogram = cryptogram,
-									  jsonData = jsonString,
-									  email = email)
+									  email = email,
+									  invoiceId = paymentData.invoiceId ?: "",
+									  description = paymentData.description ?: "",
+									  accountId = paymentData.accountId ?: "",
+									  jsonData = jsonString)
 		viewModelScope.launch {
-			try {
-				val response = api.charge(body)
-				checkTransactionResponse(response)
-			} catch (e: Exception) {
-				val state = currentState.copy(status = PaymentProcessStatus.Failed)
-				stateChanged(state)
+			if (useDualMessagePayment) {
+				try {
+					val response = api.auth(body)
+					checkTransactionResponse(response)
+				} catch (e: Exception) {
+					val state = currentState.copy(status = PaymentProcessStatus.Failed)
+					stateChanged(state)
+				}
+			} else {
+				try {
+					val response = api.charge(body)
+					checkTransactionResponse(response)
+				} catch (e: Exception) {
+					val state = currentState.copy(status = PaymentProcessStatus.Failed)
+					stateChanged(state)
+				}
 			}
 		}
 	}
