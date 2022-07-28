@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -52,18 +52,25 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <com.yandex.pay.core.ui.YandexPayButton
+            android:id="@+id/button_yandexpay"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginBottom="@dimen/margin_normal"
+            app:yandexpay_corner_radius="4dp"/>
+
         <include
             android:id="@+id/button_googlepay"
             layout="@layout/googlepay_button"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height"
+            android:layout_height="54dp"
             android:layout_marginBottom="@dimen/margin_normal" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_pay_card"
             style="@style/CP_OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height"
+            android:layout_height="54dp"
             android:text="@string/text_options_card"
             android:textColor="@color/dark"
             android:textSize="16sp" />

@@ -12,7 +12,6 @@ import ru.cloudpayments.sdk.BuildConfig
 import ru.cloudpayments.sdk.api.AuthenticationInterceptor
 import ru.cloudpayments.sdk.api.CloudpaymentsApiService
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
-import ru.cloudpayments.sdk.api.CloudpaymentsCardApiService
 import ru.cloudpayments.sdk.viewmodel.PaymentCardViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentOptionsViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewModel
@@ -23,8 +22,8 @@ import javax.inject.Singleton
 class CloudpaymentsModule {
 	@Provides
 	@Singleton
-	fun provideRepository(apiService: CloudpaymentsApiService, cardApiService: CloudpaymentsCardApiService)
-			= CloudpaymentsApi(apiService, cardApiService)
+	fun provideRepository(apiService: CloudpaymentsApiService)
+			= CloudpaymentsApi(apiService)
 }
 
 @Module
@@ -64,24 +63,6 @@ class CloudpaymentsNetModule(private val publicId: String) {
 			.build()
 
 		return retrofit.create(CloudpaymentsApiService::class.java)
-	}
-
-	@Provides
-	@Singleton
-	fun provideCardApiService(okHttpClientBuilder: OkHttpClient.Builder): CloudpaymentsCardApiService {
-		val client = okHttpClientBuilder
-				.connectTimeout(20, TimeUnit.SECONDS)
-				.readTimeout(20, TimeUnit.SECONDS)
-				.build()
-
-		val retrofit = Retrofit.Builder()
-				.baseUrl("https://widget.cloudpayments.ru/Home/")
-				.addConverterFactory(GsonConverterFactory.create())
-				.addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-				.client(client)
-				.build()
-
-		return retrofit.create(CloudpaymentsCardApiService::class.java)
 	}
 }
 
