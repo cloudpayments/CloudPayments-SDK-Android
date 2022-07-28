@@ -5,16 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.util.Base64
 import android.os.Looper
-import android.util.Log
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.wallet.AutoResolveHelper
 import com.google.android.gms.wallet.PaymentData
-import com.yandex.pay.core.*
-import com.yandex.pay.core.data.OrderDetails
 import kotlinx.coroutines.launch
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.CloudpaymentsSDK
@@ -62,57 +58,14 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	}
 
 	var googlePayAvailable: Boolean = false
-	var yandexPayAvailable: Boolean = false
 
 	private lateinit var binding: ActivityPaymentBinding
-
-	private val yandexPayLauncher = registerForActivityResult(OpenYandexPayContract()) { result ->
-		when (result) {
-			is YandexPayResult.Success -> {
-
-				val token = Base64.decode(result.paymentToken.toString(), Base64.DEFAULT)
-
-				val runnable = {
-					val fragment = PaymentProcessFragment.newInstance(configuration, String(token), null)
-					nextFragment(fragment, true, R.id.frame_content)
-				}
-				Handler(Looper.getMainLooper()).postDelayed(runnable, 1000)
-			}
-			is YandexPayResult.Failure -> when (result) {
-				is YandexPayResult.Failure.Validation -> {
-					Log.e("YaPay", "failure: ${result.details}")
-					finish()
-				}
-				is YandexPayResult.Failure.Internal -> {
-					Log.e("YaPay", "failure: ${result.message}")
-					finish()
-				}
-			}
-			is YandexPayResult.Cancelled -> {
-				Log.e("YaPay","cancelled")
-				finish()
-			}
-		}
-	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		binding = ActivityPaymentBinding.inflate(layoutInflater)
 		val view = binding.root
 		setContentView(view)
-
-		if (YandexPayLib.isSupported) {
-			YandexPayLib.initialize(
-				context = this,
-				YandexPayLibConfig(
-					environment = YandexPayEnvironment.PROD,
-					logging = false, // Логгировать ли события в Logcat
-				),
-			)
-			yandexPayAvailable = !configuration.disableYandexPay && configuration.yandexPayMerchantID.isNotEmpty()
-		} else {
-			yandexPayAvailable = false
-		}
 
 		if (supportFragmentManager.backStackEntryCount == 0) {
 			lifecycleScope.launch {
@@ -127,7 +80,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 
 		binding.iconProgress.isVisible = false
 
-		val fragment = if (this.googlePayAvailable || this.yandexPayAvailable) {
+		val fragment = if (this.googlePayAvailable) {
 			PaymentOptionsFragment.newInstance(configuration)
 		} else {
 			PaymentCardFragment.newInstance(configuration)
@@ -142,10 +95,6 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		} else {
 			super.onBackPressed()
 		}
-	}
-
-	fun runYandexPay(orderDetails: OrderDetails) {
-		yandexPayLauncher.launch(orderDetails)
 	}
 
 	override fun onGooglePayClicked() {

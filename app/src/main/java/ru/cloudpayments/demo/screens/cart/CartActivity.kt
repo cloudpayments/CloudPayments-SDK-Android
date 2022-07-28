@@ -4,8 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ru.cloudpayments.demo.Constants
@@ -74,7 +72,7 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 		var total = 0
 		val products = CartManager.getInstance()?.getProducts().orEmpty()
 		products.forEach { product ->
-			total += product.price?.toInt() ?: 0
+			total += product.price.toInt()
 		}
 		binding.textTotal.text = getString(R.string.cart_total_currency, total.toString())
 	}
@@ -105,7 +103,7 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 							var total = 0.0
 							val products = CartManager.getInstance()?.getProducts().orEmpty()
 							products.forEach {
-								total += it.price?.toInt() ?: 0
+								total += it.price.toInt()
 							}
 							val jsonData: HashMap<String, Any> = hashMapOf("name" to "Иван")
 
@@ -120,9 +118,7 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 								paymentData,
 								CardIOScanner(),
 								useDualMessagePayment = false,
-								disableGPay = false,
-								disableYandexPay = false,
-								yandexPayMerchantID = ""
+								disableGPay = false
 							)
 
 //							CloudpaymentsSDK.getInstance().start(

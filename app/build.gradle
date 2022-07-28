@@ -14,9 +14,6 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-        manifestPlaceholders = [
-                YANDEX_CLIENT_ID: ""
-        ]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -53,12 +50,12 @@ android {
 
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
     namespace 'ru.cloudpayments.demo'
 }
@@ -141,6 +138,6 @@ dependencies {
 }
 
 ext {
-    retrofitVersion = '2.5.0'
-    okHttp3Version = '3.8.0'
+    retrofitVersion = '2.9.0'
+    okHttp3Version = '3.10.0'
 }

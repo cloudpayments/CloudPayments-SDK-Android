@@ -8,6 +8,4 @@ import ru.cloudpayments.sdk.scanner.CardScanner
 data class PaymentConfiguration(val paymentData: PaymentData,
 								val scanner: CardScanner?,
 								val useDualMessagePayment: Boolean = false,
-								val disableGPay: Boolean = false,
-								val disableYandexPay: Boolean = false,
-								val yandexPayMerchantID: String = ""): Parcelable
+								val disableGPay: Boolean = false): Parcelable
