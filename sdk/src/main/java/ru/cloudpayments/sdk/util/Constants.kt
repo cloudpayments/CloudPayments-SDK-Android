@@ -1,7 +1,6 @@
 package ru.cloudpayments.sdk.util
 
 import com.google.android.gms.wallet.WalletConstants
-import org.json.JSONArray
 import ru.cloudpayments.sdk.BuildConfig
 
 val GOOGLE_PAY_ENVIRONMENT = if (BuildConfig.DEBUG)

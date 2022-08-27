@@ -20,9 +20,6 @@ import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.configuration.PaymentData
 
 class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListener {
-	companion object {
-		private const val REQUEST_CODE_PAYMENT = 1
-	}
 
 	override val layoutId = R.layout.activity_cart
 
@@ -75,7 +72,7 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 		var total = 0
 		val products = CartManager.getInstance()?.getProducts().orEmpty()
 		products.forEach { product ->
-			total += product.price?.toInt() ?: 0
+			total += product.price.toInt()
 		}
 		binding.textTotal.text = getString(R.string.cart_total_currency, total.toString())
 	}
@@ -106,7 +103,7 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 							var total = 0.0
 							val products = CartManager.getInstance()?.getProducts().orEmpty()
 							products.forEach {
-								total += it.price?.toInt() ?: 0
+								total += it.price.toInt()
 							}
 							val jsonData: HashMap<String, Any> = hashMapOf("name" to "Иван")
 
@@ -121,9 +118,7 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 								paymentData,
 								CardIOScanner(),
 								useDualMessagePayment = false,
-								disableGPay = false,
-								disableYandexPay = false,
-								yandexPayMerchantID = ""
+								disableGPay = false
 							)
 
 //							CloudpaymentsSDK.getInstance().start(
@@ -143,30 +138,5 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 
 	override fun onProductClick(item: Product?) {
 
-	}
-
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
-		REQUEST_CODE_PAYMENT -> {
-			val transactionId = data?.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionId.name, 0) ?: 0
-			val transactionStatus = data?.getSerializableExtra(CloudpaymentsSDK.IntentKeys.TransactionStatus.name) as? CloudpaymentsSDK.TransactionStatus
-
-			if (transactionStatus != null) {
-				if (transactionStatus == CloudpaymentsSDK.TransactionStatus.Succeeded) {
-					Toast.makeText(this, "Успешно! Транзакция №$transactionId", Toast.LENGTH_SHORT).show()
-					CartManager.getInstance()?.clear()
-					finish()
-				} else {
-					val reasonCode = data.getIntExtra(CloudpaymentsSDK.IntentKeys.TransactionReasonCode.name, 0) ?: 0
-					if (reasonCode > 0) {
-						Toast.makeText(this, "Ошибка! Транзакция №$transactionId. Код ошибки $reasonCode", Toast.LENGTH_SHORT).show()
-					} else {
-						Toast.makeText(this, "Ошибка! Транзакция №$transactionId.", Toast.LENGTH_SHORT).show()
-					}
-				}
-			}
-
-			Unit
-		}
-		else -> super.onActivityResult(requestCode, resultCode, data)
 	}
 }

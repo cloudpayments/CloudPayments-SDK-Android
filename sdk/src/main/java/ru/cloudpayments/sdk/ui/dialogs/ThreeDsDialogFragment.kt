@@ -109,7 +109,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 
 	private inner class ThreeDsWebViewClient : WebViewClient() {
 		override fun onPageFinished(view: WebView, url: String) {
-			if (url.toLowerCase(Locale.getDefault()) == POST_BACK_URL.toLowerCase(Locale.getDefault())) {
+			if (url.lowercase(Locale.getDefault()) == POST_BACK_URL.lowercase(Locale.getDefault())) {
 				view.isGone = true
 				view.loadUrl("javascript:window.JavaScriptThreeDs.processHTML('<head>'+document.getElementsByTagName('html')[0].innerHTML+'</head>');")
 			}
@@ -120,7 +120,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 		@JavascriptInterface
 		fun processHTML(html: String?) {
 			val doc: Document = Jsoup.parse(html)
-			val element: Element = doc.select("body").first()
+			val element: Element = doc.select("body").first() ?: return
 			val jsonObject = JsonParser().parse(element.ownText()).asJsonObject
 			val paRes = jsonObject["PaRes"].asString
 			requireActivity().runOnUiThread {

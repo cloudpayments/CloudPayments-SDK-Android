@@ -52,13 +52,6 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.yandex.pay.core.ui.YandexPayButton
-            android:id="@+id/button_yandexpay"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginBottom="@dimen/margin_normal"
-            app:yandexpay_corner_radius="4dp"/>
-
         <include
             android:id="@+id/button_googlepay"
             layout="@layout/googlepay_button"

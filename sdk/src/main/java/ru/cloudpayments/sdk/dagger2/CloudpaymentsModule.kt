@@ -6,7 +6,6 @@ import dagger.Provides
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.cloudpayments.sdk.BuildConfig
 import ru.cloudpayments.sdk.api.AuthenticationInterceptor
@@ -58,7 +57,6 @@ class CloudpaymentsNetModule(private val publicId: String) {
 		val retrofit = Retrofit.Builder()
 			.baseUrl(BuildConfig.API_HOST)
 			.addConverterFactory(GsonConverterFactory.create())
-			.addCallAdapterFactory(RxJava2CallAdapterFactory.create())
 			.client(client)
 			.build()
 

@@ -8,17 +8,19 @@ import androidx.fragment.app.Fragment
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.cloudpayments.sdk.BuildConfig
 import ru.cloudpayments.sdk.api.AuthenticationInterceptor
-import ru.cloudpayments.sdk.api.CloudpaymentsApiService
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
+import ru.cloudpayments.sdk.api.CloudpaymentsApiService
 import ru.cloudpayments.sdk.models.Transaction
 import ru.cloudpayments.sdk.ui.PaymentActivity
 import java.util.concurrent.TimeUnit
 
 interface CloudpaymentsSDK {
+	@Deprecated(
+		message = "Please use [CloudpaymentsSDK.getStartIntent] with [ActivityResultCaller] API"
+	)
 	fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int)
 	fun launcher(from: AppCompatActivity, result: (Transaction) -> Unit) : ActivityResultLauncher<PaymentConfiguration>
 	fun launcher(from: Fragment, result: (Transaction) -> Unit) : ActivityResultLauncher<PaymentConfiguration>
@@ -41,38 +43,46 @@ interface CloudpaymentsSDK {
 			return CloudpaymentsSDKImpl()
 		}
 
-		fun createApi(publicId: String) = CloudpaymentsApi(createService(publicId))
+		fun createApi(publicId: String, okHttpClient: OkHttpClient? = null) =
+			CloudpaymentsApi(createService(publicId, okHttpClient))
 
-		private fun createService(publicId: String): CloudpaymentsApiService {
+		private fun createService(publicId: String, okHttpClient: OkHttpClient?): CloudpaymentsApiService {
 			val retrofit = Retrofit.Builder()
 				.baseUrl(BuildConfig.API_HOST)
 				.addConverterFactory(GsonConverterFactory.create())
-				.addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-				.client(createClient(publicId))
+				.client(createClient(okHttpClient, publicId))
 				.build()
 
 			return retrofit.create(CloudpaymentsApiService::class.java)
 		}
 
-		private fun createClient(publicId: String?): OkHttpClient {
-			val okHttpClientBuilder = OkHttpClient.Builder()
-					.addInterceptor(HttpLoggingInterceptor()
-											.setLevel(HttpLoggingInterceptor.Level.BODY))
-			val client = okHttpClientBuilder
-					.connectTimeout(20, TimeUnit.SECONDS)
-					.readTimeout(20, TimeUnit.SECONDS)
-					.followRedirects(false)
+		private fun createClient(okHttpClient: OkHttpClient?, publicId: String?): OkHttpClient {
+			val builder = okHttpClient?.newBuilder() ?: OkHttpClient.Builder()
 
-			if (publicId != null){
-				client.addInterceptor(AuthenticationInterceptor(publicId))
+			builder
+				.connectTimeout(20, TimeUnit.SECONDS)
+				.readTimeout(20, TimeUnit.SECONDS)
+				.followRedirects(false)
+				.apply {
+					if (BuildConfig.DEBUG) {
+						addInterceptor(
+							HttpLoggingInterceptor()
+								.setLevel(HttpLoggingInterceptor.Level.BODY)
+						)
+					}
+				}
+
+			if (publicId != null) {
+				builder.addInterceptor(AuthenticationInterceptor(publicId))
 			}
 
-			return client.build()
+			return builder.build()
 		}
 	}
 }
 
-internal class CloudpaymentsSDKImpl: CloudpaymentsSDK {
+@Suppress("OverridingDeprecatedMember", "DEPRECATION")
+internal class CloudpaymentsSDKImpl : CloudpaymentsSDK {
 	override fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int) {
 		from.startActivityForResult(this.getStartIntent(from, configuration), requestCode)
 	}

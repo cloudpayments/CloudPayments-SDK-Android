@@ -4,11 +4,11 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
 
     defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 31
+        minSdkVersion 19
+        targetSdkVersion 32
         multiDexEnabled false
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -51,32 +51,29 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion"
 
-    implementation 'com.google.android.material:material:1.4.0-rc01'
+    implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'androidx.fragment:fragment-ktx:1.3.5'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.fragment:fragment-ktx:1.5.1'
     implementation 'androidx.arch.core:core-runtime:2.1.0'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
 
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
-    implementation "com.squareup.okhttp3:okhttp:$okHttp3Version"
-    implementation "com.squareup.okhttp3:logging-interceptor:$okHttp3Version"
+    implementation platform("com.squareup.okhttp3:okhttp-bom:$okHttp3Version")
+    implementation "com.squareup.okhttp3:okhttp"
+    implementation "com.squareup.okhttp3:logging-interceptor"
 
     implementation 'ru.tinkoff.decoro:decoro:1.5.0'
 
-    implementation 'org.jsoup:jsoup:1.13.1'
-
-    // rxkotlin
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.1.0'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation "com.jakewharton.rxbinding2:rxbinding-kotlin:$rxBindingVersion"
+    implementation 'org.jsoup:jsoup:1.14.3'
 
     implementation 'com.google.android.gms:play-services-wallet:19.1.0'
 
@@ -89,10 +86,4 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$dagger2Version"
     kapt "com.google.dagger:dagger-compiler:$dagger2Version"
     kapt "com.google.dagger:dagger-android-processor:$dagger2Version"
-
-    //rx google-play-services
-    implementation 'io.ashdavies.rx.rxtasks:rx-tasks:2.2.0'
-
-    // yandex pay
-    implementation 'com.yandex.pay:core:0.1.10'
 }

@@ -6,6 +6,8 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -33,8 +35,6 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	}
 
 	companion object {
-		const val REQUEST_CODE_SCANNER = 1
-
 		fun newInstance(configuration: PaymentConfiguration) = PaymentCardFragment().apply {
 			arguments = Bundle()
 			setConfiguration(configuration)
@@ -64,6 +64,17 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 
 	override fun render(state: PaymentCardViewState) {
 
+	}
+
+	private val scannerCaller: ActivityResultLauncher<Intent> = registerForActivityResult(
+		ActivityResultContracts.StartActivityForResult()
+	) { result ->
+		result.data?.let { data ->
+			val cardData = paymentConfiguration?.scanner?.getCardDataFromIntent(data)
+			if (cardData != null) {
+				updateWithCardData(cardData)
+			}
+		}
 	}
 
 	private val cardNumberFormatWatcher by lazy {
@@ -177,9 +188,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 
 		binding.btnScan.setOnClickListener {
 			val intent = paymentConfiguration?.scanner?.getScannerIntent(requireContext())
-			if (intent != null) {
-				startActivityForResult(intent, REQUEST_CODE_SCANNER)
-			}
+			scannerCaller.launch(intent)
 		}
 
 		binding.buttonPay.text = getString(R.string.text_card_pay_button, String.format("%.2f " + Currency.getSymbol(paymentConfiguration!!.paymentData.currency), paymentConfiguration!!.paymentData.amount.toDouble()))
@@ -228,19 +237,5 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	private fun updateWithCardData(cardData: CardData) {
 		binding.editCardNumber.setText(cardData.cardNumber)
 		binding.editCardExp.setText("${cardData.cardExpMonth}/${cardData.cardExpYear}")
-	}
-
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
-		REQUEST_CODE_SCANNER -> {
-			if (data != null) {
-				val cardData = paymentConfiguration?.scanner?.getCardDataFromIntent(data)
-				if (cardData != null) {
-					updateWithCardData(cardData)
-				}
-			}
-
-			super.onActivityResult(requestCode, resultCode, data)
-		}
-		else -> super.onActivityResult(requestCode, resultCode, data)
 	}
 }
