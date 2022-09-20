@@ -36,17 +36,17 @@ internal abstract class BasePaymentFragment<VS: BaseViewState, VM: BaseViewModel
 		background = view.findViewById(R.id.background)
 		content = view.findViewById(R.id.content)
 
-		val fadeAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in)
+		val fadeAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.cpsdk_fade_in)
 		fadeAnim.fillAfter = true
 		background.startAnimation(fadeAnim)
 
-		val slideAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in)
+		val slideAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.cpsdk_slide_in)
 		slideAnim.fillAfter = true
 		content.startAnimation(slideAnim)
 	}
 
 	protected fun close(force: Boolean, completion: (() -> (Unit))? = null){
-		val slideAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_out)
+		val slideAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.cpsdk_slide_out)
 		slideAnim.fillAfter = true
 		slideAnim.setAnimationListener(object : Animation.AnimationListener{
 			override fun onAnimationStart(animation: Animation?) {
@@ -67,7 +67,7 @@ internal abstract class BasePaymentFragment<VS: BaseViewState, VM: BaseViewModel
 		})
 		content.startAnimation(slideAnim)
 
-		val fadeAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_out)
+		val fadeAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.cpsdk_fade_out)
 		fadeAnim.fillAfter = true
 		background.startAnimation(fadeAnim)
 	}

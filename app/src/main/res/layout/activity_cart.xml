@@ -59,7 +59,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toTopOf="@id/ll_footer"
         app:layout_constraintVertical_chainStyle="packed"
-        style="@style/CP_UnelevatedButton"/>
+        style="@style/cpsdk_UnelevatedButton"/>
 
     <LinearLayout
         android:id="@+id/ll_footer"

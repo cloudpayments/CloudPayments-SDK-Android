@@ -2,6 +2,6 @@
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="#e0ffffff">
     <item
-        android:drawable="@drawable/bg_button_gp_black" />
+        android:drawable="@drawable/cpsdk_bg_button_gp_black" />
 </ripple>
 

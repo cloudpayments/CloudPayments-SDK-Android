@@ -1,12 +1,9 @@
 package ru.cloudpayments.sdk.ui.dialogs
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import ru.cloudpayments.sdk.databinding.DialogPaymentOptionsBinding
 import ru.cloudpayments.sdk.viewmodel.BaseViewModel
 import ru.cloudpayments.sdk.viewmodel.BaseViewState
 
