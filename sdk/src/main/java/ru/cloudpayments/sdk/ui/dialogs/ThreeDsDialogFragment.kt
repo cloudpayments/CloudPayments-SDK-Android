@@ -129,7 +129,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 				} else {
 					listener?.onAuthorizationFailed(html ?: "")
 				}
-				dismiss()
+				dismissAllowingStateLoss()
 			}
 		}
 	}
