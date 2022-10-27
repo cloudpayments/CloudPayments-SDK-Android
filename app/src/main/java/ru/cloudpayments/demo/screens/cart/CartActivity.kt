@@ -125,13 +125,6 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 								disableYandexPay = false,
 								yandexPayMerchantID = "1423423564546767575"
 							)
-
-//							CloudpaymentsSDK.getInstance().start(
-//								configuration,
-//								this,
-//								REQUEST_CODE_PAYMENT
-//							)
-
 							cpSdkLauncher.launch(configuration)
 						}
 					}

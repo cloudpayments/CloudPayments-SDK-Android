@@ -71,11 +71,6 @@ internal class PaymentOptionsFragment: BasePaymentFragment<PaymentOptionsViewSta
 		binding.buttonYandexpay.setOnClickListener { ->
 
 			val orderDetails = OrderDetails(
-				Merchant(
-					MerchantID.from(paymentConfiguration!!.yandexPayMerchantID), // Merchant ID
-					"Cloud", // Merchant name to display to a user
-					"https:/cp.ru/", // Merchant Origin
-				),
 				Order( // Order details
 					OrderID.from("ORDER_ID"), // Order ID
 					Amount.from(paymentConfiguration!!.paymentData.amount), // Total price for all items combined

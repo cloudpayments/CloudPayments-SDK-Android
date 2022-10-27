@@ -12,6 +12,8 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.wallet.AutoResolveHelper
 import com.google.android.gms.wallet.PaymentData
 import com.yandex.pay.core.*
+import com.yandex.pay.core.data.Merchant
+import com.yandex.pay.core.data.MerchantId
 import com.yandex.pay.core.data.OrderDetails
 import io.reactivex.android.schedulers.AndroidSchedulers
 import ru.cloudpayments.sdk.R
@@ -100,10 +102,16 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		if (YandexPayLib.isSupported) {
 			YandexPayLib.initialize(
 				context = this,
-				YandexPayLibConfig(
+				config = YandexPayLibConfig(
+					merchantDetails = Merchant(
+						id = MerchantId.from(configuration!!.yandexPayMerchantID),
+						name = "Cloud",
+						url = "https://cp.ru/",
+					),
 					environment = YandexPayEnvironment.PROD,
-					logging = false, // Логгировать ли события в Logcat
-				),
+					locale = YandexPayLocale.SYSTEM,
+					logging = false
+				)
 			)
 			yandexPayAvailable = !configuration!!.disableYandexPay && configuration!!.yandexPayMerchantID.isNotEmpty()
 		} else {
