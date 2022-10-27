@@ -87,6 +87,11 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 
 		activity().component.inject(viewModel)
 
+		if (isEmailRequired()) {
+			binding.checkboxReceipt.isGone = true
+			binding.tilEmail.isVisible = true
+		}
+
 		binding.checkboxReceipt.setOnCheckedChangeListener { _, isChecked ->
 			binding.tilEmail.isGone = !isChecked
 			requireActivity().hideKeyboard()
@@ -139,7 +144,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 				errorMode(false, binding.editCardCvv)
 
 				if (s != null && s.toString().length >= 3) {
-					if (binding.checkboxReceipt.isChecked) {
+					if (needCheckEmail()) {
 						//edit_email.requestFocus()
 					} else {
 						requireActivity().hideKeyboard()
@@ -166,7 +171,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			val cardCvv = binding.editCardCvv.text.toString()
 
 			val cryptogram = Card.cardCryptogram(cardNumber, cardExp, cardCvv, paymentConfiguration?.paymentData?.publicId ?: "")
-			val email = if (binding.checkboxReceipt.isChecked) binding.editEmail.text.toString() else null
+			val email = if (needCheckEmail()) binding.editEmail.text.toString() else null
 			if (isValid() && cryptogram != null) {
 				close(false) {
 					val listener = requireActivity() as? IPaymentCardFragment
@@ -214,7 +219,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		val cardNumberIsValid = Card.isValidNumber(binding.editCardNumber.text.toString())
 		val cardExpIsValid = Card.isValidExpDate(binding.editCardExp.text.toString())
 		val cardCvvIsValid = binding.editCardCvv.text.toString().length == 3
-		val emailIsValid = !binding.checkboxReceipt.isChecked || emailIsValid(binding.editEmail.text.toString())
+		val emailIsValid = !needCheckEmail() || emailIsValid(binding.editEmail.text.toString())
 
 		errorMode(!cardNumberIsValid, binding.editCardNumber)
 		errorMode(!cardExpIsValid, binding.editCardExp)
@@ -228,6 +233,10 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		binding.editCardNumber.setText(cardData.cardNumber)
 		binding.editCardExp.setText("${cardData.cardExpMonth}/${cardData.cardExpYear}")
 	}
+
+	private fun isEmailRequired() = paymentConfiguration?.emailRequired == true
+
+	private fun needCheckEmail() = isEmailRequired() || binding.checkboxReceipt.isChecked
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
 		REQUEST_CODE_SCANNER -> {
