@@ -12,6 +12,8 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.wallet.AutoResolveHelper
 import com.google.android.gms.wallet.PaymentData
 import com.yandex.pay.core.*
+import com.yandex.pay.core.data.Merchant
+import com.yandex.pay.core.data.MerchantId
 import com.yandex.pay.core.data.OrderDetails
 import io.reactivex.android.schedulers.AndroidSchedulers
 import ru.cloudpayments.sdk.R
@@ -21,7 +23,7 @@ import ru.cloudpayments.sdk.dagger2.CloudpaymentsComponent
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsModule
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsNetModule
 import ru.cloudpayments.sdk.dagger2.DaggerCloudpaymentsComponent
-import ru.cloudpayments.sdk.databinding.ActivityPaymentBinding
+import ru.cloudpayments.sdk.databinding.ActivityCpsdkPaymentBinding
 import ru.cloudpayments.sdk.ui.dialogs.BasePaymentFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentCardFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentOptionsFragment
@@ -60,7 +62,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	var googlePayAvailable: Boolean = false
 	var yandexPayAvailable: Boolean = false
 
-	private lateinit var binding: ActivityPaymentBinding
+	private lateinit var binding: ActivityCpsdkPaymentBinding
 
 	private val yandexPayLauncher = registerForActivityResult(OpenYandexPayContract()) { result ->
 		when (result) {
@@ -93,17 +95,23 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		binding = ActivityPaymentBinding.inflate(layoutInflater)
+		binding = ActivityCpsdkPaymentBinding.inflate(layoutInflater)
 		val view = binding.root
 		setContentView(view)
 
 		if (YandexPayLib.isSupported) {
 			YandexPayLib.initialize(
 				context = this,
-				YandexPayLibConfig(
+				config = YandexPayLibConfig(
+					merchantDetails = Merchant(
+						id = MerchantId.from(configuration!!.yandexPayMerchantID),
+						name = "Cloud",
+						url = "https://cp.ru/",
+					),
 					environment = YandexPayEnvironment.PROD,
-					logging = false, // Логгировать ли события в Logcat
-				),
+					locale = YandexPayLocale.SYSTEM,
+					logging = false
+				)
 			)
 			yandexPayAvailable = !configuration!!.disableYandexPay && configuration!!.yandexPayMerchantID.isNotEmpty()
 		} else {

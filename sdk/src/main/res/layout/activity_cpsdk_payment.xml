@@ -4,14 +4,16 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/transparent">
+    android:background="@color/cpsdk_transparent">
+
     <ImageView
         android:id="@+id/icon_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/ic_progress"
+        android:src="@drawable/cpsdk_ic_progress"
         android:visibility="gone"/>
+    
     <FrameLayout
         android:id="@+id/frame_content"
         android:layout_width="match_parent"

@@ -2,7 +2,7 @@
     <application>
         <activity
             android:name=".ui.PaymentActivity"
-            android:theme="@style/AcquiringTheme"
+            android:theme="@style/cpsdk_AcquiringTheme"
             android:windowSoftInputMode="adjustResize"/>
     </application>
 </manifest>

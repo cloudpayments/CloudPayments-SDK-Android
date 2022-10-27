@@ -57,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="@dimen/ui_margin_16dp"
-                style="@style/CP_TextInputLayout">
+                style="@style/cpsdk_TextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_card_number"
                     android:layout_width="match_parent"
@@ -68,7 +68,7 @@
                     android:digits="0123456789 "
                     android:textColor="@android:color/black"
                     android:textSize="16sp"
-                    style="@style/CP_TextInputEditText"/>
+                    style="@style/cpsdk_TextInputEditText"/>
             </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -82,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    style="@style/CP_TextInputLayout">
+                    style="@style/cpsdk_TextInputLayout">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edit_card_date"
                         android:layout_width="match_parent"
@@ -93,7 +93,7 @@
                         android:digits="0123456789/"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
-                        style="@style/CP_TextInputEditText"/>
+                        style="@style/cpsdk_TextInputEditText"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -101,7 +101,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    style="@style/CP_TextInputLayout">
+                    style="@style/cpsdk_TextInputLayout">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edit_card_cvc"
                         android:layout_width="match_parent"
@@ -113,7 +113,7 @@
                         android:digits="0123456789"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
-                        style="@style/CP_TextInputEditText"/>
+                        style="@style/cpsdk_TextInputEditText"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
@@ -122,7 +122,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="@dimen/ui_margin_16dp"
-                style="@style/CP_TextInputLayout">
+                style="@style/cpsdk_TextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_card_holder_name"
                     android:layout_width="match_parent"
@@ -132,7 +132,7 @@
                     android:inputType="textPersonName"
                     android:textColor="@android:color/black"
                     android:textSize="16sp"
-                    style="@style/CP_TextInputEditText"/>
+                    style="@style/cpsdk_TextInputEditText"/>
             </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -145,7 +145,7 @@
                 android:layout_marginRight="@dimen/ui_margin_16dp"
                 android:text="@string/checkout_payment"
                 app:backgroundTint="@color/colorAccent"
-                style="@style/CP_UnelevatedButton"/>
+                style="@style/cpsdk_UnelevatedButton"/>
 
             <TextView
                 android:layout_width="match_parent"

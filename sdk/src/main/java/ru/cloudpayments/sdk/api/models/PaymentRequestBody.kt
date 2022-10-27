@@ -12,4 +12,5 @@ data class PaymentRequestBody(
 		@SerializedName("InvoiceId") val invoiceId: String? = null, // Номер счета или заказа в вашей системе (необязательный)
 		@SerializedName("Description") val description: String? = null, // Описание оплаты в свободной форме (необязательный)
 		@SerializedName("AccountId") val accountId: String? = null, // Идентификатор пользователя в вашей системе (необязательный)
-		@SerializedName("JsonData") val jsonData: String? = null) //"{\"age\":27,\"name\":\"Ivan\",\"phone\":\"+79998881122\"}"  Любые другие данные, которые будут связаны с транзакцией (необязательный)
+		@SerializedName("JsonData") val jsonData: String? = null, //"{\"age\":27,\"name\":\"Ivan\",\"phone\":\"+79998881122\"}"  Любые другие данные, которые будут связаны с транзакцией (необязательный)
+		@SerializedName("scenario") val scenario: Int = 7)

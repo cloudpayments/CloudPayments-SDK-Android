@@ -15,7 +15,7 @@ import com.google.gson.JsonParser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import ru.cloudpayments.sdk.databinding.DialogThreeDsBinding
+import ru.cloudpayments.sdk.databinding.DialogCpsdkThreeDsBinding
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
 import java.util.*
@@ -41,7 +41,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 		}
 	}
 
-	private var _binding: DialogThreeDsBinding? = null
+	private var _binding: DialogCpsdkThreeDsBinding? = null
 
 	private val binding get() = _binding!!
 
@@ -50,7 +50,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		_binding = DialogThreeDsBinding.inflate(inflater, container, false)
+		_binding = DialogCpsdkThreeDsBinding.inflate(inflater, container, false)
 		val view = binding.root
 		return view
 	}
@@ -129,7 +129,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 				} else {
 					listener?.onAuthorizationFailed(html ?: "")
 				}
-				dismiss()
+				dismissAllowingStateLoss()
 			}
 		}
 	}

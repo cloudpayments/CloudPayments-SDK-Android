@@ -15,7 +15,7 @@ import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.card.Card
 import ru.cloudpayments.sdk.card.CardType
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
-import ru.cloudpayments.sdk.databinding.DialogPaymentCardBinding
+import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentCardBinding
 import ru.cloudpayments.sdk.models.Currency
 import ru.cloudpayments.sdk.scanner.CardData
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
@@ -41,7 +41,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		}
 	}
 
-	private var _binding: DialogPaymentCardBinding? = null
+	private var _binding: DialogCpsdkPaymentCardBinding? = null
 
 	private val binding get() = _binding!!
 
@@ -50,7 +50,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		_binding = DialogPaymentCardBinding.inflate(inflater, container, false)
+		_binding = DialogCpsdkPaymentCardBinding.inflate(inflater, container, false)
 		val view = binding.root
 		return view
 	}
@@ -187,18 +187,18 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			}
 		}
 
-		binding.buttonPay.text = getString(R.string.text_card_pay_button, String.format("%.2f " + Currency.getSymbol(paymentConfiguration!!.paymentData.currency), paymentConfiguration!!.paymentData.amount.toDouble()))
+		binding.buttonPay.text = getString(R.string.cpsdk_text_card_pay_button, String.format("%.2f " + Currency.getSymbol(paymentConfiguration!!.paymentData.currency), paymentConfiguration!!.paymentData.amount.toDouble()))
 
 		updatePaymentSystemIcon("")
 	}
 
 	private fun errorMode(isErrorMode: Boolean, editText: TextInputEditText){
 		if (isErrorMode) {
-			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.pale_red))
-			editText.setBackgroundResource(R.drawable.edit_text_underline_error)
+			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.cpsdk_pale_red))
+			editText.setBackgroundResource(R.drawable.cpsdk_edit_text_underline_error)
 		} else {
-			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark))
-			editText.setBackgroundResource(R.drawable.edit_text_underline)
+			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.cpsdk_dark))
+			editText.setBackgroundResource(R.drawable.cpsdk_edit_text_underline)
 		}
 	}
 
@@ -216,9 +216,10 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 	}
 
 	private fun isValid(): Boolean {
-		val cardNumberIsValid = Card.isValidNumber(binding.editCardNumber.text.toString())
+		val cardNumber = binding.editCardNumber.text.toString()
+		val cardNumberIsValid = Card.isValidNumber(cardNumber)
 		val cardExpIsValid = Card.isValidExpDate(binding.editCardExp.text.toString())
-		val cardCvvIsValid = binding.editCardCvv.text.toString().length == 3
+		val cardCvvIsValid = Card.isValidCvv(cardNumber, binding.editCardCvv.text.toString())
 		val emailIsValid = !needCheckEmail() || emailIsValid(binding.editEmail.text.toString())
 
 		errorMode(!cardNumberIsValid, binding.editCardNumber)

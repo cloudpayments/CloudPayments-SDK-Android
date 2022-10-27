@@ -35,7 +35,7 @@ fun FragmentActivity.nextFragment(fragment: Fragment, addToBackStack: Boolean = 
 	val transaction = supportFragmentManager.beginTransaction()
 
 	if (animated) {
-		transaction.setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
+		transaction.setCustomAnimations(R.anim.cpsdk_slide_in, R.anim.cpsdk_slide_out)
 	}
 
 	transaction.add(contentFrame, fragment, supportFragmentManager.backStackEntryCount.toString())
@@ -49,5 +49,5 @@ fun FragmentActivity.nextFragment(fragment: Fragment, addToBackStack: Boolean = 
 fun Context.getCurrencyString(currency: Double) = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 	NumberFormat.getCurrencyInstance(getRussianLocale()).format(currency)
 } else {
-	getString(R.string.currency_template, currency)
+	getString(R.string.cpsdk_currency_template, currency)
 }

@@ -7,15 +7,16 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="@color/white">
+        android:background="@color/cpsdk_white">
+
         <ImageButton
             android:id="@+id/ic_close"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="end|center_vertical"
-            android:background="@drawable/bg_button_close"
-            android:layout_marginEnd="@dimen/margin_small"
-            android:src="@drawable/ic_close"/>
+            android:background="@drawable/cpsdk_bg_button_close"
+            android:layout_marginEnd="@dimen/cpsdk_margin_small"
+            android:src="@drawable/cpsdk_ic_close"/>
     </FrameLayout>
 
     <WebView

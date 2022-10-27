@@ -6,9 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.yandex.pay.core.data.*
-import com.yandex.pay.core.ui.YandexPayButton
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
-import ru.cloudpayments.sdk.databinding.DialogPaymentOptionsBinding
+import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentOptionsBinding
 import ru.cloudpayments.sdk.ui.PaymentActivity
 import ru.cloudpayments.sdk.viewmodel.PaymentOptionsViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentOptionsViewState
@@ -26,7 +25,7 @@ internal class PaymentOptionsFragment: BasePaymentFragment<PaymentOptionsViewSta
 		}
 	}
 
-	private var _binding: DialogPaymentOptionsBinding? = null
+	private var _binding: DialogCpsdkPaymentOptionsBinding? = null
 
 	private val binding get() = _binding!!
 
@@ -35,7 +34,7 @@ internal class PaymentOptionsFragment: BasePaymentFragment<PaymentOptionsViewSta
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		_binding = DialogPaymentOptionsBinding.inflate(inflater, container, false)
+		_binding = DialogCpsdkPaymentOptionsBinding.inflate(inflater, container, false)
 		return binding.root
 	}
 
@@ -72,11 +71,6 @@ internal class PaymentOptionsFragment: BasePaymentFragment<PaymentOptionsViewSta
 		binding.buttonYandexpay.setOnClickListener { ->
 
 			val orderDetails = OrderDetails(
-				Merchant(
-					MerchantID.from(paymentConfiguration!!.yandexPayMerchantID), // Merchant ID
-					"Cloud", // Merchant name to display to a user
-					"https:/cp.ru/", // Merchant Origin
-				),
 				Order( // Order details
 					OrderID.from("ORDER_ID"), // Order ID
 					Amount.from(paymentConfiguration!!.paymentData.amount), // Total price for all items combined

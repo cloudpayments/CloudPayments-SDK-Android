@@ -19,7 +19,7 @@
 
     <dimen name="ui_margin_16dp">16dp</dimen>
 
-    <dimen name="padding_small">5dp</dimen>
+    <dimen name="cpsdk_padding_small">5dp</dimen>
     <dimen name="margin_large">10dp</dimen>
     <dimen name="margin_xlarge">30dp</dimen>
 

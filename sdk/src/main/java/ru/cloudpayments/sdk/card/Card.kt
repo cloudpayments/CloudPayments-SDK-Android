@@ -9,6 +9,7 @@ import java.security.spec.X509EncodedKeySpec
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
@@ -17,6 +18,7 @@ import javax.crypto.NoSuchPaddingException
 
 class Card {
 	companion object {
+
 		private fun getKeyVersion(): String {
 			return "04"
 		}
@@ -65,7 +67,6 @@ class Card {
 		}
 
 		fun isValidExpDate(exp: String?): Boolean {
-			return true
 			return if (exp == null) {
 				false
 			} else {
@@ -81,16 +82,37 @@ class Card {
 						calendar.time = date ?: Date()
 						calendar[Calendar.DAY_OF_MONTH] = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 						date = calendar.time
-						val currentDate = Date()
+						//val currentDate = Date()
+						val currentDate = format.parse("0222")
 						currentDate.before(date)
 					} catch (e: ParseException) {
 						e.printStackTrace()
 						false
 					}
 				}
-
 			}
+		}
 
+		fun isValidCvv(cardNumber: String?, cvv: String?): Boolean {
+			return if (cvv?.length == 3) {
+				true
+			} else isUzcardCard(cardNumber) || isHumoCard(cardNumber)
+		}
+
+		fun isUzcardCard(cardNumber: String?): Boolean {
+			//Uzcard 8600
+			if (cardNumber?.substring(0, 4) == "8600") {
+				return true
+			}
+			return false
+		}
+
+		fun isHumoCard(cardNumber: String?): Boolean {
+			//Humo 9860
+			if (cardNumber?.substring(0, 4) == "9860") {
+				return true
+			}
+			return false
 		}
 
 		@Throws(UnsupportedEncodingException::class, NoSuchPaddingException::class, NoSuchAlgorithmException::class, BadPaddingException::class,
