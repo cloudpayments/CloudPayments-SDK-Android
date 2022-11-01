@@ -11,4 +11,5 @@ data class PaymentConfiguration(val paymentData: PaymentData,
 								val disableGPay: Boolean = false,
 								val disableYandexPay: Boolean = false,
 								val yandexPayMerchantID: String = "",
+								val previewEmail: String? = null,
 								val emailRequired: Boolean = false): Parcelable

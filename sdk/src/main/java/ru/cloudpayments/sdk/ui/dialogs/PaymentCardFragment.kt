@@ -92,6 +92,11 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			binding.tilEmail.isVisible = true
 		}
 
+		paymentConfiguration
+				?.previewEmail
+				?.takeIf(::emailIsValid)
+				?.let(binding.editEmail::setText)
+
 		binding.checkboxReceipt.setOnCheckedChangeListener { _, isChecked ->
 			binding.tilEmail.isGone = !isChecked
 			requireActivity().hideKeyboard()
