@@ -29,11 +29,12 @@ internal class PaymentProcessViewModel(
 	lateinit var api: CloudpaymentsApi
 
 	fun pay() {
-		val jsonString = if (paymentData.jsonData != null) {
-			Gson().toJson(paymentData.jsonData)
-		} else {
-			""
-		}
+		val jsonString = paymentData
+			.jsonData
+			?.substituteEmail(email ?: "")
+			?.let(Gson()::toJson)
+			?: ""
+
 		val body = PaymentRequestBody(amount = paymentData.amount,
 									  currency = paymentData.currency,
 									  ipAddress = paymentData.ipAddress ?: "",
@@ -154,3 +155,17 @@ internal data class PaymentProcessViewState(
 	val errorMessage: String? = null,
 	val reasonCode: Int? = null
 ): BaseViewState()
+
+private fun HashMap<String, Any>.substituteEmail(email: String): HashMap<String, Any> {
+	forEach { (key, value) ->
+		value
+			.tryCast<HashMap<String, Any>>()
+			?.let { put(key, it.substituteEmail(email)) }
+			?: takeIf { key == "email" && value == "" }?.let { put(key, email) }
+	}
+	return this
+}
+
+private inline fun <reified T> Any?.tryCast(): T? {
+	return if (this is T) this else null
+}
