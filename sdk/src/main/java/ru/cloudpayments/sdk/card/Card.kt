@@ -101,7 +101,7 @@ class Card {
 
 		fun isUzcardCard(cardNumber: String?): Boolean {
 			//Uzcard 8600
-			if (cardNumber?.substring(0, 4) == "8600") {
+			if (cardNumber?.length!! > 3 && cardNumber?.substring(0, 4) == "8600") {
 				return true
 			}
 			return false
@@ -109,7 +109,7 @@ class Card {
 
 		fun isHumoCard(cardNumber: String?): Boolean {
 			//Humo 9860
-			if (cardNumber?.substring(0, 4) == "9860") {
+			if (cardNumber?.length!! > 3 && cardNumber?.substring(0, 4) == "9860") {
 				return true
 			}
 			return false
