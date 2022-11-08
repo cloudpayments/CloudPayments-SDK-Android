@@ -17,7 +17,7 @@ repositories {
 ```
 В build.gradle уровня приложения добавить зависимость:
 ```
-implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.1.3'
+implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.1.9'
 ```
 
 а так же Yandex Client ID, для Yandex Pay (если Yandex Pay не используется, добавльте пустой как в примере ниже)
@@ -93,6 +93,8 @@ val configuration = PaymentConfiguration(paymentData)
 val configuration = PaymentConfiguration(
 	paymentData, // Данные транзакции
 	CardIOScanner(), // Сканер банковских карт
+	showEmailField = true, // Показывать поле ввода адреса для отправки квитанции при отображении формы ввода карточных данных (по умолчанию false)
+	email = "test@cp.ru", // Email для предзаполнения адреса для отправки квитанции
 	useDualMessagePayment = true, // Использовать двухстадийную схему проведения платежа, по умолчанию используется одностадийная схема
 	disableGPay = true, // Выключить Google Pay, по умолчанию Google Pay включен
 	disableYandexPay = true, // Выключить Yandex Pay, по умолчанию Yandex Pay включен

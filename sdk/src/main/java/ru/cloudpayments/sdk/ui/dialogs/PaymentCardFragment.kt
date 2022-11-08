@@ -6,10 +6,12 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textfield.TextInputEditText
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.card.Card
@@ -166,7 +168,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			val cardCvv = binding.editCardCvv.text.toString()
 
 			val cryptogram = Card.cardCryptogram(cardNumber, cardExp, cardCvv, paymentConfiguration?.paymentData?.publicId ?: "")
-			val email = if (binding.checkboxReceipt.isChecked) binding.editEmail.text.toString() else null
+			val email = binding.editEmail.text.toString().ifEmpty { null }
 			if (isValid() && cryptogram != null) {
 				close(false) {
 					val listener = requireActivity() as? IPaymentCardFragment
@@ -185,6 +187,9 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		binding.buttonPay.text = getString(R.string.cpsdk_text_card_pay_button, String.format("%.2f " + Currency.getSymbol(paymentConfiguration!!.paymentData.currency), paymentConfiguration!!.paymentData.amount.toDouble()))
 
 		updatePaymentSystemIcon("")
+
+		binding.checkboxReceipt.checkedState = if (paymentConfiguration!!.showEmailField) MaterialCheckBox.STATE_CHECKED else MaterialCheckBox.STATE_UNCHECKED
+		binding.editEmail.setText(paymentConfiguration!!.email)
 	}
 
 	private fun errorMode(isErrorMode: Boolean, editText: TextInputEditText){

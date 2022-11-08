@@ -120,6 +120,8 @@ class CartActivity : BaseListActivity<CartAdapter?>(), CartAdapter.OnClickListen
 							val configuration = PaymentConfiguration(
 								paymentData,
 								CardIOScanner(),
+								showEmailField = true,
+								email = "test@cp.ru",
 								useDualMessagePayment = false,
 								disableGPay = false,
 								disableYandexPay = false,

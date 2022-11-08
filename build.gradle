@@ -10,7 +10,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    kotlin_version = "1.7.10"
+    kotlin_version = "1.7.20"
     retrofitVersion = '2.9.0'
     okHttp3Version = '4.5.0'
     rxBindingVersion = '2.2.0'

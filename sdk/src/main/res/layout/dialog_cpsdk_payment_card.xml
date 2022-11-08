@@ -163,7 +163,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/cpsdk_text_card_receipt"
-            android:checked="true"
+            android:checked="false"
             android:textSize="16sp"
             app:buttonTint="@color/cpsdk_dark_sky_blue"
             android:fontFamily="@font/rubik_regular"
@@ -175,6 +175,7 @@
             android:layout_height="wrap_content"
             app:hintEnabled="false"
             android:layout_marginTop="@dimen/cpsdk_margin_small"
+            android:visibility="gone"
             style="@style/cpsdk_TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
