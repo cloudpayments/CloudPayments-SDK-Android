@@ -1,6 +1,7 @@
 package ru.cloudpayments.sdk.ui.dialogs
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.fragment.app.viewModels
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentProcessBinding
+import ru.cloudpayments.sdk.models.ApiError
 import ru.cloudpayments.sdk.util.InjectorUtils
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewState
@@ -139,8 +141,11 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 						}
 					}
 				} else {
+
 					binding.iconStatus.setImageResource(R.drawable.cpsdk_ic_failure)
-					binding.textStatus.text = error ?: getString(R.string.cpsdk_text_process_title_error)
+					binding.textStatus.text =
+						context?.let { ApiError.getFullErrorDescription(it, currentState?.reasonCode.toString()) }
+
 					binding.buttonFinish.setText(R.string.cpsdk_text_process_button_error)
 
 					listener?.onPaymentFailed(currentState?.transaction?.transactionId ?: 0, currentState?.reasonCode)
