@@ -14,6 +14,7 @@ import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentProcessBinding
 import ru.cloudpayments.sdk.models.ApiError
+import ru.cloudpayments.sdk.ui.view.ThreeDsWebView
 import ru.cloudpayments.sdk.util.InjectorUtils
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewState
@@ -24,7 +25,7 @@ internal enum class PaymentProcessStatus {
 	Failed;
 }
 
-internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewState, PaymentProcessViewModel>(), ThreeDsDialogFragment.ThreeDSDialogListener {
+internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewState, PaymentProcessViewModel>(), ThreeDsWebView.ThreeDSAuthorizationListener {
 	interface IPaymentProcessFragment {
 		fun onPaymentFinished(transactionId: Int)
 		fun onPaymentFailed(transactionId: Int, reasonCode: Int?)
