@@ -19,8 +19,8 @@
             android:src="@drawable/cpsdk_ic_close"/>
     </FrameLayout>
 
-    <WebView
-        android:id="@+id/web_view"
+    <ru.cloudpayments.sdk.ui.view.ThreeDsWebView
+        android:id="@+id/three_ds_web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </LinearLayout>
