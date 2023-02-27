@@ -1,5 +1,6 @@
 package ru.cloudpayments.sdk.configuration
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
@@ -26,7 +27,7 @@ import ru.cloudpayments.sdk.ui.PaymentActivity
 import java.util.concurrent.TimeUnit
 
 interface CloudpaymentsSDK {
-	fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int)
+	fun start(configuration: PaymentConfiguration, from: Activity, requestCode: Int)
 	fun launcher(from: AppCompatActivity, result: (Transaction) -> Unit) : ActivityResultLauncher<PaymentConfiguration>
 	fun launcher(from: FragmentActivity, result: (Transaction) -> Unit) : ActivityResultLauncher<PaymentConfiguration>
 	fun launcher(from: Fragment, result: (Transaction) -> Unit) : ActivityResultLauncher<PaymentConfiguration>
@@ -99,7 +100,7 @@ interface CloudpaymentsSDK {
 }
 
 internal class CloudpaymentsSDKImpl: CloudpaymentsSDK {
-	override fun start(configuration: PaymentConfiguration, from: AppCompatActivity, requestCode: Int) {
+	override fun start(configuration: PaymentConfiguration, from: Activity, requestCode: Int) {
 		from.startActivityForResult(this.getStartIntent(from, configuration), requestCode)
 	}
 
