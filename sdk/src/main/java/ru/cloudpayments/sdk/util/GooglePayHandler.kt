@@ -14,7 +14,7 @@ internal class GooglePayHandler {
 				.setTotalPrice(configuration.paymentData.amount)
 				.setCurrencyCode(configuration.paymentData.currency)
 				.build()
-			val request = createPaymentDataRequest(transactionInfo, configuration.paymentData.publicId)
+			val request = createPaymentDataRequest(transactionInfo, configuration.publicId)
 			val client = createPaymentsClient(activity)
 			AutoResolveHelper.resolveTask(client.loadPaymentData(request), activity, requestCode)
 		}

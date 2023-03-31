@@ -51,7 +51,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		DaggerCloudpaymentsComponent
 			.builder()
 			.cloudpaymentsModule(CloudpaymentsModule())
-			.cloudpaymentsNetModule(CloudpaymentsNetModule(configuration!!.paymentData.publicId))
+			.cloudpaymentsNetModule(CloudpaymentsNetModule(configuration!!.publicId, configuration!!.apiUrl))
 			.build()
 	}
 
@@ -98,6 +98,8 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		binding = ActivityCpsdkPaymentBinding.inflate(layoutInflater)
 		val view = binding.root
 		setContentView(view)
+
+		checkCurrency()
 
 		if (YandexPayLib.isSupported) {
 			YandexPayLib.initialize(
@@ -235,5 +237,11 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 
 	private fun handleGooglePayFailure(intent: Intent?) {
 		finish()
+	}
+
+	private fun checkCurrency() {
+		if (configuration!!.paymentData.currency.isEmpty()) {
+			configuration!!.paymentData.currency = "RUB"
+		}
 	}
 }

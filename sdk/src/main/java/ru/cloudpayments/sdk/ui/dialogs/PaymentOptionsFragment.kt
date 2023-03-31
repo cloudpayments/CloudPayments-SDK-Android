@@ -81,7 +81,7 @@ internal class PaymentOptionsFragment: BasePaymentFragment<PaymentOptionsViewSta
 						PaymentMethodType.Card, // Currently it's a single supported payment method: CARD
 						Gateway.from("cloudpayments"), // PSP Gateway ID
 						listOf(CardNetwork.Visa, CardNetwork.MasterCard, CardNetwork.MIR), // Payment networks supported by the PSP
-						GatewayMerchantID.from(paymentConfiguration!!.paymentData.publicId), // Merchant ID with the PSP
+						GatewayMerchantID.from(paymentConfiguration!!.publicId), // Merchant ID with the PSP
 					)
 				)
 			)

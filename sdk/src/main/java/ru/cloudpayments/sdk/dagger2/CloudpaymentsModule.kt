@@ -8,7 +8,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.cloudpayments.sdk.BuildConfig
+import ru.cloudpayments.sdk.Constants
 import ru.cloudpayments.sdk.api.AuthenticationInterceptor
 import ru.cloudpayments.sdk.api.CloudpaymentsApiService
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
@@ -27,7 +27,7 @@ class CloudpaymentsModule {
 }
 
 @Module
-class CloudpaymentsNetModule(private val publicId: String) {
+class CloudpaymentsNetModule(private val publicId: String, private var apiUrl: String = Constants.baseApiUrl) {
 	@Provides
 	@Singleton
 	fun providesHttpLoggingInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor()
@@ -55,8 +55,11 @@ class CloudpaymentsNetModule(private val publicId: String) {
 			.followRedirects(false)
 			.build()
 
+		if (apiUrl.isEmpty())
+			apiUrl = Constants.baseApiUrl
+
 		val retrofit = Retrofit.Builder()
-			.baseUrl(BuildConfig.API_HOST)
+			.baseUrl(apiUrl)
 			.addConverterFactory(GsonConverterFactory.create())
 			.addCallAdapterFactory(RxJava2CallAdapterFactory.create())
 			.client(client)

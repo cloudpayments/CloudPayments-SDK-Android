@@ -26,15 +26,11 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
-
-            buildConfigField "String", "API_HOST", '"https://api.cloudpayments.ru/"'
         }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             consumerProguardFiles 'proguard-rules.pro'
-
-            buildConfigField "String", "API_HOST", '"https://api.cloudpayments.ru/"'
         }
     }
 
@@ -53,14 +49,14 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 
-    implementation 'com.google.android.material:material:1.8.0-alpha02'
+    implementation 'com.google.android.material:material:1.9.0-beta01'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.fragment:fragment-ktx:1.5.4'
-    implementation 'androidx.arch.core:core-runtime:2.1.0'
+    implementation 'androidx.fragment:fragment-ktx:1.5.5'
+    implementation 'androidx.arch.core:core-runtime:2.2.0'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
@@ -95,5 +91,5 @@ dependencies {
     implementation 'io.ashdavies.rx.rxtasks:rx-tasks:2.2.0'
 
     // yandex pay
-    implementation 'com.yandex.pay:core:0.2.1'
+    implementation 'com.yandex.pay:core:0.2.2'
 }

@@ -6,7 +6,6 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -140,7 +139,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 				super.afterTextChanged(s)
 				errorMode(false, binding.editCardCvv)
 
-				if (s != null && s.toString().length >= 3) {
+				if (Card.isValidCvv(binding.editCardNumber.toString(), s.toString())) {
 					if (binding.checkboxReceipt.isChecked) {
 						//edit_email.requestFocus()
 					} else {
@@ -151,7 +150,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		})
 
 		binding.editCardCvv.setOnFocusChangeListener { _, hasFocus ->
-			errorMode(!hasFocus && binding.editCardCvv.text.toString().length != 3, binding.editCardCvv)
+			errorMode(!hasFocus && !Card.isValidCvv(binding.editCardNumber.toString(), binding.editCardCvv.text.toString()), binding.editCardCvv)
 		}
 
 		binding.editEmail.setOnFocusChangeListener { _, hasFocus ->
@@ -167,8 +166,12 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			val cardExp = binding.editCardExp.text.toString()
 			val cardCvv = binding.editCardCvv.text.toString()
 
-			val cryptogram = Card.cardCryptogram(cardNumber, cardExp, cardCvv, paymentConfiguration?.paymentData?.publicId ?: "")
-			val email = binding.editEmail.text.toString().ifEmpty { null }
+			val cryptogram = Card.cardCryptogram(cardNumber, cardExp, cardCvv, paymentConfiguration?.publicId ?: "")
+			val email = if (binding.checkboxReceipt.isChecked) {
+				binding.editEmail.text.toString().ifEmpty { null }
+			} else {
+				null
+			}
 			if (isValid() && cryptogram != null) {
 				close(false) {
 					val listener = requireActivity() as? IPaymentCardFragment
@@ -189,7 +192,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		updatePaymentSystemIcon("")
 
 		binding.checkboxReceipt.checkedState = if (paymentConfiguration!!.showEmailField) MaterialCheckBox.STATE_CHECKED else MaterialCheckBox.STATE_UNCHECKED
-		binding.editEmail.setText(paymentConfiguration!!.email)
+		binding.editEmail.setText(paymentConfiguration!!.paymentData.email)
 	}
 
 	private fun errorMode(isErrorMode: Boolean, editText: TextInputEditText){

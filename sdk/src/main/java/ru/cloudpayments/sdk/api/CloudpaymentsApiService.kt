@@ -11,13 +11,13 @@ import ru.cloudpayments.sdk.api.models.ThreeDsRequestBody
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransactionResponse
 
 interface CloudpaymentsApiService {
-	@POST("/payments/cards/charge")
+	@POST("payments/cards/charge")
 	fun charge(@Body body: PaymentRequestBody): Single<CloudpaymentsTransactionResponse>
 
-	@POST("/payments/cards/auth")
+	@POST("payments/cards/auth")
 	fun auth(@Body body: PaymentRequestBody): Single<CloudpaymentsTransactionResponse>
 
-	@POST("/payments/ThreeDSCallback")
+	@POST("payments/ThreeDSCallback")
 	fun postThreeDs(@Body body: ThreeDsRequestBody): Single<Boolean>
 
 	@GET("bins/info/{firstSixDigits}")

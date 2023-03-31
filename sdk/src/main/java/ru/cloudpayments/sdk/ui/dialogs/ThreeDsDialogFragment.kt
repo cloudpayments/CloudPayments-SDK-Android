@@ -77,6 +77,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+
 		isCancelable = false
 
 		binding.webView.webViewClient = ThreeDsWebViewClient()
@@ -128,7 +129,6 @@ class ThreeDsDialogFragment : DialogFragment() {
 				if (!paRes.isNullOrEmpty()) {
 					listener?.onAuthorizationCompleted(md, paRes)
 				} else {
-					Log.e("ERROR", html ?: "empty")
 					listener?.onAuthorizationFailed(html ?: "")
 				}
 				dismissAllowingStateLoss()

@@ -1,11 +1,7 @@
 package ru.cloudpayments.sdk.util
 
-import android.app.Activity
-import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import java.util.*
 import java.util.regex.Pattern
 

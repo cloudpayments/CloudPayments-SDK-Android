@@ -153,6 +153,7 @@
                     android:imeOptions="actionNext"
                     android:inputType="number"
                     android:digits="0123456789"
+                    android:maxLength="4"
                     style="@style/cpsdk_TextInputEditText"
                     tools:text="111"/>
             </com.google.android.material.textfield.TextInputLayout>
