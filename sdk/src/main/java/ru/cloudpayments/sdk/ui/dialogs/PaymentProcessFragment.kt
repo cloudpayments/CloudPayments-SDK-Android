@@ -1,6 +1,7 @@
 package ru.cloudpayments.sdk.ui.dialogs
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,8 @@ import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
-import ru.cloudpayments.sdk.databinding.DialogPaymentProcessBinding
+import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentProcessBinding
+import ru.cloudpayments.sdk.models.ApiError
 import ru.cloudpayments.sdk.util.InjectorUtils
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewState
@@ -42,7 +44,7 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		}
 	}
 
-	private var _binding: DialogPaymentProcessBinding? = null
+	private var _binding: DialogCpsdkPaymentProcessBinding? = null
 
 	private val binding get() = _binding!!
 
@@ -51,7 +53,7 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		_binding = DialogPaymentProcessBinding.inflate(inflater, container, false)
+		_binding = DialogCpsdkPaymentProcessBinding.inflate(inflater, container, false)
 		val view = binding.root
 		return view
 	}
@@ -115,7 +117,7 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 				rotate.fillAfter = true
 				binding.iconStatus.startAnimation(rotate)
 
-				binding.textStatus.setText(R.string.text_process_title)
+				binding.textStatus.setText(R.string.cpsdk_text_process_title)
 				binding.buttonFinish.isInvisible = true
 			}
 
@@ -127,9 +129,9 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 				val listener = requireActivity() as? IPaymentProcessFragment
 
 				if (status == PaymentProcessStatus.Succeeded) {
-					binding.iconStatus.setImageResource(R.drawable.ic_success)
-					binding.textStatus.setText(R.string.text_process_title_success)
-					binding.buttonFinish.setText(R.string.text_process_button_success)
+					binding.iconStatus.setImageResource(R.drawable.cpsdk_ic_success)
+					binding.textStatus.setText(R.string.cpsdk_text_process_title_success)
+					binding.buttonFinish.setText(R.string.cpsdk_text_process_button_success)
 
 					listener?.onPaymentFinished(currentState?.transaction?.transactionId ?: 0)
 
@@ -139,9 +141,12 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 						}
 					}
 				} else {
-					binding.iconStatus.setImageResource(R.drawable.ic_failure)
-					binding.textStatus.text = error ?: getString(R.string.text_process_title_error)
-					binding.buttonFinish.setText(R.string.text_process_button_error)
+
+					binding.iconStatus.setImageResource(R.drawable.cpsdk_ic_failure)
+					binding.textStatus.text =
+						context?.let { ApiError.getFullErrorDescription(it, currentState?.reasonCode.toString()) }
+
+					binding.buttonFinish.setText(R.string.cpsdk_text_process_button_error)
 
 					listener?.onPaymentFailed(currentState?.transaction?.transactionId ?: 0, currentState?.reasonCode)
 

@@ -30,17 +30,24 @@ internal class PaymentProcessViewModel(
 	lateinit var api: CloudpaymentsApi
 
 	fun pay() {
-		val jsonString = if (paymentData.jsonData != null) {
-			Gson().toJson(paymentData.jsonData)
+
+		val jsonDataMap: HashMap<String, Any> = if (paymentData.jsonData != null && paymentData.jsonData.isNotEmpty()) {
+			Gson().fromJson(paymentData.jsonData, object : TypeToken<HashMap<String?, Any?>?>() {}.type)
+		} else {
+			HashMap()
+		}
+
+		val jsonDataString = if (jsonDataMap != null) {
+			Gson().toJson(jsonDataMap)
 		} else {
 			""
 		}
+
 		val body = PaymentRequestBody(amount = paymentData.amount,
 									  currency = paymentData.currency,
-									  ipAddress = paymentData.ipAddress ?: "",
-									  name = paymentData.cardholderName ?: "",
+									  ipAddress = "",
+									  name = "",
 									  cryptogram = cryptogram,
-									  email = email,
 									  invoiceId = paymentData.invoiceId ?: "",
 									  description = paymentData.description ?: "",
 									  accountId = paymentData.accountId ?: "",

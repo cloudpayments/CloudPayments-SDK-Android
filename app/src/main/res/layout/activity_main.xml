@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/ui_margin_16dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/logo" />
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="API URL (only for testing):"/>
+
+            <EditText
+                android:id="@+id/edit_api_url"
+                style="@style/CPEditText"
+                android:hint="https://api.cloudpayments.ru/"
+                android:text=""/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="PublicID:"/>
+
+            <EditText
+                android:id="@+id/edit_public_id"
+                style="@style/CPEditText"
+                android:hint="test_api_00000000000000000000002"
+                android:text="test_api_00000000000000000000002"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Amount:"/>
+
+            <EditText
+                android:id="@+id/edit_amount"
+                style="@style/CPEditText"
+                android:hint="100"
+                android:text="100"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Currency (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_currency"
+                style="@style/CPEditText"
+                android:hint="RUB"
+                android:text="RUB"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="InvoiceId (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_invoice_id"
+                style="@style/CPEditText"
+                android:hint="AB1234"
+                android:text="AB1234"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Description (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_description"
+                style="@style/CPEditText"
+                android:hint="A basket of oranges"
+                android:text="A basket of oranges"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="AccountId (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_account_id"
+                style="@style/CPEditText"
+                android:hint="AB12"
+                android:text="AB12"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Email (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_email"
+                style="@style/CPEditText"
+                android:hint="test@cp.ru"
+                android:text="test@cp.ru"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.FirstName (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_first_name"
+                style="@style/CPEditText"
+                android:hint="Vasya"
+                android:text="Vasya"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.LastName (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_last_name"
+                style="@style/CPEditText"
+                android:hint="Ivanov"
+                android:text="Ivanov"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.MiddleName (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_middle_name"
+                style="@style/CPEditText"
+                android:hint="Semionovich"
+                android:text="Semionovich"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.Birth (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_birth"
+                style="@style/CPEditText"
+                android:hint="1955-02-24"
+                android:text="1955-02-24"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.Address (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_address"
+                style="@style/CPEditText"
+                android:hint="home 8, room 36"
+                android:text="home 8, room 36"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.Street (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_street"
+                style="@style/CPEditText"
+                android:hint="Lenina"
+                android:text="Lenina"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.City (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_city"
+                style="@style/CPEditText"
+                android:hint="Moscow"
+                android:text="Moscow"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.Country (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_country"
+                style="@style/CPEditText"
+                android:hint="RU"
+                android:text="RU"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.Phone (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_phone"
+                style="@style/CPEditText"
+                android:hint="89991234567"
+                android:text="89991234567"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="Payer.Postcode (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_payer_postcode"
+                style="@style/CPEditText"
+                android:hint="123456"
+                android:text="123456"/>
+
+            <TextView
+                style="@style/CPETextView"
+                android:text="JsonData (Optional):"/>
+
+            <EditText
+                android:id="@+id/edit_json_data"
+                style="@style/CPEditText"
+                android:hint="{name: Ivan}"
+                android:text="{name: Ivan}"/>
+
+            <CheckBox
+                android:id="@+id/checkbox_dual_message_payment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dual message payment"/>
+
+            <Button
+                android:id="@+id/button_run"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ui_margin_16dp"
+                android:text="RUN"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

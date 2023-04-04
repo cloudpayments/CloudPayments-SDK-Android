@@ -6,37 +6,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <View
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#64000000"/>
+
     <LinearLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="@dimen/padding_normal"
-        android:paddingEnd="@dimen/padding_normal"
-        android:paddingTop="@dimen/padding_big"
-        android:paddingBottom="@dimen/padding_big"
-        android:background="@color/white"
+        android:paddingStart="@dimen/cpsdk_padding_normal"
+        android:paddingEnd="@dimen/cpsdk_padding_normal"
+        android:paddingTop="@dimen/cpsdk_padding_big"
+        android:paddingBottom="@dimen/cpsdk_padding_big"
+        android:background="@color/cpsdk_white"
         android:layout_gravity="bottom">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_normal">
+            android:layout_marginBottom="@dimen/cpsdk_margin_normal">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/cpsdk_margin_small"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/button_close"
-                android:text="@string/text_card_title"
-                android:textColor="@color/dark"
-                style="@style/CP_TextTitle"/>
+                android:text="@string/cpsdk_text_card_title"
+                android:textColor="@color/cpsdk_dark"
+                style="@style/cpsdk_TextTitle"/>
+
             <ImageButton
                 android:id="@+id/button_close"
                 android:layout_width="32dp"
@@ -44,13 +49,15 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:background="@drawable/bg_button_close"
-                android:src="@drawable/ic_close"/>
+                android:background="@drawable/cpsdk_bg_button_close"
+                android:src="@drawable/cpsdk_ic_close"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_normal">
+            android:layout_marginBottom="@dimen/cpsdk_margin_normal">
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_card_number"
                 android:layout_width="match_parent"
@@ -59,19 +66,21 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                style="@style/CP_TextInputLayout">
+                style="@style/cpsdk_TextInputLayout">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_card_number"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/text_card_hint_number"
+                    android:hint="@string/cpsdk_text_card_hint_number"
                     android:nextFocusDown="@id/edit_card_exp"
                     android:imeOptions="actionNext"
                     android:inputType="number"
                     android:digits="0123456789 "
-                    style="@style/CP_TextInputEditText"
+                    style="@style/cpsdk_TextInputEditText"
                     tools:text="4242 4242 4242 4242"/>
             </com.google.android.material.textfield.TextInputLayout>
+
             <ImageView
                 android:id="@+id/ic_ps"
                 android:layout_width="40dp"
@@ -80,7 +89,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:scaleType="centerCrop"
-                android:layout_marginBottom="@dimen/margin_small"/>
+                android:layout_marginBottom="@dimen/cpsdk_margin_small"/>
+
             <ImageButton
                 android:id="@+id/btn_scan"
                 android:layout_width="40dp"
@@ -88,16 +98,17 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/ic_scan"
-                android:background="@color/transparent"
-                android:layout_marginBottom="@dimen/margin_small"/>
+                android:src="@drawable/cpsdk_ic_scan"
+                android:background="@color/cpsdk_transparent"
+                android:layout_marginBottom="@dimen/cpsdk_margin_small"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_small">
+            android:layout_marginBottom="@dimen/cpsdk_margin_small">
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_card_exp"
                 android:layout_width="0dp"
@@ -107,19 +118,21 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/til_card_cvv"
                 android:layout_marginEnd="6dp"
-                style="@style/CP_TextInputLayout">
+                style="@style/cpsdk_TextInputLayout">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_card_exp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/text_card_hint_exp"
+                    android:hint="@string/cpsdk_text_card_hint_exp"
                     android:nextFocusDown="@id/edit_card_cvv"
                     android:imeOptions="actionNext"
                     android:inputType="number"
                     android:digits="0123456789/"
-                    style="@style/CP_TextInputEditText"
+                    style="@style/cpsdk_TextInputEditText"
                     tools:text="11/20"/>
             </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_card_cvv"
                 android:layout_width="0dp"
@@ -129,17 +142,19 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                style="@style/CP_TextInputLayout">
+                style="@style/cpsdk_TextInputLayout">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_card_cvv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/text_card_hint_cvv"
+                    android:hint="@string/cpsdk_text_card_hint_cvv"
                     android:nextFocusDown="@id/edit_email"
                     android:imeOptions="actionNext"
                     android:inputType="number"
                     android:digits="0123456789"
-                    style="@style/CP_TextInputEditText"
+                    android:maxLength="4"
+                    style="@style/cpsdk_TextInputEditText"
                     tools:text="111"/>
             </com.google.android.material.textfield.TextInputLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -148,10 +163,10 @@
             android:id="@+id/checkbox_receipt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/text_card_receipt"
-            android:checked="true"
+            android:text="@string/cpsdk_text_card_receipt"
+            android:checked="false"
             android:textSize="16sp"
-            app:buttonTint="@color/dark_sky_blue"
+            app:buttonTint="@color/cpsdk_dark_sky_blue"
             android:fontFamily="@font/rubik_regular"
             android:layout_marginStart="-6dp"/>
 
@@ -160,32 +175,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:hintEnabled="false"
-            android:layout_marginTop="@dimen/margin_small"
-            style="@style/CP_TextInputLayout">
+            android:layout_marginTop="@dimen/cpsdk_margin_small"
+            android:visibility="gone"
+            style="@style/cpsdk_TextInputLayout">
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/text_card_hint_email"
+                android:hint="@string/cpsdk_text_card_hint_email"
                 android:maxLines="1"
                 android:inputType="textEmailAddress"
-                style="@style/CP_TextInputEditText"
+                style="@style/cpsdk_TextInputEditText"
                 tools:text="support@cloudpayments.ru"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_pay"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height"
-            android:layout_marginTop="@dimen/margin_normal"
-            android:text="@string/text_card_pay_button"
-            android:textColor="@color/white"
-            style="@style/CP_UnelevatedButton"/>
+            android:layout_height="@dimen/cpsdk_button_height"
+            android:layout_marginTop="@dimen/cpsdk_margin_normal"
+            android:text="@string/cpsdk_text_card_pay_button"
+            android:textColor="@color/cpsdk_white"
+            style="@style/cpsdk_UnelevatedButton"/>
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_big"
-            android:src="@drawable/ic_secured"/>
+            android:layout_marginTop="@dimen/cpsdk_margin_big"
+            android:src="@drawable/cpsdk_ic_secured"/>
     </LinearLayout>
 </FrameLayout>

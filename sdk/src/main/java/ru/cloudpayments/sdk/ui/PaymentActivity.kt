@@ -19,7 +19,7 @@ import ru.cloudpayments.sdk.dagger2.CloudpaymentsComponent
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsModule
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsNetModule
 import ru.cloudpayments.sdk.dagger2.DaggerCloudpaymentsComponent
-import ru.cloudpayments.sdk.databinding.ActivityPaymentBinding
+import ru.cloudpayments.sdk.databinding.ActivityCpsdkPaymentBinding
 import ru.cloudpayments.sdk.ui.dialogs.BasePaymentFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentCardFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentOptionsFragment
@@ -48,7 +48,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		DaggerCloudpaymentsComponent
 			.builder()
 			.cloudpaymentsModule(CloudpaymentsModule())
-			.cloudpaymentsNetModule(CloudpaymentsNetModule(configuration.paymentData.publicId))
+			.cloudpaymentsNetModule(CloudpaymentsNetModule(configuration!!.publicId, configuration!!.apiUrl))
 			.build()
 	}
 
@@ -59,13 +59,15 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 
 	var googlePayAvailable: Boolean = false
 
-	private lateinit var binding: ActivityPaymentBinding
+	private lateinit var binding: ActivityCpsdkPaymentBinding
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		binding = ActivityPaymentBinding.inflate(layoutInflater)
+		binding = ActivityCpsdkPaymentBinding.inflate(layoutInflater)
 		val view = binding.root
 		setContentView(view)
+
+		checkCurrency()
 
 		if (supportFragmentManager.backStackEntryCount == 0) {
 			lifecycleScope.launch {
@@ -178,5 +180,11 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 
 	private fun handleGooglePayFailure(intent: Intent?) {
 		finish()
+	}
+
+	private fun checkCurrency() {
+		if (configuration!!.paymentData.currency.isEmpty()) {
+			configuration!!.paymentData.currency = "RUB"
+		}
 	}
 }

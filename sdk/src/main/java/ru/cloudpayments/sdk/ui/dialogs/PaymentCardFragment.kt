@@ -12,12 +12,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textfield.TextInputEditText
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.card.Card
 import ru.cloudpayments.sdk.card.CardType
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
-import ru.cloudpayments.sdk.databinding.DialogPaymentCardBinding
+import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentCardBinding
 import ru.cloudpayments.sdk.models.Currency
 import ru.cloudpayments.sdk.scanner.CardData
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
@@ -41,7 +42,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		}
 	}
 
-	private var _binding: DialogPaymentCardBinding? = null
+	private var _binding: DialogCpsdkPaymentCardBinding? = null
 
 	private val binding get() = _binding!!
 
@@ -50,7 +51,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		_binding = DialogPaymentCardBinding.inflate(inflater, container, false)
+		_binding = DialogCpsdkPaymentCardBinding.inflate(inflater, container, false)
 		val view = binding.root
 		return view
 	}
@@ -149,7 +150,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 				super.afterTextChanged(s)
 				errorMode(false, binding.editCardCvv)
 
-				if (s != null && s.toString().length >= 3) {
+				if (Card.isValidCvv(binding.editCardNumber.toString(), s.toString())) {
 					if (binding.checkboxReceipt.isChecked) {
 						//edit_email.requestFocus()
 					} else {
@@ -160,7 +161,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		})
 
 		binding.editCardCvv.setOnFocusChangeListener { _, hasFocus ->
-			errorMode(!hasFocus && binding.editCardCvv.text.toString().length != 3, binding.editCardCvv)
+			errorMode(!hasFocus && !Card.isValidCvv(binding.editCardNumber.toString(), binding.editCardCvv.text.toString()), binding.editCardCvv)
 		}
 
 		binding.editEmail.setOnFocusChangeListener { _, hasFocus ->
@@ -176,8 +177,12 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			val cardExp = binding.editCardExp.text.toString()
 			val cardCvv = binding.editCardCvv.text.toString()
 
-			val cryptogram = Card.cardCryptogram(cardNumber, cardExp, cardCvv, paymentConfiguration?.paymentData?.publicId ?: "")
-			val email = if (binding.checkboxReceipt.isChecked) binding.editEmail.text.toString() else null
+			val cryptogram = Card.cardCryptogram(cardNumber, cardExp, cardCvv, paymentConfiguration?.publicId ?: "")
+			val email = if (binding.checkboxReceipt.isChecked) {
+				binding.editEmail.text.toString().ifEmpty { null }
+			} else {
+				null
+			}
 			if (isValid() && cryptogram != null) {
 				close(false) {
 					val listener = requireActivity() as? IPaymentCardFragment
@@ -191,18 +196,21 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			scannerCaller.launch(intent)
 		}
 
-		binding.buttonPay.text = getString(R.string.text_card_pay_button, String.format("%.2f " + Currency.getSymbol(paymentConfiguration!!.paymentData.currency), paymentConfiguration!!.paymentData.amount.toDouble()))
+		binding.buttonPay.text = getString(R.string.cpsdk_text_card_pay_button, String.format("%.2f " + Currency.getSymbol(paymentConfiguration!!.paymentData.currency), paymentConfiguration!!.paymentData.amount.toDouble()))
 
 		updatePaymentSystemIcon("")
+
+		binding.checkboxReceipt.checkedState = if (paymentConfiguration!!.showEmailField) MaterialCheckBox.STATE_CHECKED else MaterialCheckBox.STATE_UNCHECKED
+		binding.editEmail.setText(paymentConfiguration!!.paymentData.email)
 	}
 
 	private fun errorMode(isErrorMode: Boolean, editText: TextInputEditText){
 		if (isErrorMode) {
-			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.pale_red))
-			editText.setBackgroundResource(R.drawable.edit_text_underline_error)
+			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.cpsdk_pale_red))
+			editText.setBackgroundResource(R.drawable.cpsdk_edit_text_underline_error)
 		} else {
-			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark))
-			editText.setBackgroundResource(R.drawable.edit_text_underline)
+			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.cpsdk_dark))
+			editText.setBackgroundResource(R.drawable.cpsdk_edit_text_underline)
 		}
 	}
 

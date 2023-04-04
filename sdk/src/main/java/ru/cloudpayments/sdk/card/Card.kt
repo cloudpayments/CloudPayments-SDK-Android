@@ -2,6 +2,7 @@ package ru.cloudpayments.sdk.card
 
 import android.text.TextUtils
 import android.util.Base64
+import android.util.Log
 import java.io.UnsupportedEncodingException
 import java.security.*
 import java.security.spec.InvalidKeySpecException
@@ -9,7 +10,6 @@ import java.security.spec.X509EncodedKeySpec
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.*
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
@@ -74,34 +74,36 @@ class Card {
 				if (expDate.length != 4) {
 					false
 				} else {
-					val format: DateFormat = SimpleDateFormat("MMyy", Locale.ENGLISH)
-					format.isLenient = false
-					return try {
-						var date = format.parse(expDate)
-						val calendar = Calendar.getInstance()
-						calendar.time = date ?: Date()
-						calendar[Calendar.DAY_OF_MONTH] = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-						date = calendar.time
-						//val currentDate = Date()
-						val currentDate = format.parse("0222")
-						currentDate.before(date)
-					} catch (e: ParseException) {
-						e.printStackTrace()
-						false
-					}
+					val month = expDate.substring(0,2).toInt()
+					return month in 1..12
+//					val format: DateFormat = SimpleDateFormat("MMyy", Locale.ENGLISH)
+//					format.isLenient = false
+//					return try {
+//						var date = format.parse(expDate)
+//						val calendar = Calendar.getInstance()
+//						calendar.time = date ?: Date()
+//						calendar[Calendar.DAY_OF_MONTH] = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+//						date = calendar.time
+//						//val currentDate = Date()
+//						val currentDate = format.parse("0222")
+//						currentDate.before(date)
+//					} catch (e: ParseException) {
+//						e.printStackTrace()
+//						false
+//					}
 				}
 			}
 		}
 
 		fun isValidCvv(cardNumber: String?, cvv: String?): Boolean {
-			return if (cvv?.length == 3) {
+			return if (cvv?.length!! in 3..4) {
 				true
 			} else isUzcardCard(cardNumber) || isHumoCard(cardNumber)
 		}
 
 		fun isUzcardCard(cardNumber: String?): Boolean {
 			//Uzcard 8600
-			if (cardNumber?.substring(0, 4) == "8600") {
+			if (cardNumber?.length!! > 3 && cardNumber?.substring(0, 4) == "8600") {
 				return true
 			}
 			return false
@@ -109,7 +111,7 @@ class Card {
 
 		fun isHumoCard(cardNumber: String?): Boolean {
 			//Humo 9860
-			if (cardNumber?.substring(0, 4) == "9860") {
+			if (cardNumber?.length!! > 3 && cardNumber?.substring(0, 4) == "9860") {
 				return true
 			}
 			return false

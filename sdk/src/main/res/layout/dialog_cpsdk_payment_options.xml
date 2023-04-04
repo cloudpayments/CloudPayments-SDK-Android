@@ -16,26 +16,26 @@
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/cpsdk_white"
         android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:paddingStart="@dimen/padding_normal"
-        android:paddingTop="@dimen/padding_big"
-        android:paddingEnd="@dimen/padding_normal"
-        android:paddingBottom="@dimen/padding_big">
+        android:paddingStart="@dimen/cpsdk_padding_normal"
+        android:paddingTop="@dimen/cpsdk_padding_big"
+        android:paddingEnd="@dimen/cpsdk_padding_normal"
+        android:paddingBottom="@dimen/cpsdk_padding_big">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_normal">
+            android:layout_marginBottom="@dimen/cpsdk_margin_normal">
 
             <TextView
-                style="@style/CP_TextTitle"
+                style="@style/cpsdk_TextTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_small"
-                android:text="@string/text_options_title"
-                android:textColor="@color/dark"
+                android:layout_marginEnd="@dimen/cpsdk_margin_small"
+                android:text="@string/cpsdk_text_options_title"
+                android:textColor="@color/cpsdk_dark"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/button_close"
                 app:layout_constraintStart_toStartOf="parent"
@@ -45,8 +45,8 @@
                 android:id="@+id/button_close"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:background="@drawable/bg_button_close"
-                android:src="@drawable/ic_close"
+                android:background="@drawable/cpsdk_bg_button_close"
+                android:src="@drawable/cpsdk_ic_close"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -57,21 +57,21 @@
             layout="@layout/googlepay_button"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:layout_marginBottom="@dimen/margin_normal" />
+            android:layout_marginBottom="@dimen/cpsdk_margin_normal" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_pay_card"
-            style="@style/CP_OutlinedButton"
+            style="@style/cpsdk_OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="@string/text_options_card"
-            android:textColor="@color/dark"
+            android:text="@string/cpsdk_text_options_card"
+            android:textColor="@color/cpsdk_dark"
             android:textSize="16sp" />
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_big"
-            android:src="@drawable/ic_secured" />
+            android:layout_marginTop="@dimen/cpsdk_margin_big"
+            android:src="@drawable/cpsdk_ic_secured" />
     </LinearLayout>
 </FrameLayout>
