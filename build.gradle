@@ -2,7 +2,7 @@
 plugins {
     id 'com.android.application' version '7.4.2' apply false
     id 'com.android.library' version '7.4.2' apply false
-    id 'org.jetbrains.kotlin.android' version '1.7.10' apply false
+    id 'org.jetbrains.kotlin.android' version '1.8.20' apply false
 }
 
 task clean(type: Delete) {
@@ -10,9 +10,9 @@ task clean(type: Delete) {
 }
 
 ext {
-    kotlin_version = "1.7.20"
+    kotlin_version = "1.8.20"
     retrofitVersion = '2.9.0'
     okHttp3Version = '4.10.0'
-    dagger2Version = '2.43'
+    dagger2Version = '2.45'
     coroutinesVersion = '1.6.4'
 }

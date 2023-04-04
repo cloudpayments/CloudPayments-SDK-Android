@@ -1,10 +1,14 @@
 package ru.cloudpayments.sdk.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransaction
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransactionResponse
@@ -20,9 +24,8 @@ internal class PaymentProcessViewModel(
 	private val useDualMessagePayment: Boolean
 ): BaseViewModel<PaymentProcessViewState>() {
 	override var currentState = PaymentProcessViewState()
-	override val viewState: MutableLiveData<PaymentProcessViewState> by lazy {
-		MutableLiveData(currentState)
-	}
+	private val _viewState = MutableStateFlow(currentState)
+	override val viewState: StateFlow<PaymentProcessViewState> = _viewState.asStateFlow()
 
 	private var disposable: Job? = null
 
@@ -31,27 +34,25 @@ internal class PaymentProcessViewModel(
 
 	fun pay() {
 
+		val gson = Gson()
 		val jsonDataMap: HashMap<String, Any> = if (paymentData.jsonData != null && paymentData.jsonData.isNotEmpty()) {
-			Gson().fromJson(paymentData.jsonData, object : TypeToken<HashMap<String?, Any?>?>() {}.type)
+			gson.fromJson(paymentData.jsonData, object : TypeToken<HashMap<String?, Any?>?>() {}.type)
 		} else {
 			HashMap()
 		}
 
-		val jsonDataString = if (jsonDataMap != null) {
-			Gson().toJson(jsonDataMap)
-		} else {
-			""
-		}
+		val jsonDataString = gson.toJson(jsonDataMap)
 
 		val body = PaymentRequestBody(amount = paymentData.amount,
 									  currency = paymentData.currency,
 									  ipAddress = "",
 									  name = "",
+									  email = email,
 									  cryptogram = cryptogram,
 									  invoiceId = paymentData.invoiceId ?: "",
 									  description = paymentData.description ?: "",
 									  accountId = paymentData.accountId ?: "",
-									  jsonData = jsonString)
+									  jsonData = jsonDataString)
 		viewModelScope.launch {
 			if (useDualMessagePayment) {
 				try {
@@ -131,9 +132,7 @@ internal class PaymentProcessViewModel(
 
 	private fun stateChanged(viewState: PaymentProcessViewState) {
 		currentState = viewState.copy()
-		this.viewState.apply {
-			value = viewState
-		}
+		_viewState.update { viewState }
 	}
 
 	override fun onCleared() {

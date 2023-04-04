@@ -3,7 +3,6 @@ package ru.cloudpayments.sdk.ui.dialogs
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,7 +49,7 @@ class ThreeDsDialogFragment : DialogFragment() {
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	): View? {
+	): View {
 		_binding = DialogCpsdkThreeDsBinding.inflate(inflater, container, false)
 		val view = binding.root
 		return view

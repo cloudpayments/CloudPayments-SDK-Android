@@ -1,14 +1,15 @@
 package ru.cloudpayments.sdk.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
 import javax.inject.Inject
 
 internal class PaymentCardViewModel: BaseViewModel<PaymentCardViewState>() {
 	override var currentState = PaymentCardViewState()
-	override val viewState: MutableLiveData<PaymentCardViewState> by lazy {
-		MutableLiveData(currentState)
+	override val viewState: StateFlow<PaymentCardViewState> by lazy {
+		MutableStateFlow(currentState)
 	}
 
 	private var disposable: Job? = null

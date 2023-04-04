@@ -3,6 +3,7 @@ package ru.cloudpayments.sdk.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -48,13 +49,17 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		DaggerCloudpaymentsComponent
 			.builder()
 			.cloudpaymentsModule(CloudpaymentsModule())
-			.cloudpaymentsNetModule(CloudpaymentsNetModule(configuration!!.publicId, configuration!!.apiUrl))
+			.cloudpaymentsNetModule(CloudpaymentsNetModule(configuration.publicId, configuration.apiUrl))
 			.build()
 	}
 
 	private val configuration: PaymentConfiguration by lazy {
-		intent.getParcelableExtra<PaymentConfiguration>(EXTRA_CONFIGURATION)
-			?: throw NullPointerException("EXTRA_CONFIGURATION is not existing in parcelable data")
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			intent.getParcelableExtra(EXTRA_CONFIGURATION, PaymentConfiguration::class.java)
+		} else {
+			@Suppress("DEPRECATION")
+			intent.getParcelableExtra(EXTRA_CONFIGURATION)
+		} ?: throw NullPointerException("EXTRA_CONFIGURATION is not existing in parcelable data")
 	}
 
 	var googlePayAvailable: Boolean = false
@@ -183,8 +188,8 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	}
 
 	private fun checkCurrency() {
-		if (configuration!!.paymentData.currency.isEmpty()) {
-			configuration!!.paymentData.currency = "RUB"
+		if (configuration.paymentData.currency.isEmpty()) {
+			configuration.paymentData.currency = "RUB"
 		}
 	}
 }

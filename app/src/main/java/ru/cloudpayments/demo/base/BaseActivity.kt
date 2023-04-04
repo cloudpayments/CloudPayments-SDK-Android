@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.afollestad.materialdialogs.MaterialDialog
@@ -13,11 +14,9 @@ import ru.cloudpayments.demo.databinding.ToolbarBinding
 import java.net.UnknownHostException
 import java.util.*
 
-abstract class BaseActivity : AppCompatActivity() {
-	protected val TAG = "TAG_" + javaClass.simpleName.toUpperCase(Locale.getDefault())
+abstract class BaseActivity(@LayoutRes layoutRes: Int) : AppCompatActivity(layoutRes) {
+	protected val TAG = "TAG_" + javaClass.simpleName.uppercase(Locale.getDefault())
 	private var loadingDialog: MaterialDialog? = null
-	protected abstract val layoutId: Int
-
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -60,7 +59,7 @@ abstract class BaseActivity : AppCompatActivity() {
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		when (item.itemId) {
 			android.R.id.home -> {
-				onBackPressed()
+				onBackPressedDispatcher.onBackPressed()
 				return true
 			}
 		}

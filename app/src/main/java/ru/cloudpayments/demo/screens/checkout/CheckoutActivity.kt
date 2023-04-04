@@ -32,7 +32,7 @@ import ru.tinkoff.decoro.parser.UnderscoreDigitSlotsParser
 import ru.tinkoff.decoro.watchers.DescriptorFormatWatcher
 import kotlin.Exception
 
-class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogListener {
+class CheckoutActivity : BaseActivity(R.layout.activity_checkout), ThreeDsDialogFragment.ThreeDSDialogListener {
 	companion object {
 		private const val LOAD_PAYMENT_DATA_REQUEST_CODE = 991
 	}
@@ -40,8 +40,6 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 	private var paymentsClient: PaymentsClient? = null
 	private var total = 0
 	private var threeDsCallbackId: String? = null
-
-	override val layoutId: Int = R.layout.activity_checkout
 
 	private val cardNumberFormatWatcher by lazy {
 		val descriptor = MaskDescriptor.ofRawMask("____ ____ ____ ____ ___")
@@ -90,7 +88,7 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 	private fun initTotal() {
 		val products = CartManager.getInstance()?.getProducts().orEmpty()
 		products.forEach {
-			total += it.price?.toInt() ?: 0
+			total += it.price.toInt()
 		}
 		binding.textTotal.text = getString(R.string.checkout_total_currency, total.toString())
 	}
@@ -319,7 +317,7 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 		// getPaymentMethodToken will only return null if PaymentMethodTokenizationParameters was
 		// not set in the PaymentRequest.
 		if (token != null) {
-			val billingName = paymentData.cardInfo.billingAddress!!.name
+			val billingName = paymentData.cardInfo.billingAddress?.name
 			Toast.makeText(this, getString(R.string.payments_show_name, billingName), Toast.LENGTH_LONG).show()
 
 			// Use token.getToken() to get the token string.
@@ -361,6 +359,4 @@ class CheckoutActivity : BaseActivity(), ThreeDsDialogFragment.ThreeDSDialogList
 	override fun onAuthorizationFailed(error: String?) {
 		showToast("AuthorizationFailed: $error")
 	}
-
-
 }

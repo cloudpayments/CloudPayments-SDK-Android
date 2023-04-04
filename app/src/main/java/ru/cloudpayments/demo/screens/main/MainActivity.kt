@@ -11,8 +11,7 @@ import ru.cloudpayments.sdk.configuration.CloudpaymentsSDK
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.configuration.PaymentData
 
-
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(R.layout.activity_main) {
 
 	private val cpSdkLauncher = CloudpaymentsSDK.getInstance().launcher(this, result = {
 		if (it.status != null) {
@@ -27,8 +26,6 @@ class MainActivity : BaseActivity() {
 			}
 		}
 	})
-
-	override val layoutId = R.layout.activity_main
 
 	private lateinit var binding: ActivityMainBinding
 
@@ -94,8 +91,6 @@ class MainActivity : BaseActivity() {
 				showEmailField = true,
 				useDualMessagePayment = isDualMessagePayment,
 				disableGPay = false,
-				disableYandexPay = false,
-				yandexPayMerchantID = "1423423564546767575",
 				apiUrl = apiUrl
 			)
 			cpSdkLauncher.launch(configuration)

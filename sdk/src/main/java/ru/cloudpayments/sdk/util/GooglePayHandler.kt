@@ -18,7 +18,7 @@ internal class GooglePayHandler {
 			val paymentDataRequestJson =
 				createPaymentDataRequest(
 					configuration.paymentData.amount,
-					configuration.paymentData.publicId,
+					configuration.publicId,
 					configuration.paymentData.currency,
 					"CloudPayments"
 				)
@@ -201,7 +201,7 @@ internal class GooglePayHandler {
  * Data](https://developers.google.com/pay/api/android/reference/object.PaymentData)
  */
 fun PaymentData.handlePaymentSuccess(): String? {
-	val paymentInformation = this.toJson() ?: return null
+	val paymentInformation = this.toJson()
 	return try {
 		val paymentMethodData = JSONObject(paymentInformation).getJSONObject("paymentMethodData")
 		val paymentToken = paymentMethodData

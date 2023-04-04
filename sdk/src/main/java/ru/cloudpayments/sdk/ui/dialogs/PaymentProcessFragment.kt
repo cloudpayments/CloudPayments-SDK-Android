@@ -1,7 +1,6 @@
 package ru.cloudpayments.sdk.ui.dialogs
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,7 +51,7 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	): View? {
+	): View {
 		_binding = DialogCpsdkPaymentProcessBinding.inflate(inflater, container, false)
 		val view = binding.root
 		return view

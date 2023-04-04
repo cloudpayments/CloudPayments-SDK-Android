@@ -2,12 +2,12 @@ package ru.cloudpayments.demo.support
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import io.card.payment.CardIOActivity
 import io.card.payment.CreditCard
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import ru.cloudpayments.sdk.scanner.CardData
 import ru.cloudpayments.sdk.scanner.CardScanner
-
 
 @Parcelize
 class CardIOScanner: CardScanner() {
@@ -18,7 +18,12 @@ class CardIOScanner: CardScanner() {
 
 	override fun getCardDataFromIntent(data: Intent) =
 		if (data.hasExtra(CardIOActivity.EXTRA_SCAN_RESULT)) {
-			val scanResult = data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT) as? CreditCard
+			val scanResult = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+				data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT, CreditCard::class.java)
+			} else {
+				@Suppress("DEPRECATION")
+				data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT) as? CreditCard
+			}
 			val month = (scanResult?.expiryMonth ?: 0).toString().padStart(2, '0')
 			val yearString = scanResult?.expiryYear?.toString() ?: "00"
 			val year = if (yearString.length > 2) {
