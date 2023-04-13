@@ -5,7 +5,7 @@
 CloudPayments SDK позволяет интегрировать прием платежей в мобильные приложение для платформы Android.
 
 ### Требования
-Для работы CloudPayments SDK необходим Android версии 4.4 или выше (API level 19)
+Для работы CloudPayments SDK необходим Android версии 6.0 или выше (API level 23)
 
 ### Дополнительные шаги для использования Yandex Pay
 1. Зарегистрировать приложение на [Яндекс.OAuth](https://oauth.yandex.ru/)
@@ -82,29 +82,41 @@ val cpSdkLauncher = CloudpaymentsSDK.getInstance().launcher(this, result = {
 	})
 ```
 
-2. Создайте объект PaymentData, передайте в него Public Id из [личного кабинета Cloudpayments](https://merchant.cloudpayments.ru/), сумму платежа и валюту.
+2. Создайте объект PaymentData, передайте в него сумму платежа, валюту и другие данные, если необходимо передать подробную информацию о плательщике создайте объект PaymentDataPayer с информацией о плательщике и также пердайте этот объект в PaymentData.
 
 ```
+var payer = PaymentDataPayer() // Доп. поле, куда передается информация о плательщике:
+payer.firstName = payerFirstName // Имя
+payer.lastName = payerLastName // Фамилия
+payer.middleName = payerMiddleName // Отчество
+payer.birthDay = payerBirthDay // День рождения
+payer.address = payerAddress // Адрес
+payer.street = payerStreet // Улица
+payer.city = payerCity // Город
+payer.country = payerCountry // Страна
+payer.phone = payerPhone // Телефон
+payer.postcode = payerPostcode // Почтовый индекс
+
 val paymentData = PaymentData(
-	Constants.merchantPublicId, // PublicId который вы получили в CloudPayments
-	"10.00", // Сумма транзакции
-	currency = "RUB", // Валюта
-	jsonData = jsonData // Данные в формате Json
+	amount = amount, // Cумма платежа в валюте
+	currency = currency, // Валюта
+	invoiceId = invoiceId, // Номер счета или заказа
+	description = description, // Описание оплаты в свободной форме
+	accountId = accountId, // Идентификатор пользователя
+	email = email, // E-mail плательщика, на который будет отправлена квитанция об оплате
+	payer = payer, // Информация о плательщике
+	jsonData = jsonData // Любые другие данные, которые будут связаны с транзакцией {name: Ivan}
 )
 ```
 
-3. Создайте объект PaymentConfiguration, передайте в него объект PaymentData.
+3. Создайте объект PaymentConfiguration, передайте в него Public Id из [личного кабинета CloudPayments](https://merchant.cloudpayments.ru/), объект PaymentData, а так же укажите другие параметры.
 
 ```
-val configuration = PaymentConfiguration(paymentData)
-
-// Так же можно указать и дополнительные параметры
-
 val configuration = PaymentConfiguration(
-	paymentData, // Данные транзакции
-	CardIOScanner(), // Сканер банковских карт
+	publicId = publicId, // Ваш PublicID в полученный в ЛК CloudPayments
+	paymentData = paymentData, // Информация о платеже
+	scanner = CardIOScanner(), // Сканер банковских карт
 	showEmailField = true, // Показывать поле ввода адреса для отправки квитанции при отображении формы ввода карточных данных (по умолчанию false)
-	email = "test@cp.ru", // Email для предзаполнения адреса для отправки квитанции
 	useDualMessagePayment = true, // Использовать двухстадийную схему проведения платежа, по умолчанию используется одностадийная схема
 	disableGPay = true, // Выключить Google Pay, по умолчанию Google Pay включен
 	disableYandexPay = true, // Выключить Yandex Pay, по умолчанию Yandex Pay включен
