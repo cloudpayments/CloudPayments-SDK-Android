@@ -25,9 +25,12 @@ repositories {
 	maven { url 'https://jitpack.io' }
 }
 ```
-В build.gradle уровня приложения добавить зависимость:
+В build.gradle уровня приложения добавить зависимость указав последнюю доступную версию SDK:
+
+[![](https://jitpack.io/v/cloudpayments/CloudPayments-SDK-Android.svg)](https://jitpack.io/#cloudpayments/CloudPayments-SDK-Android)
+
 ```
-implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:1.1.9'
+implementation 'com.github.cloudpayments:CloudPayments-SDK-Android:latest-release'
 ```
 
 а так же Yandex Client ID, для Yandex Pay (если Yandex Pay не используется, добавльте пустой как в примере ниже)
