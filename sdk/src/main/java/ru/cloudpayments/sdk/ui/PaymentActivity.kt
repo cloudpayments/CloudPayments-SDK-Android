@@ -3,10 +3,10 @@ package ru.cloudpayments.sdk.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.core.content.IntentCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -54,12 +54,8 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	}
 
 	private val configuration: PaymentConfiguration by lazy {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-			intent.getParcelableExtra(EXTRA_CONFIGURATION, PaymentConfiguration::class.java)
-		} else {
-			@Suppress("DEPRECATION")
-			intent.getParcelableExtra(EXTRA_CONFIGURATION)
-		} ?: throw NullPointerException("EXTRA_CONFIGURATION is not existing in parcelable data")
+		IntentCompat.getParcelableExtra(intent, EXTRA_CONFIGURATION, PaymentConfiguration::class.java)
+			?: throw NullPointerException("EXTRA_CONFIGURATION is not existing in parcelable data")
 	}
 
 	var googlePayAvailable: Boolean = false
@@ -100,7 +96,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		if (fragment is BasePaymentFragment<*, *>) {
 			fragment.handleBackButton()
 		} else {
-			super.onBackPressed()
+			onBackPressedDispatcher.onBackPressed()
 		}
 	}
 

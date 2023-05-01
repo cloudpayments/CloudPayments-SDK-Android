@@ -2,15 +2,10 @@ package ru.cloudpayments.sdk.card
 
 import android.text.TextUtils
 import android.util.Base64
-import android.util.Log
 import java.io.UnsupportedEncodingException
 import java.security.*
 import java.security.spec.InvalidKeySpecException
 import java.security.spec.X509EncodedKeySpec
-import java.text.DateFormat
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
@@ -103,7 +98,7 @@ class Card {
 
 		fun isUzcardCard(cardNumber: String?): Boolean {
 			//Uzcard 8600
-			if (cardNumber?.length!! > 3 && cardNumber?.substring(0, 4) == "8600") {
+			if (cardNumber?.length?.compareTo(3) == 1 && cardNumber.substring(0, 4) == "8600") {
 				return true
 			}
 			return false
@@ -111,7 +106,7 @@ class Card {
 
 		fun isHumoCard(cardNumber: String?): Boolean {
 			//Humo 9860
-			if (cardNumber?.length!! > 3 && cardNumber?.substring(0, 4) == "9860") {
+			if (cardNumber?.length?.compareTo(3) == 1 && cardNumber.substring(0, 4) == "9860") {
 				return true
 			}
 			return false
@@ -139,10 +134,10 @@ class Card {
 					shortNumber +
 					exp + getKeyVersion() +
 					Base64.encodeToString(crypto, Base64.DEFAULT)
-			val cr_array = crypto64.split("\n").toTypedArray()
+			val crArray = crypto64.split("\n").toTypedArray()
 			crypto64 = ""
-			for (i in cr_array.indices) {
-				crypto64 += cr_array[i]
+			for (i in crArray.indices) {
+				crypto64 += crArray[i]
 			}
 			return crypto64
 		}

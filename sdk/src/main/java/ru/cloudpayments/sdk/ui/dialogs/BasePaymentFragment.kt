@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.core.os.BundleCompat
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.ui.PaymentActivity
@@ -24,7 +25,7 @@ internal abstract class BasePaymentFragment<VS: BaseViewState, VM: BaseViewModel
 	}
 
 	protected val paymentConfiguration by lazy {
-		arguments?.getParcelable<PaymentConfiguration>(ARG_CONFIGURATION)
+		BundleCompat.getParcelable(arguments ?: return@lazy null, ARG_CONFIGURATION, PaymentConfiguration::class.java)
 	}
 
 	private lateinit var background: View

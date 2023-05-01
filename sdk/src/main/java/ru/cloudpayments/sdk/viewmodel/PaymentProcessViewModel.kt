@@ -34,9 +34,10 @@ internal class PaymentProcessViewModel(
 
 	fun pay() {
 
+		val type = TypeToken.getParameterized(HashMap::class.java, String::class.java, Any::class.java).type
 		val gson = Gson()
-		val jsonDataMap: HashMap<String, Any> = if (paymentData.jsonData != null && paymentData.jsonData.isNotEmpty()) {
-			gson.fromJson(paymentData.jsonData, object : TypeToken<HashMap<String?, Any?>?>() {}.type)
+		val jsonDataMap: HashMap<String, Any> = if (!paymentData.jsonData.isNullOrEmpty()) {
+			gson.fromJson(paymentData.jsonData, type)
 		} else {
 			HashMap()
 		}
@@ -67,6 +68,7 @@ internal class PaymentProcessViewModel(
 					val response = api.charge(body)
 					checkTransactionResponse(response)
 				} catch (e: Exception) {
+					e.message
 					val state = currentState.copy(status = PaymentProcessStatus.Failed)
 					stateChanged(state)
 				}

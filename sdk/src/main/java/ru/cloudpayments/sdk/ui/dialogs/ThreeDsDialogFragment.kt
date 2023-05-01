@@ -1,7 +1,5 @@
 package ru.cloudpayments.sdk.ui.dialogs
 
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,37 +7,19 @@ import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import com.google.gson.JsonParser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
 import ru.cloudpayments.sdk.databinding.DialogCpsdkThreeDsBinding
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
-import java.util.*
+import java.util.Locale
 
 class ThreeDsDialogFragment : DialogFragment() {
-	interface ThreeDSDialogListener {
-		fun onAuthorizationCompleted(md: String, paRes: String)
-		fun onAuthorizationFailed(error: String?)
-	}
-
-	companion object {
-		private const val POST_BACK_URL = "https://demo.cloudpayments.ru/WebFormPost/GetWebViewData"
-		private const val ARG_ACS_URL = "acs_url"
-		private const val ARG_MD = "md"
-		private const val ARG_PA_REQ = "pa_req"
-
-		fun newInstance(acsUrl: String, paReq: String, md: String) = ThreeDsDialogFragment().apply {
-			arguments = Bundle().also {
-				it.putString(ARG_ACS_URL, acsUrl)
-				it.putString(ARG_MD, md)
-				it.putString(ARG_PA_REQ, paReq)
-			}
-		}
-	}
 
 	private var _binding: DialogCpsdkThreeDsBinding? = null
 
@@ -72,8 +52,6 @@ class ThreeDsDialogFragment : DialogFragment() {
 		requireArguments().getString(ARG_PA_REQ) ?: ""
 	}
 
-	private var listener: ThreeDSDialogListener? = null
-
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
@@ -87,17 +65,17 @@ class ThreeDsDialogFragment : DialogFragment() {
 
 		try {
 			val params = StringBuilder()
-					.append("PaReq=").append(URLEncoder.encode(paReq, "UTF-8"))
-					.append("&MD=").append(URLEncoder.encode(md, "UTF-8"))
-					.append("&TermUrl=").append(URLEncoder.encode(POST_BACK_URL, "UTF-8"))
-					.toString()
+				.append("PaReq=").append(URLEncoder.encode(paReq, "UTF-8"))
+				.append("&MD=").append(URLEncoder.encode(md, "UTF-8"))
+				.append("&TermUrl=").append(URLEncoder.encode(POST_BACK_URL, "UTF-8"))
+				.toString()
 			binding.webView.postUrl(acsUrl, params.toByteArray())
 		} catch (e: UnsupportedEncodingException) {
 			e.printStackTrace()
 		}
 
 		binding.icClose.setOnClickListener {
-			listener?.onAuthorizationFailed(null)
+			setFragmentResult(RESULT_FAILED, Bundle())
 			dismiss()
 		}
 	}
@@ -120,36 +98,52 @@ class ThreeDsDialogFragment : DialogFragment() {
 	internal inner class ThreeDsJavaScriptInterface {
 		@JavascriptInterface
 		fun processHTML(html: String?) {
+			if (html == null) {
+				setFragmentResult(RESULT_FAILED, Bundle())
+				return
+			}
 			val doc: Document = Jsoup.parse(html)
-			val element: Element = doc.select("body").first() ?: return
+			val element = doc.select("body").first()
+			if (element == null) {
+				setFragmentResult(RESULT_FAILED, Bundle())
+				return
+			}
 			val jsonObject = JsonParser().parse(element.ownText()).asJsonObject
 			val paRes = jsonObject["PaRes"].asString
 			requireActivity().runOnUiThread {
 				if (!paRes.isNullOrEmpty()) {
-					listener?.onAuthorizationCompleted(md, paRes)
+					setFragmentResult(
+						RESULT_COMPLETED,
+						bundleOf(
+							RESULT_COMPLETED_MD to md,
+							RESULT_COMPLETED_PA_RES to paRes
+						)
+					)
 				} else {
-					listener?.onAuthorizationFailed(html ?: "")
+					setFragmentResult(RESULT_FAILED, bundleOf(RESULT_FAILED to html))
 				}
 				dismissAllowingStateLoss()
 			}
 		}
 	}
 
-	override fun onAttach(context: Context) {
-		super.onAttach(context)
+	companion object {
+		private const val POST_BACK_URL = "https://demo.cloudpayments.ru/WebFormPost/GetWebViewData"
+		private const val ARG_ACS_URL = "acs_url"
+		private const val ARG_MD = "md"
+		private const val ARG_PA_REQ = "pa_req"
 
-		listener = targetFragment as? ThreeDSDialogListener
-		if (listener == null) {
-			listener = context as? ThreeDSDialogListener
-		}
-	}
+		const val RESULT_COMPLETED = "result_completed"
+		const val RESULT_FAILED = "result_failed"
+		const val RESULT_COMPLETED_MD = "result_completed_md"
+		const val RESULT_COMPLETED_PA_RES = "result_completed_pa_res"
 
-	override fun onAttach(activity: Activity) {
-		super.onAttach(activity)
-
-		listener = targetFragment as? ThreeDSDialogListener
-		if (listener == null) {
-			listener = activity as? ThreeDSDialogListener
+		fun newInstance(acsUrl: String, paReq: String, md: String) = ThreeDsDialogFragment().apply {
+			arguments = Bundle().also {
+				it.putString(ARG_ACS_URL, acsUrl)
+				it.putString(ARG_MD, md)
+				it.putString(ARG_PA_REQ, paReq)
+			}
 		}
 	}
 }

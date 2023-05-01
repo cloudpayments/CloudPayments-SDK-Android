@@ -50,7 +50,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	): View? {
+	): View {
 		_binding = DialogCpsdkPaymentCardBinding.inflate(inflater, container, false)
 		val view = binding.root
 		return view

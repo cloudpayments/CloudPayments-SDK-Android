@@ -10,9 +10,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        jcenter() // Warning: this repository is going to shut down soon
     }
 }
-
-include ':sdk'
-include ':app'
 rootProject.name = "Cloudpayments SDK"
+include(":app", ":sdk")

@@ -13,6 +13,10 @@ import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentProcessBinding
 import ru.cloudpayments.sdk.models.ApiError
+import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_COMPLETED
+import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_COMPLETED_MD
+import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_COMPLETED_PA_RES
+import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_FAILED
 import ru.cloudpayments.sdk.util.InjectorUtils
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewState
@@ -23,24 +27,12 @@ internal enum class PaymentProcessStatus {
 	Failed;
 }
 
-internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewState, PaymentProcessViewModel>(), ThreeDsDialogFragment.ThreeDSDialogListener {
+internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewState, PaymentProcessViewModel>() {
 	interface IPaymentProcessFragment {
 		fun onPaymentFinished(transactionId: Int)
 		fun onPaymentFailed(transactionId: Int, reasonCode: Int?)
 		fun finishPayment()
 		fun retryPayment()
-	}
-
-	companion object {
-		private const val ARG_CRYPTOGRAM = "ARG_CRYPTOGRAM"
-		private const val ARG_EMAIL = "ARG_EMAIL"
-
-		fun newInstance(configuration: PaymentConfiguration, cryptogram: String, email: String?) = PaymentProcessFragment().apply {
-			arguments = Bundle()
-			setConfiguration(configuration)
-			arguments?.putString(ARG_CRYPTOGRAM, cryptogram)
-			email?.let { arguments?.putString(ARG_EMAIL, it) }
-		}
 	}
 
 	private var _binding: DialogCpsdkPaymentProcessBinding? = null
@@ -78,7 +70,6 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 
 		if (!state.acsUrl.isNullOrEmpty() && !state.paReq.isNullOrEmpty() && state.transaction?.transactionId != null) {
 			val dialog = ThreeDsDialogFragment.newInstance(state.acsUrl, state.paReq, state.transaction.transactionId.toString())
-			dialog.setTargetFragment(this, 1)
 			dialog.show(parentFragmentManager, null)
 
 			viewModel.clearThreeDsData()
@@ -101,6 +92,17 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 			updateWith(PaymentProcessStatus.InProcess)
 
 			viewModel.pay()
+		}
+
+		parentFragmentManager.setFragmentResultListener(RESULT_COMPLETED, this) { _, bundle ->
+			val md = bundle.getString(RESULT_COMPLETED_MD) ?: return@setFragmentResultListener
+			val paRes = bundle.getString(RESULT_COMPLETED_PA_RES) ?: return@setFragmentResultListener
+			viewModel.postThreeDs(md, paRes)
+		}
+
+		parentFragmentManager.setFragmentResultListener(RESULT_FAILED, this) { _, bundle ->
+			val error = bundle.getString(RESULT_FAILED)
+			updateWith(PaymentProcessStatus.Failed, error)
 		}
 	}
 
@@ -159,11 +161,15 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		}
 	}
 
-	override fun onAuthorizationCompleted(md: String, paRes: String) {
-		viewModel.postThreeDs(md, paRes)
-	}
+	companion object {
+		private const val ARG_CRYPTOGRAM = "ARG_CRYPTOGRAM"
+		private const val ARG_EMAIL = "ARG_EMAIL"
 
-	override fun onAuthorizationFailed(error: String?) {
-		updateWith(PaymentProcessStatus.Failed, error)
+		fun newInstance(configuration: PaymentConfiguration, cryptogram: String, email: String?) = PaymentProcessFragment().apply {
+			arguments = Bundle()
+			setConfiguration(configuration)
+			arguments?.putString(ARG_CRYPTOGRAM, cryptogram)
+			email?.let { arguments?.putString(ARG_EMAIL, it) }
+		}
 	}
 }

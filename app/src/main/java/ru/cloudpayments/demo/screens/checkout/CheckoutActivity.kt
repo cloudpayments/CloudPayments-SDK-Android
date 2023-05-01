@@ -25,6 +25,10 @@ import ru.cloudpayments.demo.googlepay.PaymentsUtil
 import ru.cloudpayments.demo.managers.CartManager
 import ru.cloudpayments.demo.support.Constants
 import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment
+import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_COMPLETED
+import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_COMPLETED_MD
+import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_COMPLETED_PA_RES
+import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_FAILED
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
 import ru.cloudpayments.sdk.util.handlePaymentSuccess
 import ru.tinkoff.decoro.MaskDescriptor
@@ -32,7 +36,7 @@ import ru.tinkoff.decoro.parser.UnderscoreDigitSlotsParser
 import ru.tinkoff.decoro.watchers.DescriptorFormatWatcher
 import kotlin.Exception
 
-class CheckoutActivity : BaseActivity(R.layout.activity_checkout), ThreeDsDialogFragment.ThreeDSDialogListener {
+class CheckoutActivity : BaseActivity(R.layout.activity_checkout) {
 	companion object {
 		private const val LOAD_PAYMENT_DATA_REQUEST_CODE = 991
 	}
@@ -62,7 +66,7 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout), ThreeDsDialog
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
-		binding =ActivityCheckoutBinding.inflate(layoutInflater)
+		binding = ActivityCheckoutBinding.inflate(layoutInflater)
 		val view = binding.root
 		setContentView(view)
 
@@ -83,6 +87,17 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout), ThreeDsDialog
 
 		setupTextChangedListeners()
 		setupClickListeners()
+
+		supportFragmentManager.setFragmentResultListener(RESULT_COMPLETED, this) { _, bundle ->
+			val md = bundle.getString(RESULT_COMPLETED_MD) ?: return@setFragmentResultListener
+			val paRes = bundle.getString(RESULT_COMPLETED_PA_RES) ?: return@setFragmentResultListener
+			post3ds(md, paRes)
+		}
+
+		supportFragmentManager.setFragmentResultListener(RESULT_FAILED, this) { _, bundle ->
+			val error = bundle.getString(RESULT_FAILED)
+			showToast("AuthorizationFailed: $error")
+		}
 	}
 
 	private fun initTotal() {
@@ -180,7 +195,7 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout), ThreeDsDialog
 		}
 	}
 
-	// Запрос на прведение одностадийного платежа
+	// Запрос на проведение одностадийного платежа
 	private fun charge(cardCryptogramPacket: String, cardHolderName: String, amount: Int) {
 		lifecycleScope.launch {
 			try {
@@ -210,7 +225,7 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout), ThreeDsDialog
 		}
 	}
 
-	// Проверяем необходимо ли подтверждение с использованием 3DS
+	// Проверяем, необходимо ли подтверждение с использованием 3DS
 	private fun checkResponse(transaction: CloudpaymentsTransaction?) {
 		threeDsCallbackId = transaction?.threeDsCallbackId
 		if (!transaction?.paReq.isNullOrEmpty() && !transaction?.acsUrl.isNullOrEmpty()) {
@@ -233,7 +248,7 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout), ThreeDsDialog
 	}
 
 	private fun show3DS(transaction: CloudpaymentsTransaction?) {
-		// Открываем 3ds форму
+		// Открываем 3DS форму
 		ThreeDsDialogFragment
 			.newInstance(transaction?.acsUrl.orEmpty(), transaction?.paReq.orEmpty(), transaction?.transactionId?.toString().orEmpty())
 			.show(supportFragmentManager, "3DS")
@@ -350,13 +365,5 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout), ThreeDsDialog
 		// AutoResolveHelper to wait for the user interacting with it. Once completed,
 		// onActivityResult will be called with the result.
 		AutoResolveHelper.resolveTask(futurePaymentData, this, LOAD_PAYMENT_DATA_REQUEST_CODE)
-	}
-
-	override fun onAuthorizationCompleted(md: String, paRes: String) {
-		post3ds(md, paRes)
-	}
-
-	override fun onAuthorizationFailed(error: String?) {
-		showToast("AuthorizationFailed: $error")
 	}
 }
