@@ -3,45 +3,30 @@ package ru.cloudpayments.demo.screens.checkout
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
 import android.util.Log
-import android.widget.Toast
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.wallet.AutoResolveHelper
-import com.google.android.gms.wallet.PaymentData
-import com.google.android.gms.wallet.PaymentsClient
 import kotlinx.coroutines.launch
-import ru.cloudpayments.sdk.api.models.CloudpaymentsThreeDsResponse
-import ru.cloudpayments.sdk.api.models.CloudpaymentsTransaction
-import ru.cloudpayments.sdk.card.Card
 import ru.cloudpayments.demo.R
 import ru.cloudpayments.demo.api.PayApi
 import ru.cloudpayments.demo.base.BaseActivity
 import ru.cloudpayments.demo.databinding.ActivityCheckoutBinding
-import ru.cloudpayments.demo.googlepay.PaymentsUtil
 import ru.cloudpayments.demo.managers.CartManager
 import ru.cloudpayments.demo.support.Constants
+import ru.cloudpayments.sdk.api.models.CloudpaymentsThreeDsResponse
+import ru.cloudpayments.sdk.api.models.CloudpaymentsTransaction
+import ru.cloudpayments.sdk.card.Card
 import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment
 import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_COMPLETED
 import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_COMPLETED_MD
 import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_COMPLETED_PA_RES
 import ru.cloudpayments.sdk.ui.dialogs.ThreeDsDialogFragment.Companion.RESULT_FAILED
-import ru.cloudpayments.sdk.util.TextWatcherAdapter
-import ru.cloudpayments.sdk.util.handlePaymentSuccess
 import ru.tinkoff.decoro.MaskDescriptor
 import ru.tinkoff.decoro.parser.UnderscoreDigitSlotsParser
 import ru.tinkoff.decoro.watchers.DescriptorFormatWatcher
-import kotlin.Exception
 
 class CheckoutActivity : BaseActivity(R.layout.activity_checkout) {
-	companion object {
-		private const val LOAD_PAYMENT_DATA_REQUEST_CODE = 991
-	}
 
-	private var paymentsClient: PaymentsClient? = null
 	private var total = 0
 	private var threeDsCallbackId: String? = null
 
@@ -73,15 +58,6 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout) {
 		setTitle(R.string.checkout_title)
 		initTotal()
 
-		// GOOGLE PAY
-
-		// It's recommended to create the PaymentsClient object inside of the onCreate method.
-		paymentsClient = PaymentsUtil.createPaymentsClient(this)
-		checkIsReadyToPay()
-		binding.pwgButton.root.setOnClickListener {
-			requestPayment()
-		}
-
 		cardNumberFormatWatcher.installOn(binding.editCardNumber)
 		cardExpFormatWatcher.installOn(binding.editCardDate)
 
@@ -109,38 +85,32 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout) {
 	}
 
 	private fun setupTextChangedListeners(){
-		binding.editCardNumber.addTextChangedListener(object : TextWatcherAdapter() {
-			override fun afterTextChanged(s: Editable?) {
-				super.afterTextChanged(s)
-
-				val cardNumber = s.toString().replace(" ", "")
+		binding.editCardNumber.addTextChangedListener(
+			afterTextChanged = { s ->
+				val cardNumber = s?.toString()?.replace(" ", "")
 				if (Card.isValidNumber(cardNumber)) {
 					binding.editCardDate.requestFocus()
 				}
 			}
-		})
+		)
 
-		binding.editCardDate.addTextChangedListener(object : TextWatcherAdapter() {
-			override fun afterTextChanged(s: Editable?) {
-				super.afterTextChanged(s)
-
-				val cardExp = s.toString()
+		binding.editCardDate.addTextChangedListener(
+			afterTextChanged = { s ->
+				val cardExp = s?.toString()
 				if (Card.isValidExpDate(cardExp)) {
 					binding.editCardCvc.requestFocus()
 				}
 			}
-		})
+		)
 
-		binding.editCardCvc.addTextChangedListener(object : TextWatcherAdapter() {
-			override fun afterTextChanged(s: Editable?) {
-				super.afterTextChanged(s)
-
-				val cardCvc = s.toString()
-				if (cardCvc.length == 3) {
+		binding.editCardCvc.addTextChangedListener(
+			afterTextChanged = { s ->
+				val cardCvc = s?.toString()
+				if (cardCvc?.length == 3) {
 					binding.editCardHolderName.requestFocus()
 				}
 			}
-		})
+		)
 	}
 
 	private fun setupClickListeners() {
@@ -191,21 +161,6 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout) {
 				Log.d("Bank name", info.bankName.orEmpty())
 			} catch (e: Exception) {
 				handleError(e)
-			}
-		}
-	}
-
-	// Запрос на проведение одностадийного платежа
-	private fun charge(cardCryptogramPacket: String, cardHolderName: String, amount: Int) {
-		lifecycleScope.launch {
-			try {
-				showLoading()
-				val transaction = PayApi.charge(cardCryptogramPacket, cardHolderName, amount)
-				checkResponse(transaction)
-			} catch (e: Exception) {
-				handleError(e)
-			} finally {
-				hideLoading()
 			}
 		}
 	}
@@ -267,103 +222,5 @@ class CheckoutActivity : BaseActivity(R.layout.activity_checkout) {
 				hideLoading()
 			}
 		}
-	}
-
-	// GOGGLE PAY
-	private fun checkIsReadyToPay() {
-		// The call to isReadyToPay is asynchronous and returns a Task. We need to provide an
-		// OnCompleteListener to be triggered when the result of the call is known.
-		PaymentsUtil.isReadyToPay(paymentsClient).addOnCompleteListener { task ->
-			try {
-				val result = task.getResult(ApiException::class.java)!!
-				setPwgAvailable(result)
-			} catch (exception: ApiException) {
-				// Process error
-				Log.w("isReadyToPay failed", exception)
-			}
-		}
-	}
-
-	private fun setPwgAvailable(available: Boolean) {
-		// If isReadyToPay returned true, show the button and hide the "checking" text. Otherwise,
-		// notify the user that Pay with Google is not available.
-		// Please adjust to fit in with your current user flow. You are not required to explicitly
-		// let the user know if isReadyToPay returns false.
-		if (available) {
-			binding.pwgStatus.isGone = true
-			binding.pwgButton.root.isVisible = true
-		} else {
-			binding.pwgStatus.setText(R.string.pwg_status_unavailable)
-		}
-	}
-
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-		super.onActivityResult(requestCode, resultCode, data)
-		when (requestCode) {
-			LOAD_PAYMENT_DATA_REQUEST_CODE -> {
-				when (resultCode) {
-					RESULT_OK -> {
-						val paymentData = PaymentData.getFromIntent(
-							data!!
-						)
-						handlePaymentSuccess(paymentData)
-					}
-					RESULT_CANCELED -> {
-					}
-					AutoResolveHelper.RESULT_ERROR -> {
-						val status = AutoResolveHelper.getStatusFromIntent(data)
-						handlePaymentError(status!!.statusCode)
-					}
-				}
-
-				// Re-enables the Pay with Google button.
-				binding.pwgButton.root.isClickable = true
-			}
-		}
-	}
-
-	private fun handlePaymentSuccess(paymentData: PaymentData?) {
-		// PaymentMethodToken contains the payment information, as well as any additional
-		// requested information, such as billing and shipping address.
-		//
-		// Refer to your processor's documentation on how to proceed from here.
-		val token = paymentData?.handlePaymentSuccess()
-
-		// getPaymentMethodToken will only return null if PaymentMethodTokenizationParameters was
-		// not set in the PaymentRequest.
-		if (token != null) {
-			val billingName = paymentData.cardInfo.billingAddress?.name
-			Toast.makeText(this, getString(R.string.payments_show_name, billingName), Toast.LENGTH_LONG).show()
-
-			// Use token.getToken() to get the token string.
-			Log.d("GooglePaymentToken", token)
-			charge(token, "Google Pay", total)
-		}
-	}
-
-	private fun handlePaymentError(statusCode: Int) {
-		// At this stage, the user has already seen a popup informing them an error occurred.
-		// Normally, only logging is required.
-		// statusCode will hold the value of any constant from CommonStatusCode or one of the
-		// WalletConstants.ERROR_CODE_* constants.
-		Log.w("loadPaymentData failed", String.format("Error code: %d", statusCode))
-	}
-
-	// This method is called when the Pay with Google button is clicked.
-	private fun requestPayment() {
-		// Disables the button to prevent multiple clicks.
-		binding.pwgButton.root.isClickable = false
-
-		// The price provided to the API should include taxes and shipping.
-		// This price is not displayed to the user.
-		val price = PaymentsUtil.microsToString(total.toLong())
-		val transaction = PaymentsUtil.createTransaction(price)
-		val request = PaymentsUtil.createPaymentDataRequest(transaction)
-		val futurePaymentData = paymentsClient!!.loadPaymentData(request)
-
-		// Since loadPaymentData may show the UI asking the user to select a payment method, we use
-		// AutoResolveHelper to wait for the user interacting with it. Once completed,
-		// onActivityResult will be called with the result.
-		AutoResolveHelper.resolveTask(futurePaymentData, this, LOAD_PAYMENT_DATA_REQUEST_CODE)
 	}
 }

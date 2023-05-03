@@ -11,6 +11,5 @@ data class PaymentConfiguration(
 	val scanner: CardScanner?,
 	val showEmailField: Boolean = false,
 	val useDualMessagePayment: Boolean = false,
-	val disableGPay: Boolean = false,
 	val apiUrl: String = ""
 ) : Parcelable

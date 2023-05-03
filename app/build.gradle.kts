@@ -89,8 +89,6 @@ dependencies {
 
     implementation("ru.tinkoff.decoro:decoro:${Deps.decoroVer}")
 
-    implementation("com.google.android.gms:play-services-wallet:19.1.0")
-
     //Multidex support
     implementation("androidx.multidex:multidex:2.0.1")
 

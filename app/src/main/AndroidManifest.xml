@@ -19,9 +19,5 @@
             </intent-filter>
         </activity>
         <activity android:name="ru.cloudpayments.demo.screens.checkout.CheckoutActivity"/>
-
-        <meta-data
-            android:name="com.google.android.gms.wallet.api.enabled"
-            android:value="true" />
     </application>
 </manifest>

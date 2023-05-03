@@ -52,13 +52,6 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <include
-            android:id="@+id/button_googlepay"
-            layout="@layout/googlepay_button"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginBottom="@dimen/cpsdk_margin_normal" />
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_pay_card"
             style="@style/cpsdk_OutlinedButton"

@@ -2,7 +2,6 @@ package ru.cloudpayments.sdk.ui.dialogs
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textfield.TextInputEditText
@@ -21,7 +21,6 @@ import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentCardBinding
 import ru.cloudpayments.sdk.models.Currency
 import ru.cloudpayments.sdk.scanner.CardData
-import ru.cloudpayments.sdk.util.TextWatcherAdapter
 import ru.cloudpayments.sdk.util.emailIsValid
 import ru.cloudpayments.sdk.util.hideKeyboard
 import ru.cloudpayments.sdk.viewmodel.PaymentCardViewModel
@@ -52,8 +51,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		savedInstanceState: Bundle?
 	): View {
 		_binding = DialogCpsdkPaymentCardBinding.inflate(inflater, container, false)
-		val view = binding.root
-		return view
+		return binding.root
 	}
 
 	override fun onDestroyView() {
@@ -107,11 +105,9 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		cardNumberFormatWatcher.installOn(binding.editCardNumber)
 		cardExpFormatWatcher.installOn(binding.editCardExp)
 
-		binding.editCardNumber.addTextChangedListener(object : TextWatcherAdapter() {
-			override fun afterTextChanged(s: Editable?) {
-				super.afterTextChanged(s)
-
-				val cardNumber = s.toString().replace(" ", "")
+		binding.editCardNumber.addTextChangedListener(
+			afterTextChanged = { s ->
+				val cardNumber = s?.toString()?.replace(" ", "") ?: return@addTextChangedListener
 				if (Card.isValidNumber(cardNumber)) {
 					//edit_card_exp.requestFocus()
 					errorMode(false, binding.editCardNumber)
@@ -121,36 +117,33 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 
 				updatePaymentSystemIcon(cardNumber)
 			}
-		})
+		)
 
 		binding.editCardNumber.setOnFocusChangeListener { _, hasFocus ->
 			errorMode(!hasFocus && !Card.isValidNumber(binding.editCardNumber.text.toString()), binding.editCardNumber)
 		}
 
-		binding.editCardExp.addTextChangedListener(object : TextWatcherAdapter() {
-			override fun afterTextChanged(s: Editable?) {
-				super.afterTextChanged(s)
-
-				val cardExp = s.toString()
+		binding.editCardExp.addTextChangedListener(
+			afterTextChanged = { s ->
+				val cardExp = s?.toString()
 				if (Card.isValidExpDate(cardExp)) {
 					//edit_card_cvv.requestFocus()
 					errorMode(false, binding.editCardExp)
 				} else {
-					errorMode(cardExp.length == 5, binding.editCardExp)
+					errorMode(cardExp?.length == 5, binding.editCardExp)
 				}
 			}
-		})
+		)
 
 		binding.editCardExp.setOnFocusChangeListener { _, hasFocus ->
 			errorMode(!hasFocus && !Card.isValidExpDate(binding.editCardExp.text.toString()), binding.editCardExp)
 		}
 
-		binding.editCardCvv.addTextChangedListener(object : TextWatcherAdapter() {
-			override fun afterTextChanged(s: Editable?) {
-				super.afterTextChanged(s)
+		binding.editCardCvv.addTextChangedListener(
+			afterTextChanged = { s ->
 				errorMode(false, binding.editCardCvv)
 
-				if (Card.isValidCvv(binding.editCardNumber.toString(), s.toString())) {
+				if (Card.isValidCvv(binding.editCardNumber.toString(), s?.toString())) {
 					if (binding.checkboxReceipt.isChecked) {
 						//edit_email.requestFocus()
 					} else {
@@ -158,7 +151,7 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 					}
 				}
 			}
-		})
+		)
 
 		binding.editCardCvv.setOnFocusChangeListener { _, hasFocus ->
 			errorMode(!hasFocus && !Card.isValidCvv(binding.editCardNumber.toString(), binding.editCardCvv.text.toString()), binding.editCardCvv)

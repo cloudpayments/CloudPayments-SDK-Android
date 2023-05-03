@@ -2,11 +2,6 @@
     <string name="app_name" translatable="false">CloudPayments Demo</string>
 
     <string name="store_name" translatable="false">My Online Store</string>
-    <string name="pwg_status_unavailable" translatable="false">Unfortunately, Pay with Google is not available on this phone.</string>
-    <string name="pwg_status_checking" translatable="false">Checking if Pay with Google is available...</string>
-    <string name="payments_show_name" translatable="false">Successfully received payment data for %s!</string>
-
-    <string name="pay_with_google_content_description" translatable="false">Оплатить через Google</string>
 
     <!-- Dialog -->
     <string name="dialog_loading_title" translatable="false">Загрузка данных</string>
@@ -56,7 +51,6 @@
     <string name="checkout_card_holder_name" translatable="false">Имя владельца</string>
     <string name="checkout_card_cvv" translatable="false">CVV код</string>
     <string name="checkout_pay" translatable="false">Оплатить</string>
-    <string name="checkout_or" translatable="false">или</string>
 
     <string name="checkout_error_card_number" translatable="false">Номер карты некорректен</string>
     <string name="checkout_error_card_date" translatable="false">Срок действитя некорректен либо истек</string>

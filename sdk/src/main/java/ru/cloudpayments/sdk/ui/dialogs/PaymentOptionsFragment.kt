@@ -7,13 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentOptionsBinding
-import ru.cloudpayments.sdk.ui.PaymentActivity
 import ru.cloudpayments.sdk.viewmodel.PaymentOptionsViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentOptionsViewState
 
 internal class PaymentOptionsFragment: BasePaymentFragment<PaymentOptionsViewState, PaymentOptionsViewModel>() {
 	interface IPaymentOptionsFragment {
-		fun onGooglePayClicked()
 		fun onCardClicked()
 	}
 
@@ -45,11 +43,7 @@ internal class PaymentOptionsFragment: BasePaymentFragment<PaymentOptionsViewSta
 	override val viewModel: PaymentOptionsViewModel by viewModels()
 
 	override fun render(state: PaymentOptionsViewState) {
-		if ((activity as PaymentActivity).googlePayAvailable) {
-			binding.buttonGooglepay.root.visibility = View.VISIBLE
-		} else {
-			binding.buttonGooglepay.root.visibility = View.GONE
-		}
+		// no-op
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -59,13 +53,6 @@ internal class PaymentOptionsFragment: BasePaymentFragment<PaymentOptionsViewSta
 
 		binding.buttonClose.setOnClickListener {
 			close(true)
-		}
-
-		binding.buttonGooglepay.root.setOnClickListener {
-			close(false) {
-				val listener = requireActivity() as? IPaymentOptionsFragment
-				listener?.onGooglePayClicked()
-			}
 		}
 
 		binding.buttonPayCard.setOnClickListener {

@@ -61,7 +61,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 			val jsonData = binding.editJsonData.text.toString()
 			val isDualMessagePayment = binding.checkboxDualMessagePayment.isChecked
 
-			var payer = PaymentDataPayer()
+			val payer = PaymentDataPayer()
 			payer.firstName = payerFirstName
 			payer.lastName = payerLastName
 			payer.middleName = payerMiddleName
@@ -90,7 +90,6 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 				scanner = CardIOScanner(),
 				showEmailField = true,
 				useDualMessagePayment = isDualMessagePayment,
-				disableGPay = false,
 				apiUrl = apiUrl
 			)
 			cpSdkLauncher.launch(configuration)

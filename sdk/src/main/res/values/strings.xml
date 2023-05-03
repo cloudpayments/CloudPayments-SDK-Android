@@ -18,8 +18,6 @@
     <string name="cpsdk_text_process_title_error">Произошла ошибка!</string>
     <string name="cpsdk_text_process_button_error">Повторить оплату</string>
 
-    <string name="cpsdk_currency_template">%.2f\u20BD</string>
-
     <!-- ERRORS -->
     <string name="cpsdk_error_3001">Неверный номер заказа</string>
     <string name="cpsdk_error_3002">Некорректный идентификатор плательщика</string>

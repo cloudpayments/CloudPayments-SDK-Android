@@ -46,7 +46,6 @@ class CloudpaymentsApi @Inject constructor(private val apiService: Cloudpayments
 						val reasonCode = uri.getQueryParameter("ReasonCode")?.toIntOrNull()
 						val message = if (cardholderMessage != null) {
 							withContext(Dispatchers.IO) {
-								@Suppress("BlockingMethodInNonBlockingContext")
 								URLDecoder.decode(cardholderMessage, "utf-8")
 							}
 						} else {

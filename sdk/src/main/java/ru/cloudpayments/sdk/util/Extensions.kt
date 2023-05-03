@@ -2,13 +2,11 @@ package ru.cloudpayments.sdk.util
 
 import android.app.Activity
 import android.content.Context
-import android.os.Build
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import ru.cloudpayments.sdk.R
-import java.text.NumberFormat
 
 fun Activity.hideKeyboard() {
 	currentFocus?.let {
@@ -44,10 +42,4 @@ fun FragmentActivity.nextFragment(fragment: Fragment, addToBackStack: Boolean = 
 		transaction.addToBackStack(fragment::class.java.toString())
 	}
 	transaction.commit()
-}
-
-fun Context.getCurrencyString(currency: Double) = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-	NumberFormat.getCurrencyInstance(getRussianLocale()).format(currency)
-} else {
-	getString(R.string.cpsdk_currency_template, currency)
 }
