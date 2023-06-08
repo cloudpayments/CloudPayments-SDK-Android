@@ -2,15 +2,14 @@ package ru.cloudpayments.sdk.card
 
 import android.text.TextUtils
 import android.util.Base64
-import android.util.Log
 import java.io.UnsupportedEncodingException
-import java.security.*
+import java.security.InvalidKeyException
+import java.security.KeyFactory
+import java.security.NoSuchAlgorithmException
+import java.security.PublicKey
+import java.security.SecureRandom
 import java.security.spec.InvalidKeySpecException
 import java.security.spec.X509EncodedKeySpec
-import java.text.DateFormat
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
@@ -36,35 +35,23 @@ class Card {
 				false
 			} else {
 				val number = prepareCardNumber(cardNumber)
-				return if (TextUtils.isEmpty(number) || number.length < 14) {
+				return if (TextUtils.isEmpty(number) || number.length < 14 || number.length > 19 ) {
 					false
 				} else {
-					var sum = 0
-					if (number.length % 2 == 0) {
-						for (i in number.indices step 2) {
-							var c = number.substring(i, i + 1).toInt()
-							c *= 2
-							if (c > 9) {
-								c -= 9
-							}
-							sum += c
-							sum += number.substring(i + 1, i + 2).toInt()
-						}
-					} else {
-						for (i in 1 until number.length step 2) {
-							var c: Int = number.substring(i, i + 1).toInt()
-							c *= 2
-							if (c > 9) {
-								c -= 9
-							}
-							sum += c
-							sum += number.substring(i - 1, i).toInt()
-						}
-					}
-					sum % 10 == 0
+					number.luhnAlgorithm()
 				}
 			}
 		}
+
+		fun String.luhnAlgorithm() = reversed()
+			.map(Character::getNumericValue)
+			.mapIndexed { index, digit ->
+				when {
+					index % 2 == 0 -> digit
+					digit < 5 -> digit * 2
+					else -> digit * 2 - 9
+				}
+			}.sum() % 10 == 0
 
 		fun isValidExpDate(exp: String?): Boolean {
 			return if (exp == null) {

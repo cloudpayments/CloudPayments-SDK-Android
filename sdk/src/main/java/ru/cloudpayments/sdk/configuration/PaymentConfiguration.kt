@@ -8,7 +8,7 @@ import ru.cloudpayments.sdk.scanner.CardScanner
 data class PaymentConfiguration(val publicId: String,
 								val paymentData: PaymentData,
 								val scanner: CardScanner?,
-								val showEmailField: Boolean = false,
+								val requireEmail: Boolean = false,
 								val useDualMessagePayment: Boolean = false,
 								val disableGPay: Boolean = false,
 								val disableYandexPay: Boolean = false,

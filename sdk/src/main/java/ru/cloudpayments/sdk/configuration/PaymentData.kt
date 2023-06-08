@@ -10,6 +10,6 @@ class PaymentData(val amount: String,
 				  val invoiceId: String? = null,
 				  val description: String? = null,
 				  val accountId: String? = null,
-				  val email: String? = null,
+				  var email: String? = null,
 				  val payer: PaymentDataPayer? = null,
 				  val jsonData: String? = null): Parcelable

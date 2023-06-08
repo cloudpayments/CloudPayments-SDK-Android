@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="cpsdk_OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:textSize">16sp</item>
-        <item name="textAllCaps">false</item>
-        <item name="strokeColor">@color/cpsdk_light_blue_grey</item>
-        <item name="strokeWidth">1dp</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="cornerRadius">4dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:fontFamily">@font/rubik_regular</item>
-    </style>
-    <style name="cpsdk_UnelevatedButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
-        <item name="android:textSize">16sp</item>
-        <item name="textAllCaps">false</item>
-        <item name="backgroundTint">@color/cpsdk_dark_sky_blue</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="cornerRadius">4dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:fontFamily">@font/rubik_regular</item>
-    </style>
+<!--    <style name="cpsdk_OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">-->
+<!--        <item name="android:textSize">16sp</item>-->
+<!--        <item name="textAllCaps">false</item>-->
+<!--        <item name="strokeColor">@color/cpsdk_light_blue_grey</item>-->
+<!--        <item name="strokeWidth">1dp</item>-->
+<!--        <item name="android:letterSpacing">0</item>-->
+<!--        <item name="cornerRadius">4dp</item>-->
+<!--        <item name="android:insetBottom">0dp</item>-->
+<!--        <item name="android:insetTop">0dp</item>-->
+<!--        <item name="android:fontFamily">@font/rubik_regular</item>-->
+<!--    </style>-->
+
+<!--    <style name="cpsdk_UnelevatedButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">-->
+<!--        <item name="android:textSize">16sp</item>-->
+<!--        <item name="textAllCaps">false</item>-->
+<!--        <item name="backgroundTint">@color/cpsdk_dark_sky_blue</item>-->
+<!--        <item name="android:letterSpacing">0</item>-->
+<!--        <item name="cornerRadius">4dp</item>-->
+<!--        <item name="android:insetBottom">0dp</item>-->
+<!--        <item name="android:insetTop">0dp</item>-->
+<!--        <item name="android:fontFamily">@font/rubik_regular</item>-->
+<!--    </style>-->
 </resources>

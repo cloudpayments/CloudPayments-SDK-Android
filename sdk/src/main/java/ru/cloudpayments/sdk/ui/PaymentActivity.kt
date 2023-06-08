@@ -24,16 +24,16 @@ import ru.cloudpayments.sdk.dagger2.CloudpaymentsModule
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsNetModule
 import ru.cloudpayments.sdk.dagger2.DaggerCloudpaymentsComponent
 import ru.cloudpayments.sdk.databinding.ActivityCpsdkPaymentBinding
-import ru.cloudpayments.sdk.ui.dialogs.BasePaymentFragment
+import ru.cloudpayments.sdk.ui.dialogs.base.BasePaymentBottomSheetFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentCardFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentOptionsFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentProcessFragment
 import ru.cloudpayments.sdk.util.GooglePayHandler
 import ru.cloudpayments.sdk.util.nextFragment
 
-internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPaymentFragment,
-		PaymentOptionsFragment.IPaymentOptionsFragment, PaymentCardFragment.IPaymentCardFragment,
-		PaymentProcessFragment.IPaymentProcessFragment {
+internal class PaymentActivity: FragmentActivity(), BasePaymentBottomSheetFragment.IPaymentFragment,
+								PaymentOptionsFragment.IPaymentOptionsFragment, PaymentCardFragment.IPaymentCardFragment,
+								PaymentProcessFragment.IPaymentProcessFragment {
 
 	companion object {
 		private const val REQUEST_CODE_GOOGLE_PAY = 1
@@ -47,15 +47,20 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 		}
 	}
 
+	override fun finish() {
+		super.finish()
+		overridePendingTransition(R.anim.cpsdk_fade_in, R.anim.cpsdk_fade_out)
+	}
+
 	internal val component: CloudpaymentsComponent by lazy {
 		DaggerCloudpaymentsComponent
 			.builder()
 			.cloudpaymentsModule(CloudpaymentsModule())
-			.cloudpaymentsNetModule(CloudpaymentsNetModule(configuration!!.publicId, configuration!!.apiUrl))
+			.cloudpaymentsNetModule(CloudpaymentsNetModule(paymentConfiguration!!.publicId, paymentConfiguration!!.apiUrl))
 			.build()
 	}
 
-	private val configuration by lazy {
+	val paymentConfiguration by lazy {
 		intent.getParcelableExtra<PaymentConfiguration>(EXTRA_CONFIGURATION)
 	}
 
@@ -71,7 +76,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 				val token = Base64.decode(result.paymentToken.toString(), Base64.DEFAULT)
 
 				val runnable = {
-					val fragment = PaymentProcessFragment.newInstance(configuration!!, String(token), null)
+					val fragment = PaymentProcessFragment.newInstance(String(token))
 					nextFragment(fragment, true, R.id.frame_content)
 				}
 				Handler().postDelayed(runnable, 1000)
@@ -106,7 +111,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 				context = this,
 				config = YandexPayLibConfig(
 					merchantDetails = Merchant(
-						id = MerchantId.from(configuration!!.yandexPayMerchantID),
+						id = MerchantId.from(paymentConfiguration!!.yandexPayMerchantID),
 						name = "Cloud",
 						url = "https://cp.ru/",
 					),
@@ -115,7 +120,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 					logging = false
 				)
 			)
-			yandexPayAvailable = !configuration!!.disableYandexPay && configuration!!.yandexPayMerchantID.isNotEmpty()
+			yandexPayAvailable = !paymentConfiguration!!.disableYandexPay && paymentConfiguration!!.yandexPayMerchantID.isNotEmpty()
 		} else {
 			yandexPayAvailable = false
 		}
@@ -133,21 +138,18 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	}
 
 	private fun showUi(googlePayAvailable: Boolean) {
-		this.googlePayAvailable = googlePayAvailable && !configuration!!.disableGPay
+		this.googlePayAvailable = googlePayAvailable && !paymentConfiguration!!.disableGPay
 
 		binding.iconProgress.isVisible = false
 
-		val fragment = if (this.googlePayAvailable || this.yandexPayAvailable) {
-			PaymentOptionsFragment.newInstance(configuration!!)
-		} else {
-			PaymentCardFragment.newInstance(configuration!!)
-		}
-		nextFragment(fragment, true, R.id.frame_content)
+		val fragment = PaymentOptionsFragment.newInstance()
+
+		fragment.show(supportFragmentManager, "")
 	}
 
 	override fun onBackPressed() {
 		val fragment = supportFragmentManager.findFragmentById(R.id.frame_content)
-		if (fragment is BasePaymentFragment<*, *>) {
+		if (fragment is BasePaymentBottomSheetFragment<*, *>) {
 			fragment.handleBackButton()
 		} else {
 			super.onBackPressed()
@@ -159,17 +161,19 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	}
 
 	override fun onGooglePayClicked() {
-		GooglePayHandler.present(configuration!!, this, REQUEST_CODE_GOOGLE_PAY)
+		GooglePayHandler.present(paymentConfiguration!!, this, REQUEST_CODE_GOOGLE_PAY)
 	}
 
 	override fun onCardClicked() {
-		val fragment = PaymentCardFragment.newInstance(configuration!!)
-		nextFragment(fragment, true, R.id.frame_content)
+		val fragment = PaymentCardFragment.newInstance()
+		fragment.show(supportFragmentManager, "")
+		//nextFragment(fragment, true, R.id.frame_content)
 	}
 
-	override fun onPayClicked(cryptogram: String, email: String?) {
-		val fragment = PaymentProcessFragment.newInstance(configuration!!, cryptogram, email)
-		nextFragment(fragment, true, R.id.frame_content)
+	override fun onPayClicked(cryptogram: String) {
+		val fragment = PaymentProcessFragment.newInstance(cryptogram)
+		fragment.show(supportFragmentManager, "")
+		//nextFragment(fragment, true, R.id.frame_content)
 	}
 
 	override fun onPaymentFinished(transactionId: Int) {
@@ -227,7 +231,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 
 			if (token != null) {
 				val runnable = {
-					val fragment = PaymentProcessFragment.newInstance(configuration!!, token, null)
+					val fragment = PaymentProcessFragment.newInstance(token)
 					nextFragment(fragment, true, R.id.frame_content)
 				}
 				Handler().postDelayed(runnable, 1000)
@@ -240,8 +244,8 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentFragment.IPayment
 	}
 
 	private fun checkCurrency() {
-		if (configuration!!.paymentData.currency.isEmpty()) {
-			configuration!!.paymentData.currency = "RUB"
+		if (paymentConfiguration!!.paymentData.currency.isEmpty()) {
+			paymentConfiguration!!.paymentData.currency = "RUB"
 		}
 	}
 }

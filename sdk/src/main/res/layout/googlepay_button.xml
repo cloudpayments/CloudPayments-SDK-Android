@@ -3,7 +3,8 @@
     android:clickable="true"
     android:focusable="true"
     android:layout_width="match_parent"
-    android:layout_height="48sp"
+    android:layout_height="wrap_content"
+    android:minHeight="56dp"
     android:background="@drawable/cpsdk_bg_button_gp">
 
     <LinearLayout

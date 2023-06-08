@@ -144,8 +144,7 @@
                 android:layout_marginTop="@dimen/ui_margin_16dp"
                 android:layout_marginRight="@dimen/ui_margin_16dp"
                 android:text="@string/checkout_payment"
-                app:backgroundTint="@color/colorAccent"
-                style="@style/cpsdk_UnelevatedButton"/>
+                app:backgroundTint="@color/colorAccent"/>
 
             <TextView
                 android:layout_width="match_parent"

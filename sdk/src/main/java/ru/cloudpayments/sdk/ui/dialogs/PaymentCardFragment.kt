@@ -6,21 +6,16 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import com.google.android.material.checkbox.MaterialCheckBox
-import com.google.android.material.textfield.TextInputEditText
 import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.card.Card
 import ru.cloudpayments.sdk.card.CardType
-import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentCardBinding
 import ru.cloudpayments.sdk.models.Currency
 import ru.cloudpayments.sdk.scanner.CardData
+import ru.cloudpayments.sdk.ui.dialogs.base.BasePaymentBottomSheetFragment
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
-import ru.cloudpayments.sdk.util.emailIsValid
 import ru.cloudpayments.sdk.util.hideKeyboard
 import ru.cloudpayments.sdk.viewmodel.PaymentCardViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentCardViewState
@@ -28,17 +23,17 @@ import ru.tinkoff.decoro.MaskDescriptor
 import ru.tinkoff.decoro.parser.UnderscoreDigitSlotsParser
 import ru.tinkoff.decoro.watchers.DescriptorFormatWatcher
 
-internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, PaymentCardViewModel>() {
+internal class PaymentCardFragment :
+	BasePaymentBottomSheetFragment<PaymentCardViewState, PaymentCardViewModel>() {
 	interface IPaymentCardFragment {
-		fun onPayClicked(cryptogram: String, email: String?)
+		fun onPayClicked(cryptogram: String)
 	}
 
 	companion object {
 		const val REQUEST_CODE_SCANNER = 1
 
-		fun newInstance(configuration: PaymentConfiguration) = PaymentCardFragment().apply {
+		fun newInstance() = PaymentCardFragment().apply {
 			arguments = Bundle()
-			setConfiguration(configuration)
 		}
 	}
 
@@ -88,11 +83,6 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 
 		activity().component.inject(viewModel)
 
-		binding.checkboxReceipt.setOnCheckedChangeListener { _, isChecked ->
-			binding.tilEmail.isGone = !isChecked
-			requireActivity().hideKeyboard()
-		}
-
 		cardNumberFormatWatcher.installOn(binding.editCardNumber)
 		cardExpFormatWatcher.installOn(binding.editCardExp)
 
@@ -103,17 +93,21 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 				val cardNumber = s.toString().replace(" ", "")
 				if (Card.isValidNumber(cardNumber)) {
 					//edit_card_exp.requestFocus()
-					errorMode(false, binding.editCardNumber)
+					errorMode(false, binding.editCardNumber, binding.tilCardNumber)
 				} else {
-					errorMode(cardNumber.length == 19, binding.editCardNumber)
+					errorMode(cardNumber.length == 19, binding.editCardNumber, binding.tilCardNumber)
 				}
 
 				updatePaymentSystemIcon(cardNumber)
+				updateStateButtons()
 			}
 		})
 
 		binding.editCardNumber.setOnFocusChangeListener { _, hasFocus ->
-			errorMode(!hasFocus && !Card.isValidNumber(binding.editCardNumber.text.toString()), binding.editCardNumber)
+			errorMode(
+				!hasFocus && !Card.isValidNumber(binding.editCardNumber.text.toString()),
+				binding.editCardNumber, binding.tilCardNumber
+			)
 		}
 
 		binding.editCardExp.addTextChangedListener(object : TextWatcherAdapter() {
@@ -123,42 +117,40 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 				val cardExp = s.toString()
 				if (Card.isValidExpDate(cardExp)) {
 					//edit_card_cvv.requestFocus()
-					errorMode(false, binding.editCardExp)
+					errorMode(false, binding.editCardExp, binding.tilCardExp)
 				} else {
-					errorMode(cardExp.length == 5, binding.editCardExp)
+					errorMode(cardExp.length == 5, binding.editCardExp, binding.tilCardExp)
 				}
+				updateStateButtons()
 			}
 		})
 
 		binding.editCardExp.setOnFocusChangeListener { _, hasFocus ->
-			errorMode(!hasFocus && !Card.isValidExpDate(binding.editCardExp.text.toString()), binding.editCardExp)
+			errorMode(
+				!hasFocus && !Card.isValidExpDate(binding.editCardExp.text.toString()),
+				binding.editCardExp, binding.tilCardExp
+			)
 		}
 
 		binding.editCardCvv.addTextChangedListener(object : TextWatcherAdapter() {
 			override fun afterTextChanged(s: Editable?) {
 				super.afterTextChanged(s)
-				errorMode(false, binding.editCardCvv)
+				errorMode(false, binding.editCardCvv, binding.tilCardCvv)
 
 				if (Card.isValidCvv(binding.editCardNumber.toString(), s.toString())) {
-					if (binding.checkboxReceipt.isChecked) {
-						//edit_email.requestFocus()
-					} else {
-						requireActivity().hideKeyboard()
-					}
+					requireActivity().hideKeyboard()
 				}
+				updateStateButtons()
 			}
 		})
 
 		binding.editCardCvv.setOnFocusChangeListener { _, hasFocus ->
-			errorMode(!hasFocus && !Card.isValidCvv(binding.editCardNumber.toString(), binding.editCardCvv.text.toString()), binding.editCardCvv)
-		}
-
-		binding.editEmail.setOnFocusChangeListener { _, hasFocus ->
-			errorMode(!hasFocus && !emailIsValid(binding.editEmail.text.toString()), binding.editEmail)
-		}
-
-		binding.buttonClose.setOnClickListener {
-			close(true)
+			errorMode(
+				!hasFocus && !Card.isValidCvv(
+					binding.editCardNumber.toString(),
+					binding.editCardCvv.text.toString()
+				), binding.editCardCvv, binding.tilCardCvv
+			)
 		}
 
 		binding.buttonPay.setOnClickListener {
@@ -166,17 +158,18 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			val cardExp = binding.editCardExp.text.toString()
 			val cardCvv = binding.editCardCvv.text.toString()
 
-			val cryptogram = Card.cardCryptogram(cardNumber, cardExp, cardCvv, paymentConfiguration?.publicId ?: "")
-			val email = if (binding.checkboxReceipt.isChecked) {
-				binding.editEmail.text.toString().ifEmpty { null }
-			} else {
-				null
-			}
+			val cryptogram = Card.cardCryptogram(
+				cardNumber,
+				cardExp,
+				cardCvv,
+				paymentConfiguration?.publicId ?: ""
+			)
+
 			if (isValid() && cryptogram != null) {
-				close(false) {
-					val listener = requireActivity() as? IPaymentCardFragment
-					listener?.onPayClicked(cryptogram, email)
-				}
+
+				val listener = requireActivity() as? IPaymentCardFragment
+				listener?.onPayClicked(cryptogram)
+				dismiss()
 			}
 		}
 
@@ -187,25 +180,19 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 			}
 		}
 
-		binding.buttonPay.text = getString(R.string.cpsdk_text_card_pay_button, String.format("%.2f " + Currency.getSymbol(paymentConfiguration!!.paymentData.currency), paymentConfiguration!!.paymentData.amount.toDouble()))
+		binding.buttonPay.text = getString(
+			R.string.cpsdk_text_card_pay_button,
+			String.format(
+				"%.2f " + Currency.getSymbol(paymentConfiguration!!.paymentData.currency),
+				paymentConfiguration!!.paymentData.amount.toDouble()
+			)
+		)
 
 		updatePaymentSystemIcon("")
-
-		binding.checkboxReceipt.checkedState = if (paymentConfiguration!!.showEmailField) MaterialCheckBox.STATE_CHECKED else MaterialCheckBox.STATE_UNCHECKED
-		binding.editEmail.setText(paymentConfiguration!!.paymentData.email)
+		updateStateButtons()
 	}
 
-	private fun errorMode(isErrorMode: Boolean, editText: TextInputEditText){
-		if (isErrorMode) {
-			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.cpsdk_pale_red))
-			editText.setBackgroundResource(R.drawable.cpsdk_edit_text_underline_error)
-		} else {
-			editText.setTextColor(ContextCompat.getColor(requireContext(), R.color.cpsdk_dark))
-			editText.setBackgroundResource(R.drawable.cpsdk_edit_text_underline)
-		}
-	}
-
-	private fun updatePaymentSystemIcon(cardNumber: String){
+	private fun updatePaymentSystemIcon(cardNumber: String) {
 		val cardType = CardType.getType(cardNumber)
 		val psIcon = cardType.getIconRes()
 		if (paymentConfiguration?.scanner != null && (cardNumber.isEmpty() || psIcon == null)) {
@@ -218,19 +205,33 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		}
 	}
 
+	private fun updateStateButtons() {
+		if (isValid()) {
+			enableButtons()
+		} else {
+			disableButtons()
+		}
+	}
+
+	private fun disableButtons() {
+		binding.viewBlockButtons.visibility = View.VISIBLE
+	}
+
+	private fun enableButtons() {
+		binding.viewBlockButtons.visibility = View.GONE
+	}
+
 	private fun isValid(): Boolean {
 		val cardNumber = binding.editCardNumber.text.toString()
 		val cardNumberIsValid = Card.isValidNumber(cardNumber)
 		val cardExpIsValid = Card.isValidExpDate(binding.editCardExp.text.toString())
 		val cardCvvIsValid = Card.isValidCvv(cardNumber, binding.editCardCvv.text.toString())
-		val emailIsValid = !binding.checkboxReceipt.isChecked || emailIsValid(binding.editEmail.text.toString())
 
-		errorMode(!cardNumberIsValid, binding.editCardNumber)
-		errorMode(!cardExpIsValid, binding.editCardExp)
-		errorMode(!cardCvvIsValid, binding.editCardCvv)
-		errorMode(!emailIsValid, binding.editEmail)
+//		errorMode(!cardNumberIsValid, binding.editCardNumber)
+//		errorMode(!cardExpIsValid, binding.editCardExp)
+//		errorMode(!cardCvvIsValid, binding.editCardCvv)
 
-		return cardNumberIsValid && cardExpIsValid && cardCvvIsValid && emailIsValid
+		return cardNumberIsValid && cardExpIsValid && cardCvvIsValid
 	}
 
 	private fun updateWithCardData(cardData: CardData) {
@@ -238,17 +239,19 @@ internal class PaymentCardFragment: BasePaymentFragment<PaymentCardViewState, Pa
 		binding.editCardExp.setText("${cardData.cardExpMonth}/${cardData.cardExpYear}")
 	}
 
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = when (requestCode) {
-		REQUEST_CODE_SCANNER -> {
-			if (data != null) {
-				val cardData = paymentConfiguration?.scanner?.getCardDataFromIntent(data)
-				if (cardData != null) {
-					updateWithCardData(cardData)
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) =
+		when (requestCode) {
+			REQUEST_CODE_SCANNER -> {
+				if (data != null) {
+					val cardData = paymentConfiguration?.scanner?.getCardDataFromIntent(data)
+					if (cardData != null) {
+						updateWithCardData(cardData)
+					}
 				}
+
+				super.onActivityResult(requestCode, resultCode, data)
 			}
 
-			super.onActivityResult(requestCode, resultCode, data)
+			else -> super.onActivityResult(requestCode, resultCode, data)
 		}
-		else -> super.onActivityResult(requestCode, resultCode, data)
-	}
 }

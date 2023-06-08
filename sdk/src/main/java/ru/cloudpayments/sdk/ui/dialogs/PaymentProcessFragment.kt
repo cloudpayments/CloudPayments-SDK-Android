@@ -1,19 +1,15 @@
 package ru.cloudpayments.sdk.ui.dialogs
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.Animation
-import android.view.animation.RotateAnimation
 import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
 import ru.cloudpayments.sdk.R
-import ru.cloudpayments.sdk.configuration.PaymentConfiguration
 import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentProcessBinding
 import ru.cloudpayments.sdk.models.ApiError
+import ru.cloudpayments.sdk.ui.dialogs.base.BasePaymentDialogFragment
 import ru.cloudpayments.sdk.util.InjectorUtils
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentProcessViewState
@@ -24,7 +20,7 @@ internal enum class PaymentProcessStatus {
 	Failed;
 }
 
-internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewState, PaymentProcessViewModel>(), ThreeDsDialogFragment.ThreeDSDialogListener {
+internal class PaymentProcessFragment: BasePaymentDialogFragment<PaymentProcessViewState, PaymentProcessViewModel>(), ThreeDsDialogFragment.ThreeDSDialogListener {
 	interface IPaymentProcessFragment {
 		fun onPaymentFinished(transactionId: Int)
 		fun onPaymentFailed(transactionId: Int, reasonCode: Int?)
@@ -34,13 +30,10 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 
 	companion object {
 		private const val ARG_CRYPTOGRAM = "ARG_CRYPTOGRAM"
-		private const val ARG_EMAIL = "ARG_EMAIL"
 
-		fun newInstance(configuration: PaymentConfiguration, cryptogram: String, email: String?) = PaymentProcessFragment().apply {
+		fun newInstance(cryptogram: String) = PaymentProcessFragment().apply {
 			arguments = Bundle()
-			setConfiguration(configuration)
 			arguments?.putString(ARG_CRYPTOGRAM, cryptogram)
-			email?.let { arguments?.putString(ARG_EMAIL, it) }
 		}
 	}
 
@@ -54,8 +47,7 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		savedInstanceState: Bundle?
 	): View? {
 		_binding = DialogCpsdkPaymentProcessBinding.inflate(inflater, container, false)
-		val view = binding.root
-		return view
+		return binding.root
 	}
 
 	override fun onDestroyView() {
@@ -69,7 +61,6 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		InjectorUtils.providePaymentProcessViewModelFactory(
 			paymentConfiguration!!.paymentData,
 			cryptogram,
-			email,
 			paymentConfiguration!!.useDualMessagePayment)
 	}
 
@@ -90,10 +81,6 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 		arguments?.getString(ARG_CRYPTOGRAM) ?: ""
 	}
 
-	private val email by lazy {
-		arguments?.getString(ARG_EMAIL)?: ""
-	}
-
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
@@ -108,22 +95,12 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 	private fun updateWith(status: PaymentProcessStatus, error: String? = null) {
 		when (status) {
 			PaymentProcessStatus.InProcess -> {
-				val rotate = RotateAnimation(
-					0f, 357f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-				rotate.duration = 1000
-				rotate.interpolator = AccelerateDecelerateInterpolator()
-				rotate.repeatCount = -1
-				rotate.repeatMode = Animation.INFINITE
-				rotate.fillAfter = true
-				binding.iconStatus.startAnimation(rotate)
-
+				binding.iconStatus.setImageResource(R.drawable.cpsdk_ic_progress)
 				binding.textStatus.setText(R.string.cpsdk_text_process_title)
 				binding.buttonFinish.isInvisible = true
 			}
 
 			PaymentProcessStatus.Succeeded, PaymentProcessStatus.Failed -> {
-				binding.iconStatus.clearAnimation()
-				binding.iconStatus.rotation = 0f
 				binding.buttonFinish.isInvisible = false
 
 				val listener = requireActivity() as? IPaymentProcessFragment
@@ -136,24 +113,26 @@ internal class PaymentProcessFragment: BasePaymentFragment<PaymentProcessViewSta
 					listener?.onPaymentFinished(currentState?.transaction?.transactionId ?: 0)
 
 					binding.buttonFinish.setOnClickListener {
-						close(false) {
-							listener?.finishPayment()
-						}
+
+						listener?.finishPayment()
+						dismiss()
 					}
 				} else {
 
 					binding.iconStatus.setImageResource(R.drawable.cpsdk_ic_failure)
 					binding.textStatus.text =
-						context?.let { ApiError.getFullErrorDescription(it, currentState?.reasonCode.toString()) }
+						context?.let { ApiError.getErrorDescription(it, currentState?.reasonCode.toString()) }
+					binding.textDescription.text =
+						context?.let { ApiError.getErrorDescriptionExtra(it, currentState?.reasonCode.toString()) }
 
 					binding.buttonFinish.setText(R.string.cpsdk_text_process_button_error)
 
 					listener?.onPaymentFailed(currentState?.transaction?.transactionId ?: 0, currentState?.reasonCode)
 
 					binding.buttonFinish.setOnClickListener {
-						close(false) {
-							listener?.retryPayment()
-						}
+
+						listener?.retryPayment()
+						dismiss()
 					}
 				}
 			}

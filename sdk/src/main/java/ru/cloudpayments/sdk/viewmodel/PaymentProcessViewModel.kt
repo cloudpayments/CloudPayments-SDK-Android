@@ -16,7 +16,6 @@ import javax.inject.Inject
 internal class PaymentProcessViewModel(
 	private val paymentData: PaymentData,
 	private val cryptogram: String,
-	private val email: String?,
 	private val useDualMessagePayment: Boolean
 ): BaseViewModel<PaymentProcessViewState>() {
 	override var currentState = PaymentProcessViewState()
@@ -51,7 +50,7 @@ internal class PaymentProcessViewModel(
 									  invoiceId = paymentData.invoiceId ?: "",
 									  description = paymentData.description ?: "",
 									  accountId = paymentData.accountId ?: "",
-									  email = email ?: "",
+									  email = paymentData.email ?: "",
 									  payer = paymentData.payer,
 									  jsonData = jsonDataString)
 
