@@ -2,6 +2,7 @@ package ru.cloudpayments.sdk.ui.dialogs
 
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ import com.yandex.pay.core.data.PaymentMethodType
 import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentOptionsBinding
 import ru.cloudpayments.sdk.ui.PaymentActivity
 import ru.cloudpayments.sdk.ui.dialogs.base.BasePaymentBottomSheetFragment
+import ru.cloudpayments.sdk.util.PublicKey
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
 import ru.cloudpayments.sdk.util.emailIsValid
 import ru.cloudpayments.sdk.util.hideKeyboard
@@ -72,6 +74,13 @@ internal class PaymentOptionsFragment :
 			binding.buttonYandexpay.visibility = View.VISIBLE
 		} else {
 			binding.buttonYandexpay.visibility = View.GONE
+		}
+
+		if (state.publicKeyPem != null && state.publicKeyVersion != null ) {
+			context?.let {
+				PublicKey.getInstance(it).savePem(state.publicKeyPem)
+				PublicKey.getInstance(it).saveVersion(state.publicKeyVersion)
+			}
 		}
 	}
 
@@ -165,6 +174,8 @@ internal class PaymentOptionsFragment :
 			listener?.onGooglePayClicked()
 			dismiss()
 		}
+
+		viewModel.getPublicKey()
 	}
 
 	private fun updateStateButtons() {

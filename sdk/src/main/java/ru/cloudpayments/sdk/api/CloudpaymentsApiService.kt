@@ -6,6 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import ru.cloudpayments.sdk.api.models.CloudpaymentsBinInfoResponse
+import ru.cloudpayments.sdk.api.models.CloudpaymentsPublicKeyResponse
 import ru.cloudpayments.sdk.api.models.PaymentRequestBody
 import ru.cloudpayments.sdk.api.models.ThreeDsRequestBody
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransactionResponse
@@ -22,4 +23,7 @@ interface CloudpaymentsApiService {
 
 	@GET("bins/info/{firstSixDigits}")
 	fun getBinInfo(@Path("firstSixDigits") firstSixDigits: String): Single<CloudpaymentsBinInfoResponse>
+
+	@GET("payments/publickey")
+	fun getPublicKey(): Single<CloudpaymentsPublicKeyResponse>
 }

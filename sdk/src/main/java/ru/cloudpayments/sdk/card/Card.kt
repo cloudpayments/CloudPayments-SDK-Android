@@ -2,6 +2,11 @@ package ru.cloudpayments.sdk.card
 
 import android.text.TextUtils
 import android.util.Base64
+import android.util.Log
+import com.google.gson.GsonBuilder
+import ru.cloudpayments.sdk.api.models.CardCryptogramPacket
+import ru.cloudpayments.sdk.api.models.CardInfo
+import ru.cloudpayments.sdk.util.HexPacketHelper
 import java.io.UnsupportedEncodingException
 import java.security.InvalidKeyException
 import java.security.KeyFactory
@@ -18,10 +23,12 @@ import javax.crypto.NoSuchPaddingException
 class Card {
 	companion object {
 
+		@Deprecated("Use API: https://api.cloudpayments.ru/payments/publickey")
 		private fun getKeyVersion(): String {
 			return "04"
 		}
 
+		@Deprecated("Use API: https://api.cloudpayments.ru/payments/publickey")
 		private fun getPublicKey(): String {
 			return "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArBZ1NNjvszen6BNWsgyDUJvDUZDtvR4jKNQtEwW1iW7hqJr0TdD8hgTxw3DfH+Hi/7ZjSNdH5EfChvgVW9wtTxrvUXCOyJndReq7qNMo94lHpoSIVW82dp4rcDB4kU+q+ekh5rj9Oj6EReCTuXr3foLLBVpH0/z1vtgcCfQzsLlGkSTwgLqASTUsuzfI8viVUbxE1a+600hN0uBh/CYKoMnCp/EhxV8g7eUmNsWjZyiUrV8AA/5DgZUCB+jqGQT/Dhc8e21tAkQ3qan/jQ5i/QYocA/4jW3WQAldMLj0PA36kINEbuDKq8qRh25v+k4qyjb7Xp4W2DywmNtG3Q20MQIDAQAB"
 		}
@@ -104,6 +111,68 @@ class Card {
 			return false
 		}
 
+		private fun prepareCardNumber(cardNumber: String): String {
+			return cardNumber.replace("\\s".toRegex(), "")
+		}
+
+		fun createHexPacketFromData(cardNumber: String, cardExp: String, cardCvv: String, publicId: String, publicKey: String, keyVersion: Int): String? {
+
+			var clearPublicKey = publicKey.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")
+
+			val clearNumber = prepareCardNumber(cardNumber)
+
+			val cryptogram = createCardCryptogram(clearNumber, cardExp, cardCvv, publicId, clearPublicKey)
+
+			val cardInfo = CardInfo(
+				firstSixDigits = clearNumber.substring(0, 6),
+				lastFourDigits = clearNumber.substring(clearNumber.length - 4),
+				expDateMonth = cardExp.substring(0, 2),
+				expDateYear = cardExp.substring(cardExp.length - 2)
+			)
+
+
+			var cardCryptogramPacket = CardCryptogramPacket(
+				cardInfo = cardInfo,
+				keyVersion = HexPacketHelper.numberToEvenLengthString(keyVersion),
+				value = cryptogram
+				)
+			
+			var gson = GsonBuilder().disableHtmlEscaping().create();
+			var cardCryptogramPacketString = gson.toJson(cardCryptogramPacket)
+
+			cardCryptogramPacketString = Base64.encodeToString(cardCryptogramPacketString.toByteArray(), Base64.NO_WRAP).trim()
+
+			return cardCryptogramPacketString
+		}
+		@Throws(UnsupportedEncodingException::class, NoSuchPaddingException::class, NoSuchAlgorithmException::class, BadPaddingException::class,
+				IllegalBlockSizeException::class, InvalidKeyException::class)
+		fun createCardCryptogram(number: String, cardExp: String, cardCvv: String, publicId: String, publicKey: String): String? {
+			val cardNumber = prepareCardNumber(number)
+			var exp = cardExp.replace("/", "")
+			if (cardNumber.length < 14 || exp.length != 4) {
+				return null
+			}
+
+			exp = exp.substring(2, 4) + cardExp.substring(0, 2)
+			val s = "$cardNumber@$exp@$cardCvv@$publicId"
+			val bytes = s.toByteArray(charset("ASCII"))
+			val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+			val random = SecureRandom()
+
+			Log.e("KEY", "KEY: " + publicKey)
+
+			cipher.init(Cipher.ENCRYPT_MODE, getRSAKey(publicKey), random)
+			val crypto = cipher.doFinal(bytes)
+			var crypto64 = Base64.encodeToString(crypto, Base64.DEFAULT)
+			val cr_array = crypto64.split("\n").toTypedArray()
+			crypto64 = ""
+			for (i in cr_array.indices) {
+				crypto64 += cr_array[i]
+			}
+			return crypto64
+		}
+
+		@Deprecated("Use API: https://api.cloudpayments.ru/payments/publickey to get publicKey and keyVersion, then use new method createHexPacketFromData(number, cardExp, cardCvv, publicId, publicKey, keyVersion)")
 		@Throws(UnsupportedEncodingException::class, NoSuchPaddingException::class, NoSuchAlgorithmException::class, BadPaddingException::class,
 				IllegalBlockSizeException::class, InvalidKeyException::class)
 		fun cardCryptogram(number: String, cardExp: String, cardCvv: String, publicId: String): String? {
@@ -120,11 +189,12 @@ class Card {
 			val bytes = s.toByteArray(charset("ASCII"))
 			val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
 			val random = SecureRandom()
-			cipher.init(Cipher.ENCRYPT_MODE, getRSAKey(), random)
+			cipher.init(Cipher.ENCRYPT_MODE, getRSAKey(getPublicKey()), random)
 			val crypto = cipher.doFinal(bytes)
 			var crypto64 = "01" +
 					shortNumber +
-					exp + getKeyVersion() +
+					exp +
+					getKeyVersion() +
 					Base64.encodeToString(crypto, Base64.DEFAULT)
 			val cr_array = crypto64.split("\n").toTypedArray()
 			crypto64 = ""
@@ -134,24 +204,12 @@ class Card {
 			return crypto64
 		}
 
-		/**
-		 * Генерим криптограму для CVV
-		 * @param cardCvv
-		 * @return
-		 * @throws UnsupportedEncodingException
-		 * @throws NoSuchPaddingException
-		 * @throws NoSuchAlgorithmException
-		 * @throws BadPaddingException
-		 * @throws IllegalBlockSizeException
-		 * @throws InvalidKeyException
-		 */
-
 		@Throws(UnsupportedEncodingException::class, NoSuchPaddingException::class, NoSuchAlgorithmException::class, BadPaddingException::class, IllegalBlockSizeException::class, InvalidKeyException::class)
 		fun cardCryptogramForCVV(cardCvv: String): String? {
 			val bytes = cardCvv.toByteArray(charset("ASCII"))
 			val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
 			val random = SecureRandom()
-			cipher.init(Cipher.ENCRYPT_MODE, getRSAKey(), random)
+			cipher.init(Cipher.ENCRYPT_MODE, getRSAKey(getPublicKey()), random)
 			val crypto = cipher.doFinal(bytes)
 			var crypto64 = "03" + getKeyVersion() + Base64.encodeToString(crypto, Base64.DEFAULT)
 			val crArray = crypto64.split("\n").toTypedArray()
@@ -162,14 +220,10 @@ class Card {
 			return crypto64
 		}
 
-		private fun prepareCardNumber(cardNumber: String): String {
-			return cardNumber.replace("\\s".toRegex(), "")
-		}
-
-		private fun getRSAKey(): PublicKey? {
+		private fun getRSAKey(publicKey: String): PublicKey? {
 			return try {
 				val keyBytes: ByteArray =
-					Base64.decode(getPublicKey().toByteArray(charset("utf-8")), Base64.DEFAULT)
+					Base64.decode(publicKey.toByteArray(charset("utf-8")), Base64.DEFAULT)
 				val spec = X509EncodedKeySpec(keyBytes)
 				val kf: KeyFactory = KeyFactory.getInstance("RSA")
 				kf.generatePublic(spec)

@@ -27,7 +27,6 @@ internal abstract class BaseVMDialogFragment<VS : BaseViewState, VM : BaseViewMo
 		viewModel.viewState.observe(viewLifecycleOwner, Observer {
 			render(it)
 		})
-
 	}
 
 	override fun onStart() {

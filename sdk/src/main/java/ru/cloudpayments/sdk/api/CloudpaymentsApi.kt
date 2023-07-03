@@ -14,6 +14,12 @@ class CloudpaymentsApi @Inject constructor(private val apiService: Cloudpayments
 		private const val THREE_DS_SUCCESS_URL = "https://api.cloudpayments.ru/threeds/success"
 		private const val THREE_DS_FAIL_URL = "https://api.cloudpayments.ru/threeds/fail"
 	}
+
+	fun getPublicKey(): Single<CloudpaymentsPublicKeyResponse> {
+		return apiService.getPublicKey()
+			.subscribeOn(Schedulers.io())
+	}
+
 	fun charge(requestBody: PaymentRequestBody): Single<CloudpaymentsTransactionResponse> {
 		return apiService.charge(requestBody)
 			.subscribeOn(Schedulers.io())

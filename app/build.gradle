@@ -17,7 +17,7 @@ android {
         versionName "1.0"
         multiDexEnabled true
         manifestPlaceholders = [
-                YANDEX_CLIENT_ID: ""
+                YANDEX_CLIENT_ID: "e7a80db136b0488fb420c8232531fa81"
         ]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

@@ -15,6 +15,7 @@ import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentCardBinding
 import ru.cloudpayments.sdk.models.Currency
 import ru.cloudpayments.sdk.scanner.CardData
 import ru.cloudpayments.sdk.ui.dialogs.base.BasePaymentBottomSheetFragment
+import ru.cloudpayments.sdk.util.PublicKey
 import ru.cloudpayments.sdk.util.TextWatcherAdapter
 import ru.cloudpayments.sdk.util.hideKeyboard
 import ru.cloudpayments.sdk.viewmodel.PaymentCardViewModel
@@ -158,11 +159,13 @@ internal class PaymentCardFragment :
 			val cardExp = binding.editCardExp.text.toString()
 			val cardCvv = binding.editCardCvv.text.toString()
 
-			val cryptogram = Card.cardCryptogram(
+			val cryptogram = Card.createHexPacketFromData(
 				cardNumber,
 				cardExp,
 				cardCvv,
-				paymentConfiguration?.publicId ?: ""
+				paymentConfiguration?.publicId ?: "",
+				PublicKey.getInstance(requireContext()).pem ?: "",
+				PublicKey.getInstance(requireContext()).version ?: 0
 			)
 
 			if (isValid() && cryptogram != null) {

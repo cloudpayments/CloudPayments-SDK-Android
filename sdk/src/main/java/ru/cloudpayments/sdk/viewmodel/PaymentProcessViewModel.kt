@@ -1,11 +1,17 @@
 package ru.cloudpayments.sdk.viewmodel
 
+import android.util.Base64
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import kotlinx.serialization.json.Json
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
+import ru.cloudpayments.sdk.api.models.CardCryptogramPacket
+import ru.cloudpayments.sdk.api.models.CardInfo
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransaction
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransactionResponse
 import ru.cloudpayments.sdk.api.models.PaymentRequestBody
