@@ -1,20 +1,17 @@
 package ru.cloudpayments.sdk.viewmodel
 
-import android.util.Base64
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import kotlinx.serialization.json.Json
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
-import ru.cloudpayments.sdk.api.models.CardCryptogramPacket
-import ru.cloudpayments.sdk.api.models.CardInfo
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransaction
 import ru.cloudpayments.sdk.api.models.CloudpaymentsTransactionResponse
 import ru.cloudpayments.sdk.api.models.PaymentRequestBody
+import ru.cloudpayments.sdk.api.models.QrLinkStatusWaitBody
+import ru.cloudpayments.sdk.api.models.QrLinkStatusWaitResponse
+import ru.cloudpayments.sdk.api.models.TinkoffPayQrLinkBody
 import ru.cloudpayments.sdk.configuration.PaymentData
 import ru.cloudpayments.sdk.ui.dialogs.PaymentProcessStatus
 import javax.inject.Inject
@@ -22,7 +19,8 @@ import javax.inject.Inject
 internal class PaymentProcessViewModel(
 	private val paymentData: PaymentData,
 	private val cryptogram: String,
-	private val useDualMessagePayment: Boolean
+	private val useDualMessagePayment: Boolean,
+	private val saveCard: Boolean?
 ): BaseViewModel<PaymentProcessViewState>() {
 	override var currentState = PaymentProcessViewState()
 	override val viewState: MutableLiveData<PaymentProcessViewState> by lazy {
@@ -103,8 +101,98 @@ internal class PaymentProcessViewModel(
 			.subscribe()
 	}
 
+	fun getTinkoffQrPayLink() {
+
+		val jsonDataMap: HashMap<String, Any> = if (paymentData.jsonData != null && paymentData.jsonData.isNotEmpty()) {
+			Gson().fromJson(paymentData.jsonData, object : TypeToken<HashMap<String?, Any?>?>() {}.type)
+		} else {
+			HashMap()
+		}
+
+		val jsonDataString = if (jsonDataMap != null) {
+			Gson().toJson(jsonDataMap)
+		} else {
+			""
+		}
+
+		val body = TinkoffPayQrLinkBody(amount = paymentData.amount,
+									  	currency = paymentData.currency,
+										description = paymentData.description ?: "",
+										accountId = paymentData.accountId ?: "",
+										email = paymentData.email ?: "",
+										jsonData = jsonDataString,
+										invoiceId = paymentData.invoiceId ?: "",
+										scheme = if (useDualMessagePayment) "auth" else "charge")
+
+		if (saveCard != null) {
+			body.saveCard = saveCard
+		}
+
+			disposable = api.getTinkoffPayQrLink(body)
+				.toObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.map { response ->
+					val state = if (response.success == true) {
+						currentState.copy(qrUrl = response.transaction?.qrUrl, transactionId = response.transaction?.transactionId)
+					} else {
+						currentState.copy(status = PaymentProcessStatus.Failed)
+					}
+					stateChanged(state)
+				}
+				.onErrorReturn {
+					val state = currentState.copy(status = PaymentProcessStatus.Failed)
+					stateChanged(state)
+				}
+				.subscribe()
+	}
+
+	fun qrLinkStatusWait(transactionId: Int?) {
+
+		val body = QrLinkStatusWaitBody(transactionId ?: 0)
+
+		disposable = api.qrLinkStatusWait(body)
+			.toObservable()
+			.observeOn(AndroidSchedulers.mainThread())
+			.map { response ->
+				checkQrLinkStatusWaitResponse(response)
+			}
+			.onErrorReturn {
+				val state = currentState.copy(status = PaymentProcessStatus.Failed)
+				stateChanged(state)
+			}
+			.subscribe()
+	}
+
+	private fun checkQrLinkStatusWaitResponse(response: QrLinkStatusWaitResponse) {
+
+		if (response.success == true) {
+			when (response.transaction?.status) {
+				"Authorized", "Completed", "Cancelled" -> {
+					val state = currentState.copy(status = PaymentProcessStatus.Succeeded, transactionId = response.transaction.transactionId)
+					stateChanged(state)
+				}
+				"Declined" -> {
+					val state = currentState.copy(status = PaymentProcessStatus.Failed, transactionId = response.transaction.transactionId)
+					stateChanged(state)
+				}
+				else -> {
+					qrLinkStatusWait(response.transaction?.transactionId)
+				}
+			}
+
+		} else {
+			val state = currentState.copy(status = PaymentProcessStatus.Failed, transactionId = response.transaction?.transactionId)
+			stateChanged(state)
+		}
+	}
+
 	fun clearThreeDsData(){
 		val state = currentState.copy(acsUrl = null, paReq = null)
+		stateChanged(state)
+	}
+
+	fun clearQrLinkData(){
+		val state = currentState.copy(qrUrl = null)
 		stateChanged(state)
 	}
 
@@ -167,5 +255,7 @@ internal data class PaymentProcessViewState(
 	val paReq: String? = null,
 	val acsUrl: String? = null,
 	val errorMessage: String? = null,
-	val reasonCode: Int? = null
+	val reasonCode: Int? = null,
+	val qrUrl: String? = null,
+	val transactionId: Int? = null
 ): BaseViewState()

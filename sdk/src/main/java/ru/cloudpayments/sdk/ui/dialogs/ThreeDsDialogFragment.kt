@@ -120,8 +120,8 @@ class ThreeDsDialogFragment : DialogFragment() {
 		@JavascriptInterface
 		fun processHTML(html: String?) {
 			val doc: Document = Jsoup.parse(html)
-			val element: Element = doc.select("body").first()
-			val jsonObject = JsonParser().parse(element.ownText()).asJsonObject
+			val element: Element? = doc.select("body").first()
+			val jsonObject = JsonParser().parse(element?.ownText()).asJsonObject
 			val paRes = jsonObject["PaRes"].asString
 			requireActivity().runOnUiThread {
 				if (!paRes.isNullOrEmpty()) {

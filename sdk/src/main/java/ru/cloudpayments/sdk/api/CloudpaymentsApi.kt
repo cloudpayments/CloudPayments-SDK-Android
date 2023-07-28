@@ -20,6 +20,11 @@ class CloudpaymentsApi @Inject constructor(private val apiService: Cloudpayments
 			.subscribeOn(Schedulers.io())
 	}
 
+	fun getMerchantConfiguration(publicId: String): Single<CloudpaymentsMerchantConfigurationResponse> {
+		return apiService.getMerchantConfiguration(publicId)
+			.subscribeOn(Schedulers.io())
+	}
+
 	fun charge(requestBody: PaymentRequestBody): Single<CloudpaymentsTransactionResponse> {
 		return apiService.charge(requestBody)
 			.subscribeOn(Schedulers.io())
@@ -56,6 +61,16 @@ class CloudpaymentsApi @Inject constructor(private val apiService: Cloudpayments
 
 				response
 			}
+	}
+
+	fun getTinkoffPayQrLink(requestBody: TinkoffPayQrLinkBody): Single<CloudpaymentsGetTinkoffPayQrLinkResponse> {
+		return apiService.getTinkoffPayQrLink(requestBody)
+			.subscribeOn(Schedulers.io())
+	}
+
+	fun qrLinkStatusWait(requestBody: QrLinkStatusWaitBody): Single<QrLinkStatusWaitResponse> {
+		return apiService.qrLinkStatusWait(requestBody)
+			.subscribeOn(Schedulers.io())
 	}
 
 	fun getBinInfo(firstSixDigits: String): Single<CloudpaymentsBinInfo> =

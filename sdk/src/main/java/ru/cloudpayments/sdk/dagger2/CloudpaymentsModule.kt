@@ -50,8 +50,8 @@ class CloudpaymentsNetModule(private val publicId: String, private var apiUrl: S
 						  authenticationInterceptor: AuthenticationInterceptor): CloudpaymentsApiService {
 		val client = okHttpClientBuilder
 			.addInterceptor(authenticationInterceptor)
-			.connectTimeout(20, TimeUnit.SECONDS)
-			.readTimeout(20, TimeUnit.SECONDS)
+			.connectTimeout(60, TimeUnit.SECONDS)
+			.readTimeout(60, TimeUnit.SECONDS)
 			.followRedirects(false)
 			.build()
 

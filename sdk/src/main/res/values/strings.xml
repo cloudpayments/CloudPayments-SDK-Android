@@ -3,10 +3,14 @@
     <public name="cloud_payments_sdk" type="string">CloudPaymentsSDK</public>
     <string name="cpsdk_text_options_title">Выберите способ оплаты</string>
     <string name="cpsdk_text_options_card">Банковская карта</string>
+    <string name="cpsdk_text_options_save_card">Сохранить карту</string>
+    <string name="cpsdk_text_options_save_card_popup_1">Нажимая на чек-бокс, вы соглашаетесь с тем, что данные вашей карты сохранятся. Это означает, что при повторной оплате вам не надо будет вводить платежные реквизиты заново.</string>
+    <string name="cpsdk_text_options_save_card_popup_2">При этом мы не сможем проводить никакие операции по вашей карте без вашего согласия.</string>
     <string name="cpsdk_text_options_email_checkbox">Отправить квитанцию на E-mail</string>
     <string name="cpsdk_text_options_email_title">E-mail</string>
     <string name="cpsdk_text_options_email_error">Некорректный e-mail</string>
     <string name="cpsdk_text_options_email_require">Для оплаты введите E-mail</string>
+    <string name="cpsdk_text_options_card_be_saved">При оплате данные вашей карты сохранятся</string>
 
     <string name="cpsdk_text_card_title">Оплата картой</string>
     <string name="cpsdk_text_card_hint_number">Номер карты</string>
@@ -19,6 +23,11 @@
     <string name="cpsdk_text_process_button_success">Отлично!</string>
     <string name="cpsdk_text_process_title_error">Операция отклонена</string>
     <string name="cpsdk_text_process_button_error">Повторить попытку</string>
+
+    <string name="cpsdk_text_process_title_tinkoff_pay">Ждем ответа\noт Тинькофф Pay</string>
+    <string name="cpsdk_text_process_description_tinkoff_pay">Если перейти и оплатить в приложении не удалось, попробуйте снова или выберите другой способ оплаты</string>
+    <string name="cpsdk_text_process_button_tinkoff_pay">Выбрать способ оплаты</string>
+
 
     <string name="cpsdk_currency_template">%.2f\u20BD</string>
 

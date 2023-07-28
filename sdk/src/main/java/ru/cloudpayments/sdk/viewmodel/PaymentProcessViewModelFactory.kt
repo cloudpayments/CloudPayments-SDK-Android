@@ -7,11 +7,12 @@ import ru.cloudpayments.sdk.configuration.PaymentData
 internal class PaymentProcessViewModelFactory(
 	private val paymentData: PaymentData,
 	private val cryptogram: String,
-	private val useDualMessagePayment: Boolean
+	private val useDualMessagePayment: Boolean,
+	private val saveCard: Boolean?
 ): ViewModelProvider.Factory {
 
 	@Suppress("UNCHECKED_CAST")
 	override fun <T : ViewModel> create(modelClass: Class<T>): T {
-		return PaymentProcessViewModel(paymentData, cryptogram, useDualMessagePayment) as T
+		return PaymentProcessViewModel(paymentData, cryptogram, useDualMessagePayment, saveCard) as T
 	}
 }

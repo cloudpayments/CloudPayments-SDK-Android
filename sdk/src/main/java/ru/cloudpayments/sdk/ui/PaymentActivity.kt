@@ -24,6 +24,7 @@ import ru.cloudpayments.sdk.dagger2.CloudpaymentsModule
 import ru.cloudpayments.sdk.dagger2.CloudpaymentsNetModule
 import ru.cloudpayments.sdk.dagger2.DaggerCloudpaymentsComponent
 import ru.cloudpayments.sdk.databinding.ActivityCpsdkPaymentBinding
+import ru.cloudpayments.sdk.models.PayParams
 import ru.cloudpayments.sdk.ui.dialogs.base.BasePaymentBottomSheetFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentCardFragment
 import ru.cloudpayments.sdk.ui.dialogs.PaymentOptionsFragment
@@ -34,6 +35,8 @@ import ru.cloudpayments.sdk.util.nextFragment
 internal class PaymentActivity: FragmentActivity(), BasePaymentBottomSheetFragment.IPaymentFragment,
 								PaymentOptionsFragment.IPaymentOptionsFragment, PaymentCardFragment.IPaymentCardFragment,
 								PaymentProcessFragment.IPaymentProcessFragment {
+
+	val payParams: PayParams = PayParams()
 
 	companion object {
 		private const val REQUEST_CODE_GOOGLE_PAY = 1
@@ -76,7 +79,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentBottomSheetFragme
 				val token = Base64.decode(result.paymentToken.toString(), Base64.DEFAULT)
 
 				val runnable = {
-					val fragment = PaymentProcessFragment.newInstance(String(token))
+					val fragment = PaymentProcessFragment.newInstance(PaymentProcessFragment.MODE_YANDEX_PAY, String(token))
 					nextFragment(fragment, true, R.id.frame_content)
 				}
 				Handler().postDelayed(runnable, 1000)
@@ -167,13 +170,16 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentBottomSheetFragme
 	override fun onCardClicked() {
 		val fragment = PaymentCardFragment.newInstance()
 		fragment.show(supportFragmentManager, "")
-		//nextFragment(fragment, true, R.id.frame_content)
+	}
+
+	override fun onTinkoffPayClicked() {
+		val fragment = PaymentProcessFragment.newInstance(PaymentProcessFragment.MODE_TINKOFF_PAY)
+		fragment.show(supportFragmentManager, "")
 	}
 
 	override fun onPayClicked(cryptogram: String) {
-		val fragment = PaymentProcessFragment.newInstance(cryptogram)
+		val fragment = PaymentProcessFragment.newInstance(PaymentProcessFragment.MODE_CARD, cryptogram)
 		fragment.show(supportFragmentManager, "")
-		//nextFragment(fragment, true, R.id.frame_content)
 	}
 
 	override fun onPaymentFinished(transactionId: Int) {
@@ -231,7 +237,7 @@ internal class PaymentActivity: FragmentActivity(), BasePaymentBottomSheetFragme
 
 			if (token != null) {
 				val runnable = {
-					val fragment = PaymentProcessFragment.newInstance(token)
+					val fragment = PaymentProcessFragment.newInstance(PaymentProcessFragment.MODE_GOOGLE_PAY, token)
 					nextFragment(fragment, true, R.id.frame_content)
 				}
 				Handler().postDelayed(runnable, 1000)

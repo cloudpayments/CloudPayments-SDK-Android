@@ -44,6 +44,17 @@
             android:layout_height="wrap_content"
             android:text="@string/cpsdk_text_options_card" />
 
+        <ImageButton
+            android:id="@+id/button_tinkoff_pay"
+            style="@style/cpsdk_ButtonBlue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/cpsdk_bg_rounded_black_button"
+            android:src="@drawable/cpsdk_button_tinkoff_pay"
+            android:text="@string/cpsdk_text_options_card"
+            android:visibility="gone"/>
+
         <include
             android:id="@+id/button_googlepay"
             layout="@layout/googlepay_button"
@@ -64,16 +75,46 @@
         android:id="@+id/view_block_buttons"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:alpha="0.5"
         android:background="@color/cpsdk_white"
+        android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:clickable="true"
         android:visibility="visible"
-        android:alpha="0.5"
         app:layout_constraintBottom_toBottomOf="@id/layout_buttons"
         app:layout_constraintEnd_toEndOf="@id/layout_buttons"
         app:layout_constraintStart_toStartOf="@id/layout_buttons"
         app:layout_constraintTop_toTopOf="@id/layout_buttons" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checkbox_save_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:button="@drawable/cpsdk_ic_checkbox_selector"
+        android:fontFamily="@font/sf_pro_text_regular"
+        android:gravity="center_vertical"
+        android:letterSpacing="0.01"
+        android:lineSpacingExtra="6sp"
+        android:paddingStart="10dp"
+        android:text="@string/cpsdk_text_options_save_card"
+        android:textColor="#8c949f"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_buttons" />
+
+    <ImageView
+        android:id="@+id/button_save_card_popup"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="-2dp"
+        android:src="@drawable/cpsdk_ic_save_card_popup"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/checkbox_save_card"
+        app:layout_constraintStart_toEndOf="@id/checkbox_save_card" />
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/checkbox_send_receipt"
@@ -91,7 +132,7 @@
         android:textSize="16sp"
         android:textStyle="normal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layout_buttons" />
+        app:layout_constraintTop_toBottomOf="@id/checkbox_save_card" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/text_field_email"
@@ -99,7 +140,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Email"
+        android:hint="@string/cpsdk_text_options_email_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/checkbox_send_receipt">
 
@@ -108,9 +149,9 @@
             style="@style/cpsdk_TextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
+            android:imeOptions="actionDone"
             android:inputType="textEmailAddress"
-            android:imeOptions="actionDone"/>
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -130,6 +171,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_field_email" />
 
+    <TextView
+        android:id="@+id/text_card_be_saved"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:drawablePadding="8dp"
+        android:fontFamily="@font/sf_pro_text_regular"
+        android:letterSpacing="-0.01"
+        android:lineSpacingExtra="5sp"
+        android:text="@string/cpsdk_text_options_card_be_saved"
+        android:textColor="#8c949f"
+        android:textSize="13sp"
+        android:textStyle="normal"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_email_require" />
+
+    <ImageView
+        android:id="@+id/button_card_be_saved_popup"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="-2dp"
+        android:src="@drawable/cpsdk_ic_save_card_popup"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/text_card_be_saved"
+        app:layout_constraintStart_toEndOf="@id/text_card_be_saved" />
+
     <ImageView
         android:layout_width="210dp"
         android:layout_height="wrap_content"
@@ -138,5 +207,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_email_require" />
+        app:layout_constraintTop_toBottomOf="@id/text_card_be_saved" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,10 +2,13 @@ package ru.cloudpayments.sdk.ui.dialogs
 
 import android.os.Bundle
 import android.text.Editable
-import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -19,6 +22,7 @@ import com.yandex.pay.core.data.OrderDetails
 import com.yandex.pay.core.data.OrderID
 import com.yandex.pay.core.data.PaymentMethod
 import com.yandex.pay.core.data.PaymentMethodType
+import ru.cloudpayments.sdk.R
 import ru.cloudpayments.sdk.databinding.DialogCpsdkPaymentOptionsBinding
 import ru.cloudpayments.sdk.ui.PaymentActivity
 import ru.cloudpayments.sdk.ui.dialogs.base.BasePaymentBottomSheetFragment
@@ -29,12 +33,12 @@ import ru.cloudpayments.sdk.util.hideKeyboard
 import ru.cloudpayments.sdk.viewmodel.PaymentOptionsViewModel
 import ru.cloudpayments.sdk.viewmodel.PaymentOptionsViewState
 
-
 internal class PaymentOptionsFragment :
 	BasePaymentBottomSheetFragment<PaymentOptionsViewState, PaymentOptionsViewModel>() {
 	interface IPaymentOptionsFragment {
 		fun onGooglePayClicked()
 		fun onCardClicked()
+		fun onTinkoffPayClicked()
 	}
 
 	companion object {
@@ -51,7 +55,7 @@ internal class PaymentOptionsFragment :
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	): View? {
+	): View {
 		_binding = DialogCpsdkPaymentOptionsBinding.inflate(inflater, container, false)
 		return binding.root
 	}
@@ -80,6 +84,31 @@ internal class PaymentOptionsFragment :
 			context?.let {
 				PublicKey.getInstance(it).savePem(state.publicKeyPem)
 				PublicKey.getInstance(it).saveVersion(state.publicKeyVersion)
+			}
+		}
+
+		binding.buttonTinkoffPay.visibility = if (state.isTinkoffPayAvailable == true) View.VISIBLE else View.GONE
+
+		checkSaveCardState(state)
+	}
+
+	private fun checkSaveCardState (state: PaymentOptionsViewState) {
+
+		paymentConfiguration?.paymentData?.accountId?.let { accountId ->
+			if (accountId.isNotEmpty()) {
+				if (paymentConfiguration?.paymentData?.jsonDataHasRecurrent() == true && state.isSaveCard == 1) {
+
+					setSaveCardHintVisible()
+				}
+				if (paymentConfiguration?.paymentData?.jsonDataHasRecurrent() == true && state.isSaveCard == 2) {
+					setSaveCardHintVisible()
+				}
+				if (paymentConfiguration?.paymentData?.jsonDataHasRecurrent() == false && state.isSaveCard == 2) {
+					setSaveCardCheckBoxVisible()
+				}
+				if (state.isSaveCard == 3) {
+					setSaveCardHintVisible()
+				}
 			}
 		}
 	}
@@ -131,11 +160,7 @@ internal class PaymentOptionsFragment :
 
 		binding.buttonPayCard.setOnClickListener {
 
-			if (paymentConfiguration!!.requireEmail || binding.checkboxSendReceipt.isChecked) {
-				paymentConfiguration?.paymentData?.email = binding.editEmail.text.toString()
-			} else {
-				paymentConfiguration?.paymentData?.email = ""
-			}
+			updateEmail()
 
 			val listener = requireActivity() as? IPaymentOptionsFragment
 			listener?.onCardClicked()
@@ -175,7 +200,64 @@ internal class PaymentOptionsFragment :
 			dismiss()
 		}
 
+		binding.buttonTinkoffPay.setOnClickListener {
+			updateEmail()
+			updateSaveCard()
+
+			val listener = requireActivity() as? IPaymentOptionsFragment
+			listener?.onTinkoffPayClicked()
+			dismiss()
+		}
+
+		binding.buttonSaveCardPopup.setOnClickListener {
+			showPopupSaveCardInfo()
+		}
+
+		binding.buttonCardBeSavedPopup.setOnClickListener {
+			showPopupSaveCardInfo()
+		}
+
 		viewModel.getPublicKey()
+		viewModel.getMerchantConfiguration(paymentConfiguration!!.publicId)
+	}
+
+	private fun updateEmail() {
+		if (paymentConfiguration!!.requireEmail || binding.checkboxSendReceipt.isChecked) {
+			paymentConfiguration?.paymentData?.email = binding.editEmail.text.toString()
+		} else {
+			paymentConfiguration?.paymentData?.email = ""
+		}
+	}
+
+	private fun updateSaveCard() {
+		if (binding.checkboxSaveCard.visibility == View.VISIBLE) {
+			(activity as PaymentActivity).payParams.saveCard = binding.checkboxSaveCard.isChecked
+		}
+	}
+
+	private fun setSaveCardCheckBoxVisible() {
+		binding.checkboxSaveCard.visibility = View.VISIBLE
+		binding.buttonSaveCardPopup.visibility = View.VISIBLE
+		binding.checkboxSaveCard.checkedState = MaterialCheckBox.STATE_CHECKED
+	}
+
+	private fun setSaveCardHintVisible() {
+		binding.textCardBeSaved.visibility = View.VISIBLE
+		binding.buttonCardBeSavedPopup.visibility = View.VISIBLE
+	}
+
+	private fun showPopupSaveCardInfo() {
+		val popupView = layoutInflater.inflate(R.layout.popup_cpsdk_save_card_info, null)
+
+		val wid = LinearLayout.LayoutParams.WRAP_CONTENT
+		val high = LinearLayout.LayoutParams.WRAP_CONTENT
+		val focus= true
+		val popupWindow = PopupWindow(popupView, wid, high, focus)
+
+		val background = activity?.let { ContextCompat.getDrawable(it, R.drawable.cpsdk_bg_popup) }
+		popupView.background = background
+
+		popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0)
 	}
 
 	private fun updateStateButtons() {
