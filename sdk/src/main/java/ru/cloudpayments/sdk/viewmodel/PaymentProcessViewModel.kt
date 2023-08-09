@@ -1,8 +1,10 @@
 package ru.cloudpayments.sdk.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.google.gson.JsonParser
+import com.google.gson.JsonSyntaxException
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import ru.cloudpayments.sdk.api.CloudpaymentsApi
@@ -15,6 +17,7 @@ import ru.cloudpayments.sdk.api.models.TinkoffPayQrLinkBody
 import ru.cloudpayments.sdk.configuration.PaymentData
 import ru.cloudpayments.sdk.ui.dialogs.PaymentProcessStatus
 import javax.inject.Inject
+
 
 internal class PaymentProcessViewModel(
 	private val paymentData: PaymentData,
@@ -34,15 +37,12 @@ internal class PaymentProcessViewModel(
 
 	fun pay() {
 
-		val jsonDataMap: HashMap<String, Any> = if (paymentData.jsonData != null && paymentData.jsonData.isNotEmpty()) {
-			Gson().fromJson(paymentData.jsonData, object : TypeToken<HashMap<String?, Any?>?>() {}.type)
-		} else {
-			HashMap()
-		}
-
-		val jsonDataString = if (jsonDataMap != null) {
-			Gson().toJson(jsonDataMap)
-		} else {
+		val jsonDataString: String = try {
+			val parser = JsonParser()
+			val jsonElement = parser.parse(paymentData.jsonData)
+			Gson().toJson(jsonElement)
+		} catch (e: JsonSyntaxException) {
+			Log.e("CloudPaymentsSDK", "JsonSyntaxException in JsonData")
 			""
 		}
 
@@ -103,15 +103,12 @@ internal class PaymentProcessViewModel(
 
 	fun getTinkoffQrPayLink() {
 
-		val jsonDataMap: HashMap<String, Any> = if (paymentData.jsonData != null && paymentData.jsonData.isNotEmpty()) {
-			Gson().fromJson(paymentData.jsonData, object : TypeToken<HashMap<String?, Any?>?>() {}.type)
-		} else {
-			HashMap()
-		}
-
-		val jsonDataString = if (jsonDataMap != null) {
-			Gson().toJson(jsonDataMap)
-		} else {
+		val jsonDataString: String = try {
+			val parser = JsonParser()
+			val jsonElement = parser.parse(paymentData.jsonData)
+			Gson().toJson(jsonElement)
+		} catch (e: JsonSyntaxException) {
+			Log.e("CloudPaymentsSDK", "JsonSyntaxException in JsonData")
 			""
 		}
 

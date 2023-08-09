@@ -44,8 +44,7 @@
             <EditText
                 android:id="@+id/edit_api_url"
                 style="@style/CPEditText"
-                android:hint="https://api.cloudpayments.ru/"
-                android:text=""/>
+                android:hint="https://api.cloudpayments.ru/"/>
 
             <TextView
                 style="@style/CPETextView"
